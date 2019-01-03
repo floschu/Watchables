@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/splashscreen">
+
+    <fragment
+        android:id="@+id/splashscreen"
+        android:name="at.florianschuster.watchables.ui.splashscreen.SplashScreenFragment"
+        tools:layout="@layout/fragment_splashscreen">
+        <action
+            android:id="@+id/action_splashscreen_to_watchables"
+            app:destination="@id/watchables"
+            app:popUpTo="@+id/splashscreen"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_splashscreen_to_login"
+            app:destination="@id/login"
+            app:popUpTo="@+id/splashscreen"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/login"
+        android:name="at.florianschuster.watchables.ui.login.LoginFragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_login_to_watchables"
+            app:destination="@id/watchables"
+            app:popUpTo="@+id/splashscreen"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/watchables"
+        android:name="at.florianschuster.watchables.ui.watchables.WatchablesFragment"
+        tools:layout="@layout/fragment_watchables">
+        <action
+            android:id="@+id/action_watchables_to_detail"
+            app:destination="@id/detail"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_watchables_to_search"
+            app:destination="@id/search"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/search"
+        android:name="at.florianschuster.watchables.ui.search.SearchFragment"
+        tools:layout="@layout/fragment_search" />
+
+    <fragment
+        android:id="@+id/detail"
+        android:name="at.florianschuster.watchables.ui.detail.DetailFragment"
+        tools:layout="@layout/fragment_detail">
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="watchables.florianschuster.at/detail/{id}" />
+    </fragment>
+</navigation>

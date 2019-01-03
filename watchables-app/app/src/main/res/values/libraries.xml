@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="define_int_transformations" translatable="false"></string>
+    <!-- Author section -->
+    <string name="library_transformations_author" translatable="false">Daichi Furiya</string>
+    <string name="library_transformations_authorWebsite" translatable="false"></string>
+    <!-- Library section -->
+    <string name="library_transformations_libraryName" translatable="false">Glide Transformations</string>
+    <string name="library_transformations_libraryDescription" translatable="false">An Android transformation library providing a variety of image transformations for Glide.</string>
+    <string name="library_transformations_libraryWebsite" translatable="false">https://github.com/wasabeef/glide-transformations</string>
+    <string name="library_transformations_libraryVersion" translatable="false">3.3.0</string>
+    <!-- OpenSource section -->
+    <string name="library_transformations_isOpenSource" translatable="false">true</string>
+    <string name="library_transformations_repositoryLink" translatable="false">https://github.com/wasabeef/glide-transformations</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_transformations_classPath" translatable="false"></string>
+    <!-- License section -->
+    <string name="library_transformations_licenseId" translatable="false">apache_2_0</string>
+
+
+    <string name="define_int_rxpaparazzo" translatable="false"></string>
+    <!-- Author section -->
+    <string name="library_rxpaparazzo_author" translatable="false">Miguel Garcia</string>
+    <string name="library_rxpaparazzo_authorWebsite" translatable="false"></string>
+    <!-- Library section -->
+    <string name="library_rxpaparazzo_libraryName" translatable="false">RxPaparazzo</string>
+    <string name="library_rxpaparazzo_libraryDescription" translatable="false">RxJava extension for Android to take photos using the camera, select files or photos from the device and optionally crop or rotate any selected images.</string>
+    <string name="library_rxpaparazzo_libraryWebsite" translatable="false">https://github.com/miguelbcr/RxPaparazzo</string>
+    <string name="library_rxpaparazzo_libraryVersion" translatable="false">0.6.0</string>
+    <!-- OpenSource section -->
+    <string name="library_rxpaparazzo_isOpenSource" translatable="false">true</string>
+    <string name="library_rxpaparazzo_repositoryLink" translatable="false">https://github.com/miguelbcr/RxPaparazzo</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_rxpaparazzo_classPath" translatable="false"></string>
+    <!-- License section -->
+    <string name="library_rxpaparazzo_licenseId" translatable="false">apache_2_0</string>
+
+
+    <string name="define_int_fastscroll" translatable="false"></string>
+    <!-- Author section -->
+    <string name="library_fastscroll_author" translatable="false">Tim Malseed</string>
+    <string name="library_fastscroll_authorWebsite" translatable="false">https://github.com/timusus</string>
+    <!-- Library section -->
+    <string name="library_fastscroll_libraryName" translatable="false">RecyclerView-FastScroll</string>
+    <string name="library_fastscroll_libraryDescription" translatable="false">A simple FastScroller for Android\'s RecyclerView.</string>
+    <string name="library_fastscroll_libraryWebsite" translatable="false">https://github.com/timusus/RecyclerView-FastScroll</string>
+    <string name="library_fastscroll_libraryVersion" translatable="false">1.0.18</string>
+    <!-- OpenSource section -->
+    <string name="library_fastscroll_isOpenSource" translatable="false">true</string>
+    <string name="library_fastscroll_repositoryLink" translatable="false">https://github.com/timusus/RecyclerView-FastScroll</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_fastscroll_classPath" translatable="false"></string>
+    <!-- License section -->
+    <string name="library_fastscroll_licenseId" translatable="false">apache_2_0</string>
+
+
+    <string name="define_int_rxbinding" translatable="false"></string>
+    <!-- Author section -->
+    <string name="library_rxbinding_author" translatable="false">Jake Wharton</string>
+    <string name="library_rxbinding_authorWebsite" translatable="false">https://jakewharton.com/</string>
+    <!-- Library section -->
+    <string name="library_rxbinding_libraryName" translatable="false">RxBinding</string>
+    <string name="library_rxbinding_libraryDescription" translatable="false">RxJava binding APIs for Android UI widgets from the platform and support libraries.</string>
+    <string name="library_rxbinding_libraryWebsite" translatable="false">https://github.com/JakeWharton/RxBinding</string>
+    <string name="library_rxbinding_libraryVersion" translatable="false">3.0.0</string>
+    <!-- OpenSource section -->
+    <string name="library_rxbinding_isOpenSource" translatable="false">true</string>
+    <string name="library_rxbinding_repositoryLink" translatable="false">https://github.com/JakeWharton/RxBinding</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_rxbinding_classPath" translatable="false"></string>
+    <!-- License section -->
+    <string name="library_rxbinding_licenseId" translatable="false">apache_2_0</string>
+
+
+    <string name="define_int_koin" translatable="false"></string>
+    <!-- Author section -->
+    <string name="library_koin_author" translatable="false">InsertKoinIO</string>
+    <string name="library_koin_authorWebsite" translatable="false">https://insert-koin.io/</string>
+    <!-- Library section -->
+    <string name="library_koin_libraryName" translatable="false">Koin</string>
+    <string name="library_koin_libraryDescription" translatable="false">A pragmatic lightweight dependency injection framework for Kotlin developers.</string>
+    <string name="library_koin_libraryWebsite" translatable="false">https://insert-koin.io/</string>
+    <string name="library_koin_libraryVersion" translatable="false">2.0.0</string>
+    <!-- OpenSource section -->
+    <string name="library_koin_isOpenSource" translatable="false">true</string>
+    <string name="library_koin_repositoryLink" translatable="false">https://github.com/InsertKoinIO/koin</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_koin_classPath" translatable="false"></string>
+    <!-- License section -->
+    <string name="library_koin_licenseId" translatable="false">apache_2_0</string>
+
+
+    <string name="define_int_flick" translatable="false"></string>
+    <!-- Author section -->
+    <string name="library_flick_author" translatable="false">Saket Narayan</string>
+    <string name="library_flick_authorWebsite" translatable="false">https://saket.me/</string>
+    <!-- Library section -->
+    <string name="library_flick_libraryName" translatable="false">Flick</string>
+    <string name="library_flick_libraryDescription" translatable="false">Flick is a tiny library for flick dismissing images (or anything actually).</string>
+    <string name="library_flick_libraryWebsite" translatable="false">https://github.com/saket/Flick</string>
+    <string name="library_flick_libraryVersion" translatable="false">1.4.0</string>
+    <!-- OpenSource section -->
+    <string name="library_flick_isOpenSource" translatable="false">true</string>
+    <string name="library_flick_repositoryLink" translatable="false">https://github.com/saket/Flick</string>
+    <!-- ClassPath for autoDetect section -->
+    <string name="library_flick_classPath" translatable="false"></string>
+    <!-- License section -->
+    <string name="library_flick_licenseId" translatable="false">apache_2_0</string>
+
+
+</resources>

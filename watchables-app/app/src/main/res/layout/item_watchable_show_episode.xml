@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="@dimen/episode_height"
+    android:layout_margin="@dimen/margin_half">
+
+    <TextView
+        android:id="@+id/tvEpisode"
+        style="@style/TextAppearance.MaterialComponents.Chip"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_episode_ripple"
+        android:gravity="center"
+        android:padding="@dimen/padding"
+        android:textColor="@color/textColorDisabled"
+        tools:text="Ep 99.99" />
+
+    <ImageView
+        android:id="@+id/ivWatched"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0.75"
+        android:src="@drawable/ic_check"
+        android:tint="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+</FrameLayout>

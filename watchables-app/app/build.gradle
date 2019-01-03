@@ -1,0 +1,214 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: "kotlin-android-extensions"
+apply plugin: 'kotlin-kapt'
+apply plugin: 'com.akaita.android.easylauncher'
+apply plugin: 'io.fabric'
+
+def keystorePropertiesFile = rootProject.file("secret.properties")
+def keystoreProperties = new Properties()
+
+android {
+    compileSdkVersion 28
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
+        }
+    }
+    defaultConfig {
+        applicationId "at.florianschuster.watchables"
+        minSdkVersion 23
+        targetSdkVersion 28
+        versionCode 7
+        versionName "1.0.2"
+        vectorDrawables.useSupportLibrary = true
+        setProperty("archivesBaseName", "Watchables-v$versionName-b$versionCode")
+
+
+        resValue "string", "app_name", "Watchables"
+        buildConfigField "String", "MOVIEDB_BASE_URL", "\"https://api.themoviedb.org/3/\""
+        buildConfigField "String", "MOVIEDB_POSTER_THUMBNAIL", "\"https://image.tmdb.org/t/p/w342\""
+        buildConfigField "String", "MOVIEDB_POSTER_ORIGINAL", "\"https://image.tmdb.org/t/p/original\""
+
+
+        if (keystorePropertiesFile.exists()) {
+            buildConfigField "String", "MOVIEDB_KEY", keystoreProperties['tmdbKey']
+        }
+    }
+    buildTypes {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                signingConfig signingConfigs.release
+            }
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    dataBinding {
+        enabled = false
+    }
+    lintOptions {
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude 'META-INF/proguard/androidx-annotations.pro'
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+
+androidExtensions {
+    experimental = true
+}
+
+
+dependencies {
+
+    def navVersion = '1.0.0-alpha09'
+    def koinVersion = '2.0.0-alpha-6'
+    def retrofitVersion = '2.5.0'
+    def okHttpVersion = '3.12.1'
+    def glideVersion = '4.8.0'
+    def leakCanaryVersion = '1.6.3'
+    def rxBindingVersion = '3.0.0-alpha2'
+    def workVersion = "1.0.0-beta02"
+
+    /**
+     * Local
+     */
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+
+    /**
+     * UI
+     */
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.fragment:fragment:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation "android.arch.lifecycle:extensions:2.1.0-rc01"
+    kapt "androidx.lifecycle:lifecycle-compiler:2.1.0-alpha01"
+    implementation "android.arch.navigation:navigation-fragment-ktx:$navVersion"
+    implementation "android.arch.navigation:navigation-ui-ktx:$navVersion"
+    implementation 'androidx.core:core-ktx:1.0.1'
+
+    implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.20'
+
+
+    /**
+     * Dependency Injection
+     */
+    implementation "org.koin:koin-core:$koinVersion"
+    implementation "org.koin:koin-android:$koinVersion"
+    implementation "org.koin:koin-androidx-scope:$koinVersion"
+    implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
+
+
+    /**
+     * Networking
+     */
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+
+
+    /**
+     * Firebase
+     */
+    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-auth:16.1.0'
+    implementation 'com.google.android.gms:play-services-auth:16.0.1'
+    implementation 'com.google.firebase:firebase-firestore:17.1.5'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'com.google.firebase:firebase-storage:16.0.5'
+    implementation 'com.google.firebase:firebase-perf:16.2.3'
+
+
+    /**
+     * Rx
+     */
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.5'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
+
+    implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.0'
+
+    implementation "com.jakewharton.rxbinding3:rxbinding:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-core:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-drawerlayout:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-recyclerview:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-viewpager:$rxBindingVersion"
+    implementation "com.jakewharton.rxbinding3:rxbinding-material:$rxBindingVersion"
+
+    /**
+     * Images
+     */
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    kapt "com.github.bumptech.glide:compiler:$glideVersion"
+    implementation 'jp.wasabeef:glide-transformations:4.0.1'
+
+    implementation 'me.saket:flick:1.4.0'
+    implementation 'com.alexvasilkov:gesture-views:2.5.2'
+
+
+    /**
+     * Utils
+     */
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
+    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
+
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
+
+    implementation "android.arch.work:work-runtime:$workVersion"
+    implementation "android.arch.work:work-rxjava2:$workVersion"
+
+    implementation "com.mikepenz:aboutlibraries:6.2.1"
+
+    implementation 'com.android.support:customtabs:28.0.0'
+}
+
+
+easylauncher {
+    iconNames "@mipmap/ic_launcher_foreground"
+    foregroundIconNames "@mipmap/ic_launcher_foreground"
+
+    defaultFlavorNaming = true
+
+    //For customization see: https://github.com/akaita/easylauncher-gradle-plugin#usage.
+    buildTypes {
+        debug {
+            filters = customColorRibbonFilter("debug", "#ffffff", "#47BAF2")
+        }
+        release {}
+    }
+}
+
+apply plugin: 'com.google.gms.google-services'

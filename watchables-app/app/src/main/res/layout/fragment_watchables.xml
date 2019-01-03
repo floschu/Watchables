@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/ivLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="200dp"
+        android:padding="@dimen/padding"
+        android:src="@drawable/ic_logo"
+        android:transitionName="logo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+        android:id="@+id/rvWatchables"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:clipToPadding="false"
+        android:paddingTop="200dp"
+        app:fastScrollAutoHide="true"
+        app:fastScrollAutoHideDelay="300"
+        app:fastScrollPopupBgColor="@color/blackTransparentDark"
+        app:fastScrollPopupPosition="adjacent"
+        app:fastScrollPopupTextColor="@color/textColor"
+        app:fastScrollPopupTextSize="20sp"
+        app:fastScrollThumbColor="@color/colorAccent"
+        app:fastScrollTrackColor="@color/transparent"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_watchable_show" />
+
+    <include layout="@layout/fragment_watchables_toolbar" />
+
+    <include
+        android:id="@+id/emptyLayout"
+        layout="@layout/fragment_watchables_empty"
+        android:visibility="gone" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabScroll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:src="@drawable/ic_keyboard_arrow_up"
+        android:tint="#fff"
+        android:visibility="gone"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

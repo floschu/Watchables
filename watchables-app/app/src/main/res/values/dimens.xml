@@ -1,0 +1,16 @@
+<resources>
+    <dimen name="margin">16dp</dimen>
+    <dimen name="margin_half">8dp</dimen>
+    <dimen name="padding">12dp</dimen>
+
+    <dimen name="item_outer_corners">12dp</dimen>
+    <dimen name="item_inner_corners">8dp</dimen>
+
+    <dimen name="detail_media_height">232dp</dimen>
+    <dimen name="episode_height">52dp</dimen>
+
+    <!-- Text -->
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_regular">14sp</dimen>
+    <dimen name="text_size_tall">20sp</dimen>
+</resources>
