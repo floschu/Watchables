@@ -25,7 +25,7 @@ android {
         applicationId "at.florianschuster.watchables"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 7
+        versionCode 8
         versionName "1.0.2"
         vectorDrawables.useSupportLibrary = true
         setProperty("archivesBaseName", "Watchables-v$versionName-b$versionCode")
@@ -144,6 +144,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.google.firebase:firebase-storage:16.0.5'
     implementation 'com.google.firebase:firebase-perf:16.2.3'
+    implementation 'com.google.firebase:firebase-invites:16.0.6'
 
 
     /**
@@ -164,6 +165,7 @@ dependencies {
     implementation "com.jakewharton.rxbinding3:rxbinding-viewpager:$rxBindingVersion"
     implementation "com.jakewharton.rxbinding3:rxbinding-material:$rxBindingVersion"
 
+
     /**
      * Images
      */
@@ -176,11 +178,17 @@ dependencies {
 
 
     /**
+     * Billing
+     */
+    implementation 'com.android.billingclient:billing:1.2'
+
+
+    /**
      * Utils
      */
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakCanaryVersion"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"

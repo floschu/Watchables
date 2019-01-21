@@ -16,12 +16,15 @@
 
 package at.florianschuster.watchables.util.extensions
 
+import android.content.Context
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.widget.Toast
 import androidx.annotation.LayoutRes
+import androidx.annotation.StringRes
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
@@ -45,6 +48,15 @@ import timber.log.Timber
 fun ViewGroup.inflate(@LayoutRes layoutRes: Int, attachToRoot: Boolean = false): View =
         LayoutInflater.from(context).inflate(layoutRes, this, attachToRoot)
 
+fun Context.toast(@StringRes titleRes: Int, duration: Int = Toast.LENGTH_LONG) {
+    val toastDuration = if (duration == Toast.LENGTH_LONG || duration == Toast.LENGTH_SHORT) duration else Toast.LENGTH_SHORT
+    Toast.makeText(applicationContext, getString(titleRes), toastDuration).apply { show() }
+}
+
+fun Context.toast(title: String, duration: Int = Toast.LENGTH_LONG) {
+    val toastDuration = if (duration == Toast.LENGTH_LONG || duration == Toast.LENGTH_SHORT) duration else Toast.LENGTH_SHORT
+    Toast.makeText(applicationContext, title, toastDuration).apply { show() }
+}
 
 fun FragmentActivity.openChromeTab(url: String) {
     if (url.isEmpty()) return
@@ -68,7 +80,7 @@ fun Fragment.openChromeTab(url: String) {
 }
 
 
-fun RecyclerView.smoothScrollUp(firstVisiblePosition: Int = 20) {
+fun RecyclerView.smoothScrollUp(firstVisiblePosition: Int = 50) {
     val firstVisible = (layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition()
     if (firstVisible != null && firstVisible < firstVisiblePosition) {
         smoothScrollToPosition(0)

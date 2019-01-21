@@ -110,7 +110,7 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
 
         reactor.state.flatMapOptionalAsMaybe { it.loadingError }
                 .distinctUntilChanged()
-                .subscribe(errorTranslationService::toast)
+                .subscribe(errorTranslationService.toastConsumer)
                 .addTo(disposable)
 
         //action

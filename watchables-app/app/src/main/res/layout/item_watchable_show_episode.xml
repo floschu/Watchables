@@ -15,13 +15,14 @@
         android:gravity="center"
         android:padding="@dimen/padding"
         android:textColor="@color/textColorDisabled"
-        tools:text="Ep 99.99" />
+        tools:text="S1E1" />
 
     <ImageView
         android:id="@+id/ivWatched"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.75"
+        android:visibility="invisible"
         android:src="@drawable/ic_check"
         android:tint="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"

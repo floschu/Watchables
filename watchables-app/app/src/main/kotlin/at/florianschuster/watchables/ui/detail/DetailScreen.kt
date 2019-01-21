@@ -70,6 +70,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
         //state
         reactor.state.flatMapOptionalAsMaybe { it.watchable }
                 .subscribe {
+                    loading.isVisible = false
                     tvTitle.text = it.name
                     ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(it.thumbnail)
                 }
@@ -79,7 +80,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                 .subscribe {
                     when (it) {
                         is Async.Success -> navController.navigateUp()
-                        is Async.Error -> errorTranslationService.toast(it.error)
+                        is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
                 .addTo(disposable)

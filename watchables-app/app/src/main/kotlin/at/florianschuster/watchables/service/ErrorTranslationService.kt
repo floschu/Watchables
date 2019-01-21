@@ -23,18 +23,21 @@ import com.bumptech.glide.load.HttpException
 import com.google.firebase.FirebaseException
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.functions.Consumer
 import timber.log.Timber
 import java.io.IOException
 
 
 class ErrorTranslationService(private val context: Context) {
-    fun toast(throwable: Throwable) {
-        Completable.fromAction { translate(throwable) }
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .subscribe()
-    }
 
-    fun translate(throwable: Throwable): String =
+    val toastConsumer: Consumer<in Throwable>
+        get() = Consumer {
+            Completable.fromAction { translate(it) }
+                    .subscribeOn(AndroidSchedulers.mainThread())
+                    .subscribe()
+        }
+
+    private fun translate(throwable: Throwable): String =
             when (getErrorCause(throwable)) {
                 ErrorCause.NETWORK_UNAVAILABLE -> {
                     Timber.w(throwable)

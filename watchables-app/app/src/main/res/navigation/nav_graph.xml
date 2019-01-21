@@ -60,9 +60,5 @@
     <fragment
         android:id="@+id/detail"
         android:name="at.florianschuster.watchables.ui.detail.DetailFragment"
-        tools:layout="@layout/fragment_detail">
-        <deepLink
-            android:id="@+id/deepLink"
-            app:uri="watchables.florianschuster.at/detail/{id}" />
-    </fragment>
+        tools:layout="@layout/fragment_detail" />
 </navigation>

@@ -87,12 +87,12 @@ sealed class WatchableViewHolder(itemView: View, protected val clickConsumer: Co
         }
 
         override fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {
-            val episodes = seasons?.flatMap { season ->
-                season.episodes.asSequence()
-                        .map { WatchableEpisode(season.id, season.index.toString(), it.key, it.value) }
-                        .sortedWith(compareBy({ it.seasonIndex.toInt() }, { it.episode.toInt() }))
-                        .toList()
-            }.also(episodesAdapter::submitList)
+            val episodes = seasons
+                    ?.flatMap { season ->
+                        season.episodes.map { WatchableEpisode(season.id, season.index.toString(), it.key, it.value) }
+                    }
+                    ?.sortedWith(compareBy({ it.seasonIndex.toInt() }, { it.episode.toInt() }))
+                    .also(episodesAdapter::submitList)
 
             initialScroll.takeIf { !it }
                     ?.let { episodes }

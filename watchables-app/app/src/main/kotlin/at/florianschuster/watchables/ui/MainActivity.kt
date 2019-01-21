@@ -22,19 +22,33 @@ import androidx.navigation.navOptions
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.Session
+import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.views.BaseActivity
+import at.florianschuster.watchables.util.Utils
+import at.florianschuster.watchables.util.extensions.RxDialogAction
+import at.florianschuster.watchables.util.extensions.RxTasks
+import at.florianschuster.watchables.util.extensions.rxDialog
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import io.reactivex.rxkotlin.addTo
 import org.koin.android.ext.android.inject
+import org.threeten.bp.LocalDate
+import timber.log.Timber
 
 
 class MainActivity : BaseActivity(R.layout.activity_main) {
     private val navController by lazy { findNavController(R.id.navHost) }
+
     private val userSessionService: FirebaseUserSessionService by inject()
+    private val prefRepo: PrefRepo by inject()
 
     private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
+                .subscribe({ Timber.d("Deeplink: ${it.link}") }, Timber::e) //todo
+                .addTo(disposable)
 
         userSessionService.session
                 .distinctUntilChanged()
@@ -45,6 +59,24 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     navController.navigate(R.id.login, null, navOptions)
                 }
                 .addTo(disposable)
+
+        if (userSessionService.loggedIn && prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))) {
+            rxDialog {
+                titleResource = R.string.enjoying_dialog_title
+                messageResource = R.string.enjoying_dialog_message
+                positiveButtonResource = R.string.enjoying_dialog_positive
+                negativeButtonResource = R.string.enjoying_dialog_negative
+                neutralButtonResource = R.string.enjoying_dialog_neutral
+            }.doOnSuccess {
+                prefRepo.enjoyingAppDialogShownDate = LocalDate.now()
+                val intent = when (it) {
+                    is RxDialogAction.Positive -> Utils.rateApp(getString(R.string.playstore_link, packageName))
+                    is RxDialogAction.Negative -> Utils.mail(getString(R.string.dev_mail))
+                    else -> null
+                }
+                intent?.let(::startActivity)
+            }.subscribe().addTo(disposable)
+        }
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()

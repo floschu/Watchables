@@ -35,8 +35,19 @@ object RxTasks {
     fun <T> completable(taskCreator: () -> Task<T>): Completable =
             Completable.create { taskCreator().completableEmitter(it) }
 
+    fun <T> maybe(taskCreator: () -> Task<T>): Maybe<T> =
+            Maybe.create { taskCreator().maybeEmitter(it) }
+
     private fun <T> Task<T>.singleEmitter(emitter: SingleEmitter<T>) {
         addOnSuccessListener(emitter::onSuccess)
+        addOnFailureListener(emitter::onError)
+    }
+
+    private fun <T> Task<T>.maybeEmitter(emitter: MaybeEmitter<T>) {
+        addOnSuccessListener {
+            if (it == null) emitter.onComplete()
+            else emitter.onSuccess(it)
+        }
         addOnFailureListener(emitter::onError)
     }
 

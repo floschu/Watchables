@@ -17,9 +17,8 @@
 package at.florianschuster.watchables.service
 
 import android.content.Intent
-import at.florianschuster.watchables.util.GlideApp
-import io.reactivex.Completable
 import android.graphics.Bitmap
+import io.reactivex.Completable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -27,7 +26,7 @@ import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.original
-import at.florianschuster.watchables.model.thumbnail
+import at.florianschuster.watchables.util.GlideApp
 import at.florianschuster.watchables.util.extensions.subscribeOnIO
 import io.reactivex.Single
 import java.io.File
@@ -36,43 +35,36 @@ import java.io.IOException
 
 
 class ShareService(private val activity: AppCompatActivity) {
+    private val resources = activity.resources
 
     private val cachedName = "shareimage.jpg"
     private val tempFile: File by lazy { File(activity.cacheDir, cachedName) }
 
-    fun share(watchable: Watchable): Completable = Single.fromCallable {
-        when (watchable.type) {
-            Watchable.Type.show -> activity.getString(R.string.share_text_show, watchable.name)
-            Watchable.Type.movie -> activity.getString(R.string.share_text_movie, watchable.name)
-        }
-    }.flatMapCompletable { share(it, watchable.original) }
+    fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.original)
+            .flatMap {
+                val chooserText = when (watchable.type) {
+                    Watchable.Type.show -> resources.getString(R.string.share_watchable_chooser_text_show, watchable.name)
+                    Watchable.Type.movie -> resources.getString(R.string.share_watchable_chooser_text_movie, watchable.name)
+                }
+                chooserIntent(resources.getString(R.string.share_watchable_chooser_title, watchable.name), chooserText, it)
+            }
+            .doOnSuccess(activity::startActivity)
+            .ignoreElement()
 
-    fun shareApp(): Completable = Completable.fromAction {
-        val text = activity.getString(R.string.share_watchables_app)
-        Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_TEXT, text)
-            type = "text/plain"
-        }.let {
-            Intent.createChooser(it, activity.getString(R.string.settings_share_app))
-        }.also(activity::startActivity)
-    }
+    fun shareApp(): Completable = chooserIntent(resources.getString(R.string.share_app_chooser_title), resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.app_link)), null)
+            .doOnSuccess(activity::startActivity)
+            .ignoreElement()
 
-    private fun share(text: String, imageUrl: String?): Completable = Single
-            .fromCallable { GlideApp.with(activity).asBitmap().load(imageUrl).submit().get() }
+    private fun downloadImageToShare(imageUrl: String?): Single<Uri> = Single
+            .fromCallable {
+                val target = GlideApp.with(activity).asBitmap().load(imageUrl).submit()
+                val bitmap = target.get()
+                GlideApp.with(activity).clear(target)
+                bitmap
+            }
             .flatMap(::cacheBitmapForShare)
             .flatMap(::contentUriFromFile)
             .subscribeOnIO()
-            .doOnSuccess {
-                Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_TEXT, text)
-                    setDataAndType(it, activity.contentResolver.getType(it))
-                    putExtra(Intent.EXTRA_STREAM, it)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                }.let {
-                    Intent.createChooser(it, text)
-                }.also(activity::startActivity)
-            }
-            .ignoreElement()
 
     private fun cacheBitmapForShare(bitmap: Bitmap): Single<File> = Single.create { emitter ->
         FileOutputStream(tempFile).use {
@@ -86,4 +78,17 @@ class ShareService(private val activity: AppCompatActivity) {
         FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".file_provider", file)
     }
 
+    private fun chooserIntent(chooserTitle: String, intentText: String, imageUri: Uri?): Single<Intent> =
+            Single.fromCallable {
+                Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_TEXT, intentText)
+                    if (imageUri != null) {
+                        setDataAndType(imageUri, activity.contentResolver.getType(imageUri))
+                        putExtra(Intent.EXTRA_STREAM, imageUri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    } else {
+                        type = "text/plain"
+                    }
+                }
+            }.map { Intent.createChooser(it, chooserTitle) }
 }

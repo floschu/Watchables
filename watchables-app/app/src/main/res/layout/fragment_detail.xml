@@ -60,6 +60,10 @@
                 android:layout_marginStart="@dimen/margin"
                 android:layout_marginEnd="@dimen/margin"
                 android:gravity="center_horizontal|bottom"
+                android:shadowColor="@color/black_opacity_50"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
                 android:textColor="@color/textColor"
                 app:layout_constraintBottom_toTopOf="@id/tvAiring"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -76,6 +80,10 @@
                 android:layout_marginEnd="@dimen/margin"
                 android:layout_marginBottom="@dimen/margin"
                 android:gravity="center_horizontal|top"
+                android:shadowColor="@color/black_opacity_50"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
                 android:text="@string/release_date_not_available"
                 android:textColor="@color/textColor"
                 app:layout_constraintBottom_toTopOf="@+id/tvSummary"
@@ -93,6 +101,10 @@
                 android:layout_marginEnd="@dimen/margin"
                 android:layout_marginBottom="@dimen/margin"
                 android:gravity="center_horizontal|top"
+                android:shadowColor="@color/black_opacity_50"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="2"
                 android:textColor="@color/textColor"
                 app:layout_constraintBottom_toTopOf="@+id/rvOptions"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -121,4 +133,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:padding="@dimen/padding"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/toolbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

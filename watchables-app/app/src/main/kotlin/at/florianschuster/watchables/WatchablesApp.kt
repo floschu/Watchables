@@ -21,6 +21,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.squareup.leakcanary.LeakCanary
 import at.florianschuster.watchables.di.*
 import at.florianschuster.watchables.util.CrashlyticsTree
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.firestore.FirebaseFirestore
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
@@ -43,6 +44,7 @@ class WatchablesApp : Application() {
         RxJavaPlugins.setErrorHandler(Timber::e)
         AndroidThreeTen.init(this)
         FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
+        FirebaseAnalytics.getInstance(this) //initialize for deep link tracking
 
         startKoin {
             androidContext(this@WatchablesApp)

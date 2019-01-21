@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package at.florianschuster.watchables.ui.watchables
 
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.util.extensions.inflate
+import com.jakewharton.rxbinding3.view.visibility
 import kotlinx.android.synthetic.main.item_watchable_show_episode.view.*
 
 
-data class WatchableEpisode(val seasonId: String, val seasonIndex: String, val episode: String, val watched: Boolean)
+data class WatchableEpisode(val seasonId: String, val seasonIndex: String, val episode: String, val watched: Boolean) {
+    val id = "${seasonId}S${seasonIndex}E$episode"
+}
 
 
 class WatchableEpisodeAdapter(
@@ -46,15 +49,13 @@ class WatchableEpisodeAdapter(
                 itemClick.invoke(ItemClickType.EpisodeOptions(watchableEpisode.seasonId, watchableEpisode.seasonIndex, watchableEpisode.episode))
                 true
             }
-            itemView.ivWatched.isVisible = watchableEpisode.watched
+            itemView.ivWatched.visibility(View.INVISIBLE).accept(watchableEpisode.watched)
         }
     }
 }
 
 
 private val episodesDiff = object : DiffUtil.ItemCallback<WatchableEpisode>() {
-    override fun areItemsTheSame(oldItem: WatchableEpisode, newItem: WatchableEpisode): Boolean =
-            "${oldItem.seasonId}${oldItem.episode}" == "${newItem.seasonId}${newItem.episode}"
-
+    override fun areItemsTheSame(oldItem: WatchableEpisode, newItem: WatchableEpisode): Boolean = oldItem.id == newItem.id
     override fun areContentsTheSame(oldItem: WatchableEpisode, newItem: WatchableEpisode): Boolean = oldItem == newItem
 }

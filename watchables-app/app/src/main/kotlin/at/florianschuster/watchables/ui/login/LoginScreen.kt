@@ -88,7 +88,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                                 null,
                                 FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
                         )
-                        is Async.Error -> errorTranslationService.toast(it.error)
+                        is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
                 .addTo(disposable)
@@ -101,7 +101,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
         RxTasks.single { GoogleSignIn.getSignedInAccountFromIntent(data) }
                 .map { GoogleAuthProvider.getCredential(it.idToken, null) }
                 .map { LoginReactor.Action.Login(it) }
-                .subscribe(reactor.action)
+                .subscribe(reactor.action, errorTranslationService.toastConsumer)
                 .addTo(disposable)
     }
 }

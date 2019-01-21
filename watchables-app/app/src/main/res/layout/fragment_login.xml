@@ -32,7 +32,8 @@
         app:layout_constraintBottom_toTopOf="@id/progress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ivLogo" />
+        app:layout_constraintTop_toBottomOf="@id/ivLogo"
+        app:rippleColor="@color/black_opacity_15" />
 
     <ProgressBar
         android:id="@+id/progress"
@@ -45,27 +46,33 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnSignIn" />
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/tvPolicy"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin"
+        android:layout_marginEnd="@dimen/margin"
         android:background="?attr/selectableItemBackground"
         android:gravity="center"
-        android:padding="@dimen/padding"
         android:text="@string/login_text_privacy"
+        android:textAllCaps="false"
         android:textColor="@color/textColor"
         app:layout_constraintBottom_toTopOf="@id/tvSource"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/tvSource"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin"
+        android:layout_marginEnd="@dimen/margin"
         android:background="?attr/selectableItemBackground"
         android:gravity="center"
-        android:padding="@dimen/padding"
         android:text="@string/login_text_src"
+        android:textAllCaps="false"
         android:textColor="@color/textColorDisabled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

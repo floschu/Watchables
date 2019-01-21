@@ -19,10 +19,13 @@ package at.florianschuster.watchables.service.local
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
+import org.threeten.bp.LocalDate
 
 
 interface PrefRepo {
     var analyticsEnabled: Boolean
+    var onboardingSnackShown: Boolean
+    var enjoyingAppDialogShownDate: LocalDate
 }
 
 
@@ -33,8 +36,17 @@ class SharedPrefRepo(context: Context) : PrefRepo {
         get() = prefs.getBoolean(ANALYTICS_ENABLED, true)
         set(value) = prefs.edit().putBoolean(ANALYTICS_ENABLED, value).apply()
 
+    override var onboardingSnackShown: Boolean
+        get() = prefs.getBoolean(ONBOARDING_SNACK, false)
+        set(value) = prefs.edit().putBoolean(ONBOARDING_SNACK, value).apply()
+
+    override var enjoyingAppDialogShownDate: LocalDate
+        get() = LocalDate.ofEpochDay(prefs.getLong(ENJOYING_DIALOG_DATE, LocalDate.now().plusDays(7).toEpochDay()))
+        set(value) = prefs.edit().putLong(ENJOYING_DIALOG_DATE, value.toEpochDay()).apply()
+
     companion object {
         private const val ANALYTICS_ENABLED = "analytics_enabled"
-        private const val INTERAL = "watchables_interval"
+        private const val ONBOARDING_SNACK = "onboarding_snack"
+        private const val ENJOYING_DIALOG_DATE = "enjoying_dialog_date"
     }
 }

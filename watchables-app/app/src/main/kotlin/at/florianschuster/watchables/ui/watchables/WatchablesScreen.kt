@@ -26,19 +26,20 @@ import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.ShareService
+import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.views.ReactorFragment
 import at.florianschuster.watchables.ui.detail.ARG_DETAIL_ITEM_ID
 import at.florianschuster.watchables.util.Async
+import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.worker.UpdateWatchablesWorker
+import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.material.visibility
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
-import com.mikepenz.aboutlibraries.Libs
-import com.mikepenz.aboutlibraries.LibsBuilder
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Flowables
@@ -50,10 +51,13 @@ import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 
+private const val REQUEST_INVITE = 3493
+
 class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_watchables) {
     override val reactor: WatchablesReactor by reactor()
 
     private val adapter: WatchablesAdapter by inject()
+    private val prefRepo: PrefRepo by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +88,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .addTo(disposable)
 
         btnOptions.clicks()
-                .flatMapSingle { btnOptions.rxPopup(R.menu.menu_watchables) }
+                .flatMapSingle { btnOptions.rxPopup(R.menu.menu_settings) }
                 .ofType<RxPopupAction.Selected>()
                 .map { it.itemId }
                 .subscribe(::openMenuItem)
@@ -98,12 +102,20 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .subscribe(adapter::setData)
                 .addTo(disposable)
 
+        var snack: Snackbar? = null
         reactor.state.map { it.watchables }
                 .distinctUntilChanged()
                 .filter { it.complete }
                 .flatMapOptionalAsMaybe { it() }
                 .doOnNext { rvWatchables.setFastScrollEnabled(it.count() > 5) }
                 .map { it.isEmpty() }
+                .doOnNext {
+                    if (!it && !prefRepo.onboardingSnackShown && snack == null) {
+                        snack = rootLayout.snack(R.string.onboarding_snack, R.string.dialog_ok) {
+                            prefRepo.onboardingSnackShown = true
+                        }
+                    }
+                }
                 .subscribe(emptyLayout.visibility())
                 .addTo(disposable)
 
@@ -139,7 +151,6 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         adapter.itemClick.ofType<ItemClickType.EpisodeOptions>()
                 .flatMapCompletable {
                     val seasonId = it.seasonId
-
                     rxDialog {
                         title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, it.seasonIndex, it.episodeIndex))
                         negativeButtonResource = R.string.dialog_cancel
@@ -167,26 +178,9 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         when (itemId) {
             R.id.devInfo -> openChromeTab(getString(R.string.developer_url))
             R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposable)
+            R.id.rateApp -> startActivity(Utils.rateApp(getString(R.string.playstore_link, context!!.packageName)))
             R.id.privacyPolicy -> openChromeTab(getString(R.string.privacy_policy_url))
-            R.id.licenses -> {
-                LibsBuilder().apply {
-                    withFields(*Libs.toStringArray(R.string::class.java.fields))
-                    withVersionShown(true)
-                    withLicenseShown(true)
-                    withAutoDetect(true)
-                    withAboutAppName(getString(R.string.app_name))
-                    withAboutIconShown(true)
-                    withAboutVersionShown(true)
-                    withActivityTitle(getString(R.string.settings_licenses))
-                    withActivityStyle(Libs.ActivityStyle.DARK)
-                    withAboutDescription(getString(R.string.dev_info))
-                    withLibraries(
-                            "LeakCanary", "Timber", "gson", "rxjava", "rxAndroid",
-                            "glide", "SupportLibrary", "rxpaparazzo", "transformations",
-                            "fastscroll", "rxbinding", "koin", "flick"
-                    )
-                }.start(context)
-            }
+            R.id.licenses -> Utils.showLibraries(context!!)
             R.id.logout -> {
                 rxDialog {
                     titleResource = R.string.dialog_logout_title

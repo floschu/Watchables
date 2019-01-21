@@ -40,6 +40,6 @@ fun View.rxPopup(@MenuRes menuId: Int): Single<RxPopupAction> = Single.create { 
         setOnDismissListener { emitter.onSuccess(RxPopupAction.Cancelled) }
     }
 
-    menu.show()
     emitter.setCancellable { menu.dismiss() }
+    menu.show()
 }
