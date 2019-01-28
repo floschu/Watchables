@@ -17,6 +17,7 @@
 package at.florianschuster.watchables
 
 import android.app.Application
+import at.florianschuster.androidreactor.AndroidReactor
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.squareup.leakcanary.LeakCanary
 import at.florianschuster.watchables.di.*
@@ -45,6 +46,7 @@ class WatchablesApp : Application() {
         AndroidThreeTen.init(this)
         FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
         FirebaseAnalytics.getInstance(this) //initialize for deep link tracking
+        AndroidReactor.handleErrorsWith(Timber::e)
 
         startKoin {
             androidContext(this@WatchablesApp)
