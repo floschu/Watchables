@@ -19,8 +19,8 @@ package at.florianschuster.watchables.ui.base.views
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import at.florianschuster.watchables.ui.base.reactor.Reactor
-import at.florianschuster.watchables.ui.base.reactor.ReactorView
+import at.florianschuster.androidreactor.Reactor
+import at.florianschuster.androidreactor.ReactorView
 
 
 abstract class ReactorFragment<R>(@LayoutRes layout: Int? = null) : BaseFragment(layout), ReactorView<R> where R : Reactor<*, *, *> {

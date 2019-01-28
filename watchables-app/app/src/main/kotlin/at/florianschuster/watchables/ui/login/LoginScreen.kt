@@ -27,7 +27,7 @@ import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.KoinReactor
 import at.florianschuster.watchables.ui.base.views.ReactorFragment
 import at.florianschuster.watchables.util.Async
 import at.florianschuster.watchables.util.extensions.*
@@ -62,8 +62,8 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
     override fun bind(reactor: LoginReactor) {
         onSharedEnterTransition { AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation) }
 
-        tvSource.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposable)
-        tvPolicy.clicks().subscribe { openChromeTab(getString(R.string.privacy_policy_url)) }.addTo(disposable)
+        tvSource.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposables)
+        tvPolicy.clicks().subscribe { openChromeTab(getString(R.string.privacy_policy_url)) }.addTo(disposables)
 
         btnSignIn.clicks()
                 .map {
@@ -74,7 +74,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                 }
                 .map { GoogleSignIn.getClient(activity!!, it) }
                 .subscribe { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
-                .addTo(disposable)
+                .addTo(disposables)
 
         //state
         reactor.state.map { it.result }
@@ -91,7 +91,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
-                .addTo(disposable)
+                .addTo(disposables)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -102,7 +102,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                 .map { GoogleAuthProvider.getCredential(it.idToken, null) }
                 .map { LoginReactor.Action.Login(it) }
                 .subscribe(reactor.action, errorTranslationService.toastConsumer)
-                .addTo(disposable)
+                .addTo(disposables)
     }
 }
 
@@ -110,7 +110,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
 class LoginReactor(
         private val watchablesApi: WatchablesApi,
         private val userSessionService: FirebaseUserSessionService
-) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
+) : KoinReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
     sealed class Action {
         data class Login(val credential: AuthCredential) : Action()
     }
@@ -119,7 +119,9 @@ class LoginReactor(
         data class Login(val result: Async<Boolean>) : Mutation()
     }
 
-    data class State(val result: Async<Boolean> = Async.Uninitialized)
+    data class State(
+            val result: Async<Boolean> = Async.Uninitialized
+    )
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.Login -> {

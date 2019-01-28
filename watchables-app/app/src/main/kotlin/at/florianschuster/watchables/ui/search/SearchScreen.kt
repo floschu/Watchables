@@ -21,15 +21,12 @@ import android.content.Context
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.KoinReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.thumbnail
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
@@ -65,35 +62,35 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
         ivBack.clicks().subscribe {
             etSearch.hideKeyboard()
             navController.navigateUp()
-        }.addTo(disposable)
+        }.addTo(disposables)
 
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
         rvSearch.addScrolledPastFirstItemListener(fabScroll.visibility())
 
-        fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposable)
+        fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
 
         ivClear.clicks()
                 .subscribe {
                     rvSearch.smoothScrollUp()
                     etSearch.hideKeyboard()
                     etSearch.setText("")
-                }.addTo(disposable)
+                }.addTo(disposables)
 
         etSearch.editorActions()
                 .filter { it == EditorInfo.IME_ACTION_DONE }
                 .subscribe { etSearch.hideKeyboard() }
-                .addTo(disposable)
+                .addTo(disposables)
 
         etSearch.afterMeasured { showKeyBoard() }
 
-        adapter.imageClick.subscribe(context.photoDetailConsumer).addTo(disposable)
+        adapter.imageClick.subscribe(context.photoDetailConsumer).addTo(disposables)
 
         //state
         reactor.state.map { it.query }
                 .distinctUntilChanged()
                 .map { it.isNotEmpty() }
                 .subscribe(ivClear.visibility())
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.map { it.allItems }
                 .distinctUntilChanged()
@@ -101,37 +98,37 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
                 .skip(1) //initial state always empty
                 .map { it.isEmpty() }
                 .subscribe(emptyLayout.visibility())
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.map { it.loading }
                 .distinctUntilChanged()
                 .subscribe(progressSearch.visibility())
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.flatMapOptionalAsMaybe { it.loadingError }
                 .distinctUntilChanged()
                 .subscribe(errorTranslationService.toastConsumer)
-                .addTo(disposable)
+                .addTo(disposables)
 
         //action
         etSearch.textChanges()
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .map { SearchReactor.Action.UpdateQuery(it.toString()) }
                 .subscribe(reactor.action)
-                .addTo(disposable)
+                .addTo(disposables)
 
         rvSearch.scrollEvents()
                 .sample(500, TimeUnit.MILLISECONDS)
                 .filter { it.view.shouldLoadMore() }
                 .map { SearchReactor.Action.LoadNextPage }
                 .subscribe(reactor.action)
-                .addTo(disposable)
+                .addTo(disposables)
 
         adapter.addClick
                 .filter { !it.added }
                 .map { SearchReactor.Action.AddItemToWatchables(it) }
                 .subscribe(reactor.action)
-                .addTo(disposable)
+                .addTo(disposables)
     }
 
     private fun RecyclerView.shouldLoadMore(threshold: Int = 8): Boolean {
@@ -159,7 +156,7 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
 class SearchReactor(
         private val movieDatabaseApi: MovieDatabaseApi,
         watchablesApi: WatchablesApi
-) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
+) : KoinReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
         data class UpdateQuery(val query: String) : Action()

@@ -16,18 +16,25 @@
 
 package at.florianschuster.watchables.ui.base.reactor
 
+import androidx.annotation.CallSuper
+import androidx.lifecycle.ViewModel
+import at.florianschuster.androidreactor.ViewModelReactor
+import com.jakewharton.rxrelay2.PublishRelay
+import com.squareup.leakcanary.RefWatcher
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 
-/**
- * A ReactorView displays data. The view binds user inputs to the action stream and binds the view
- * states to each UI component. There's no business logic in a view layer. A view just defines how
- * to map the action stream and the state stream.
- *
- * Reference: https://github.com/ReactorKit/ReactorKit
- */
-interface ReactorView<R : Reactor<*, *, *>> {
-    val disposable: CompositeDisposable
-    val reactor: R
-    fun bind(reactor: R)
+abstract class KoinReactor<Action : Any, Mutation : Any, State : Any>(
+        initialState: State
+) : ViewModelReactor<Action, Mutation, State>(initialState), KoinComponent {
+    private val refWatcher: RefWatcher by inject()
+
+    @CallSuper
+    override fun onCleared() {
+        super.onCleared()
+        refWatcher.watch(this)
+    }
 }

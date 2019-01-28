@@ -18,7 +18,7 @@
 package at.florianschuster.watchables.util.extensions
 
 import androidx.lifecycle.LifecycleOwner
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.KoinReactor
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.ext.viewModel
 import org.koin.core.definition.Definition
@@ -29,7 +29,7 @@ import org.koin.core.parameter.ParametersDefinition
 /**
  * Reactor DSL extension for Koin.
  */
-inline fun <reified Reactor : BaseReactor<*, *, *>> Module.reactor(
+inline fun <reified Reactor : KoinReactor<*, *, *>> Module.reactor(
         name: String? = null,
         override: Boolean = false,
         noinline definition: Definition<Reactor>
@@ -39,7 +39,7 @@ inline fun <reified Reactor : BaseReactor<*, *, *>> Module.reactor(
 /**
  * Lazily gets a reactor instance.
  */
-inline fun <reified Reactor : BaseReactor<*, *, *>> LifecycleOwner.reactor(
+inline fun <reified Reactor : KoinReactor<*, *, *>> LifecycleOwner.reactor(
         name: String? = null,
         noinline parameters: ParametersDefinition? = null
 ) = viewModel<Reactor>(name, parameters)

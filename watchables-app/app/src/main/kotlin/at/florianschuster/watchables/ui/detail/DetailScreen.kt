@@ -30,7 +30,7 @@ import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.KoinReactor
 import at.florianschuster.watchables.ui.base.views.ReactorFragment
 import at.florianschuster.watchables.util.*
 import at.florianschuster.watchables.util.extensions.*
@@ -74,7 +74,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                     tvTitle.text = it.name
                     ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(it.thumbnail)
                 }
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.map { it.deleteResult }
                 .subscribe {
@@ -83,17 +83,17 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.flatMapOptionalAsMaybe { it.imdbId }
                 .doOnEach { updateOptions() }
                 .subscribe()
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.flatMapOptionalAsMaybe { it.website }
                 .doOnEach { updateOptions() }
                 .subscribe()
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.flatMapOptionalAsMaybe { it.airing }
                 .subscribe {
@@ -103,13 +103,13 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                         getString(R.string.release_date_future, it.asFormattedString)
                     }
                 }
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.state.flatMapOptionalAsMaybe { it.summary }
                 .doOnEach { tvSummary.isVisible = it.isOnNext }
                 .doOnNext(tvSummary::setText)
                 .subscribe()
-                .addTo(disposable)
+                .addTo(disposables)
 
         val snapToFirstItemObservable = rvMedia.globalLayouts()
                 .map { rvMedia.calculateDistanceToPosition(snapHelper, 0) }
@@ -123,7 +123,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                 .doOnNext(detailMediaAdapter::submitList)
                 .switchMap { snapToFirstItemObservable }
                 .subscribe()
-                .addTo(disposable)
+                .addTo(disposables)
 
         reactor.action.accept(DetailReactor.Action.LoadData)
     }
@@ -151,7 +151,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
     private val shareOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
             reactor.currentState.watchable?.let {
-                shareService.share(it).subscribe().addTo(disposable)
+                shareService.share(it).subscribe().addTo(disposables)
             }
         }
 
@@ -165,7 +165,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
             }.ofType<RxDialogAction.Positive>()
                     .map { DetailReactor.Action.DeleteWatchable }
                     .subscribe(reactor.action)
-                    .addTo(disposable)
+                    .addTo(disposables)
         }
 
     private fun RecyclerView.calculateDistanceToPosition(snapHelper: LinearSnapHelper, position: Int): Pair<Int, Int> {
@@ -183,7 +183,7 @@ class DetailReactor(
         private val movieDatabaseApi: MovieDatabaseApi,
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService
-) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(State(itemId)) {
+) : KoinReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(State(itemId)) {
 
     sealed class Action {
         object LoadData : Action()

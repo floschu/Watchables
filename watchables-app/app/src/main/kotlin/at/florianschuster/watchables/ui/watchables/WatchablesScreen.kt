@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.core.os.bundleOf
 import androidx.transition.TransitionInflater
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.KoinReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.service.AnalyticsService
@@ -71,28 +71,28 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         rvWatchables.adapter = adapter
 
         rvWatchables.addScrolledPastFirstItemListener(fabScroll.visibility())
-        fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposable)
+        fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
         btnSearch.clicks()
                 .subscribe { navController.navigate(R.id.action_watchables_to_search) }
-                .addTo(disposable)
+                .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
                 .map { bundleOf(ARG_DETAIL_ITEM_ID to it.watchable.id) }
                 .subscribe { navController.navigate(R.id.action_watchables_to_detail, it) }
-                .addTo(disposable)
+                .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
                 .map { it.url }
                 .subscribe(context.photoDetailConsumer)
-                .addTo(disposable)
+                .addTo(disposables)
 
         btnOptions.clicks()
                 .flatMapSingle { btnOptions.rxPopup(R.menu.menu_settings) }
                 .ofType<RxPopupAction.Selected>()
                 .map { it.itemId }
                 .subscribe(::openMenuItem)
-                .addTo(disposable)
+                .addTo(disposables)
 
         //state
         reactor.state.map { it.watchables }
@@ -100,7 +100,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .ofType<Async.Success<List<WatchableContainer>>>()
                 .map { it.element to (adapter.data to it.element).diff }
                 .subscribe(adapter::setData)
-                .addTo(disposable)
+                .addTo(disposables)
 
         var snack: Snackbar? = null
         reactor.state.map { it.watchables }
@@ -117,18 +117,18 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                     }
                 }
                 .subscribe(emptyLayout.visibility())
-                .addTo(disposable)
+                .addTo(disposables)
 
         //action
         adapter.itemClick.ofType<ItemClickType.Watched>()
                 .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
                 .subscribe(reactor.action)
-                .addTo(disposable)
+                .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.WatchedEpisode>()
                 .map { WatchablesReactor.Action.SetEpisodeWatched(it.seasonId, it.episode, it.watched) }
                 .subscribe(reactor.action)
-                .addTo(disposable)
+                .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.Options>()
                 .map { it.watchable }
@@ -146,7 +146,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                             }
                 }
                 .subscribe()
-                .addTo(disposable)
+                .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.EpisodeOptions>()
                 .flatMapCompletable {
@@ -161,7 +161,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                             .ignoreElement()
                 }
                 .subscribe()
-                .addTo(disposable)
+                .addTo(disposables)
     }
 
     private fun deleteWatchableDialog(watchable: Watchable) = rxDialog {
@@ -177,7 +177,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
     private fun openMenuItem(itemId: Int) {
         when (itemId) {
             R.id.devInfo -> openChromeTab(getString(R.string.developer_url))
-            R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposable)
+            R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposables)
             R.id.rateApp -> startActivity(Utils.rateApp(getString(R.string.playstore_link, context!!.packageName)))
             R.id.privacyPolicy -> openChromeTab(getString(R.string.privacy_policy_url))
             R.id.licenses -> Utils.showLibraries(context!!)
@@ -190,7 +190,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 }.filter { it is RxDialogAction.Positive }
                         .map { WatchablesReactor.Action.Logout }
                         .subscribe(reactor.action)
-                        .addTo(disposable)
+                        .addTo(disposables)
             }
         }
     }
@@ -201,7 +201,7 @@ class WatchablesReactor(
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService,
         private val userSessionService: FirebaseUserSessionService
-) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
+) : KoinReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
     sealed class Action {
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()

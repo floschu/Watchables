@@ -79,7 +79,6 @@ androidExtensions {
 
 
 dependencies {
-
     def navVersion = '1.0.0-alpha09'
     def koinVersion = '2.0.0-alpha-6'
     def retrofitVersion = '2.5.0'
@@ -88,6 +87,12 @@ dependencies {
     def leakCanaryVersion = '1.6.3'
     def rxBindingVersion = '3.0.0-alpha2'
     def workVersion = "1.0.0-beta02"
+
+    /**
+     * Reactor
+     */
+    implementation 'at.florianschuster:androidreactor:0.0.2'
+
 
     /**
      * Local
@@ -175,12 +180,6 @@ dependencies {
 
     implementation 'me.saket:flick:1.4.0'
     implementation 'com.alexvasilkov:gesture-views:2.5.2'
-
-
-    /**
-     * Billing
-     */
-    implementation 'com.android.billingclient:billing:1.2'
 
 
     /**

@@ -48,7 +48,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
 
         RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
                 .subscribe({ Timber.d("Deeplink: ${it.link}") }, Timber::e) //todo
-                .addTo(disposable)
+                .addTo(disposables)
 
         userSessionService.session
                 .distinctUntilChanged()
@@ -58,7 +58,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     val navOptions = navOptions { popUpTo(R.id.splashscreen) { inclusive = true } }
                     navController.navigate(R.id.login, null, navOptions)
                 }
-                .addTo(disposable)
+                .addTo(disposables)
 
         if (userSessionService.loggedIn && prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))) {
             rxDialog {
@@ -75,7 +75,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                     else -> null
                 }
                 intent?.let(::startActivity)
-            }.subscribe().addTo(disposable)
+            }.subscribe().addTo(disposables)
         }
     }
 

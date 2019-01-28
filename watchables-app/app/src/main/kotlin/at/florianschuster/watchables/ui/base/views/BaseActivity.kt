@@ -28,7 +28,7 @@ import org.koin.android.ext.android.inject
 
 abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatActivity() {
     private val refWatcher: RefWatcher by inject()
-    open val disposable = CompositeDisposable()
+    open val disposables = CompositeDisposable()
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +39,7 @@ abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatAct
     @CallSuper
     override fun onDestroy() {
         super.onDestroy()
-        disposable.clear()
+        disposables.clear()
         refWatcher.watch(this)
     }
 }
