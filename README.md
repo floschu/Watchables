@@ -1,6 +1,6 @@
 # Watchables
 
-![Watchables Version](https://img.shields.io/badge/watchables-1.0.2-red.svg)
+![Watchables Version](https://img.shields.io/badge/watchables-1.0.3-red.svg)
 
 [Watchables](https://play.google.com/store/apps/details?id=at.florianschuster.watchables) is an easy-to-use Watchlist Android Application. It uses the [AndroidReactor](https://github.com/floschu/AndroidReactor) framework.
 
