@@ -27,8 +27,9 @@ import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.KoinReactor
-import at.florianschuster.watchables.ui.base.views.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.util.Async
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
@@ -110,7 +111,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
 class LoginReactor(
         private val watchablesApi: WatchablesApi,
         private val userSessionService: FirebaseUserSessionService
-) : KoinReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
+) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
     sealed class Action {
         data class Login(val credential: AuthCredential) : Action()
     }

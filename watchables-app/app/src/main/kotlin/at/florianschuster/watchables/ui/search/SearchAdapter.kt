@@ -30,7 +30,8 @@ import at.florianschuster.watchables.util.extensions.inflate
 import at.florianschuster.watchables.util.srcBlurConsumer
 import at.florianschuster.watchables.util.srcConsumer
 import com.jakewharton.rxrelay2.PublishRelay
-import kotlinx.android.synthetic.main.item_search.view.*
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.item_search.*
 
 
 class SearchAdapter : ListAdapter<Search.SearchItem, SearchAdapter.SearchViewHolder>(searchDiff) {
@@ -40,22 +41,22 @@ class SearchAdapter : ListAdapter<Search.SearchItem, SearchAdapter.SearchViewHol
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder = SearchViewHolder(parent.inflate(R.layout.item_search))
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) = holder.bind(getItem(position))
 
-    inner class SearchViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
         fun bind(item: Search.SearchItem) {
-            itemView.setOnClickListener { addClick.accept(item) }
-            itemView.tvTitle.text = item.title
+            containerView.setOnClickListener { addClick.accept(item) }
+            tvTitle.text = item.title
 
-            itemView.tvType.setText(if (item.type == Search.SearchItem.Type.movie) R.string.display_name_movie else R.string.display_name_show)
+            tvType.setText(if (item.type == Search.SearchItem.Type.movie) R.string.display_name_movie else R.string.display_name_show)
 
-            itemView.ivImage.clipToOutline = true
-            itemView.ivImage.srcConsumer(R.drawable.ic_logo).accept(item.thumbnail)
-            itemView.ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(item.thumbnail)
+            ivImage.clipToOutline = true
+            ivImage.srcConsumer(R.drawable.ic_logo).accept(item.thumbnail)
+            ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(item.thumbnail)
 
-            itemView.ivImage.setOnClickListener { imageClick.accept(item.original) }
+            ivImage.setOnClickListener { imageClick.accept(item.original) }
 
-            itemView.ivAdd.setImageResource(if (item.added) R.drawable.ic_check else R.drawable.ic_add)
-            val color = ContextCompat.getColor(itemView.context, if (item.added) R.color.colorAccent else android.R.color.white)
-            itemView.ivAdd.setColorFilter(color)
+            ivAdd.setImageResource(if (item.added) R.drawable.ic_check else R.drawable.ic_add)
+            val color = ContextCompat.getColor(containerView.context, if (item.added) R.color.colorAccent else android.R.color.white)
+            ivAdd.setColorFilter(color)
         }
     }
 }

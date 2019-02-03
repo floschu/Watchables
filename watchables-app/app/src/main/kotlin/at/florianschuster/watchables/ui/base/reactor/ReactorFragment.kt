@@ -16,25 +16,18 @@
 
 package at.florianschuster.watchables.ui.base.reactor
 
+import android.os.Bundle
 import androidx.annotation.CallSuper
-import androidx.lifecycle.ViewModel
-import at.florianschuster.androidreactor.ViewModelReactor
-import com.jakewharton.rxrelay2.PublishRelay
-import com.squareup.leakcanary.RefWatcher
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import androidx.annotation.LayoutRes
+import at.florianschuster.androidreactor.Reactor
+import at.florianschuster.androidreactor.ReactorView
+import at.florianschuster.watchables.ui.base.BaseFragment
 
 
-abstract class KoinReactor<Action : Any, Mutation : Any, State : Any>(
-        initialState: State
-) : ViewModelReactor<Action, Mutation, State>(initialState), KoinComponent {
-    private val refWatcher: RefWatcher by inject()
-
+abstract class ReactorFragment<R>(@LayoutRes layout: Int? = null) : BaseFragment(layout), ReactorView<R> where R : Reactor<*, *, *> {
     @CallSuper
-    override fun onCleared() {
-        super.onCleared()
-        refWatcher.watch(this)
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        bind(reactor)
     }
 }

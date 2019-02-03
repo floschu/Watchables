@@ -14,22 +14,42 @@
  * limitations under the License.
  */
 
+package at.florianschuster.watchables.ui.base.reactor
 
-package at.florianschuster.watchables.util.extensions
-
+import androidx.annotation.CallSuper
 import androidx.lifecycle.LifecycleOwner
-import at.florianschuster.watchables.ui.base.reactor.KoinReactor
+import androidx.lifecycle.ViewModel
+import at.florianschuster.androidreactor.Reactor
+import at.florianschuster.androidreactor.ViewModelReactor
+import com.jakewharton.rxrelay2.PublishRelay
+import com.squareup.leakcanary.RefWatcher
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.ext.viewModel
+import org.koin.core.KoinComponent
 import org.koin.core.definition.Definition
+import org.koin.core.inject
 import org.koin.core.module.Module
 import org.koin.core.parameter.ParametersDefinition
 
 
+abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
+        initialState: State
+) : ViewModelReactor<Action, Mutation, State>(initialState), KoinComponent {
+    private val refWatcher: RefWatcher by inject()
+
+    @CallSuper
+    override fun onCleared() {
+        super.onCleared()
+        refWatcher.watch(this)
+    }
+}
+
 /**
  * Reactor DSL extension for Koin.
  */
-inline fun <reified Reactor : KoinReactor<*, *, *>> Module.reactor(
+inline fun <reified Reactor : BaseReactor<*, *, *>> Module.reactor(
         name: String? = null,
         override: Boolean = false,
         noinline definition: Definition<Reactor>
@@ -39,7 +59,7 @@ inline fun <reified Reactor : KoinReactor<*, *, *>> Module.reactor(
 /**
  * Lazily gets a reactor instance.
  */
-inline fun <reified Reactor : KoinReactor<*, *, *>> LifecycleOwner.reactor(
+inline fun <reified Reactor : BaseReactor<*, *, *>> LifecycleOwner.reactor(
         name: String? = null,
         noinline parameters: ParametersDefinition? = null
 ) = viewModel<Reactor>(name, parameters)

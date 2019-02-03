@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.ui.base.views
+package at.florianschuster.watchables.ui.base
 
 import android.os.Bundle
 import android.view.LayoutInflater

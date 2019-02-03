@@ -23,7 +23,7 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.Session
 import at.florianschuster.watchables.service.local.PrefRepo
-import at.florianschuster.watchables.ui.base.views.BaseActivity
+import at.florianschuster.watchables.ui.base.BaseActivity
 import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.RxDialogAction
 import at.florianschuster.watchables.util.extensions.RxTasks

@@ -30,8 +30,9 @@ import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.KoinReactor
-import at.florianschuster.watchables.ui.base.views.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.util.*
 import at.florianschuster.watchables.util.extensions.*
 import com.jakewharton.rxbinding3.view.globalLayouts
@@ -183,7 +184,7 @@ class DetailReactor(
         private val movieDatabaseApi: MovieDatabaseApi,
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService
-) : KoinReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(State(itemId)) {
+) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(State(itemId)) {
 
     sealed class Action {
         object LoadData : Action()

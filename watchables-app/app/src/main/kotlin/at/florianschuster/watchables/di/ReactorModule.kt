@@ -16,11 +16,11 @@
 
 package at.florianschuster.watchables.di
 
+import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.ui.login.LoginReactor
 import at.florianschuster.watchables.ui.search.SearchReactor
 import at.florianschuster.watchables.ui.detail.DetailReactor
 import at.florianschuster.watchables.ui.watchables.WatchablesReactor
-import at.florianschuster.watchables.util.extensions.reactor
 import org.koin.dsl.module
 
 

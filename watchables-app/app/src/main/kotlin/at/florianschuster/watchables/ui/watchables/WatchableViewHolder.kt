@@ -25,12 +25,13 @@ import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.util.srcBlurConsumer
 import at.florianschuster.watchables.util.srcConsumer
 import io.reactivex.functions.Consumer
-import kotlinx.android.synthetic.main.item_watchable.view.*
-import kotlinx.android.synthetic.main.item_watchable_movie.view.*
-import kotlinx.android.synthetic.main.item_watchable_show.view.*
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.item_watchable.*
+import kotlinx.android.synthetic.main.item_watchable_movie.*
+import kotlinx.android.synthetic.main.item_watchable_show.*
 
 
-sealed class WatchableViewHolder(itemView: View, protected val clickConsumer: Consumer<ItemClickType>) : RecyclerView.ViewHolder(itemView) {
+sealed class WatchableViewHolder(override val containerView: View, protected val clickConsumer: Consumer<ItemClickType>) : RecyclerView.ViewHolder(containerView), LayoutContainer {
 
     @CallSuper
     open fun bind(watchableContainer: WatchableContainer) {
@@ -40,42 +41,42 @@ sealed class WatchableViewHolder(itemView: View, protected val clickConsumer: Co
 
     @CallSuper
     open fun bindWatchablePayload(watchable: Watchable) {
-        itemView.setOnClickListener { clickConsumer.accept(ItemClickType.ItemDetail(watchable)) }
-        itemView.setOnLongClickListener { clickConsumer.accept(ItemClickType.Options(watchable)); true }
-        itemView.tvTitle.text = watchable.name
-        itemView.tvType.setText(if (watchable.type == Watchable.Type.movie) R.string.display_name_movie else R.string.display_name_show)
-        itemView.ivImage.clipToOutline = true
-        itemView.ivImage.srcConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
-        itemView.ivImage.setOnClickListener { clickConsumer.accept(ItemClickType.PhotoDetail(watchable.original)) }
+        containerView.setOnClickListener { clickConsumer.accept(ItemClickType.ItemDetail(watchable)) }
+        containerView.setOnLongClickListener { clickConsumer.accept(ItemClickType.Options(watchable)); true }
+        tvTitle.text = watchable.name
+        tvType.setText(if (watchable.type == Watchable.Type.movie) R.string.display_name_movie else R.string.display_name_show)
+        ivImage.clipToOutline = true
+        ivImage.srcConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
+        ivImage.setOnClickListener { clickConsumer.accept(ItemClickType.PhotoDetail(watchable.original)) }
     }
 
     open fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {}
 
     class Movie(
-            itemView: View,
+            containerView: View,
             clickConsumer: Consumer<ItemClickType>
-    ) : WatchableViewHolder(itemView, clickConsumer) {
+    ) : WatchableViewHolder(containerView, clickConsumer) {
 
         override fun bindWatchablePayload(watchable: Watchable) {
             super.bindWatchablePayload(watchable)
-            itemView.ivBackgroundMovie.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
-            itemView.tvWatched.setText(if (watchable.watched) R.string.watchable_watched else R.string.watchable_not_watched)
-            itemView.ivWatched.isVisible = watchable.watched
-            itemView.tvWatched.setOnClickListener { clickConsumer.accept(ItemClickType.Watched(watchable.id, !watchable.watched)) }
+            ivBackgroundMovie.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
+            tvWatched.setText(if (watchable.watched) R.string.watchable_watched else R.string.watchable_not_watched)
+            ivWatched.isVisible = watchable.watched
+            tvWatched.setOnClickListener { clickConsumer.accept(ItemClickType.Watched(watchable.id, !watchable.watched)) }
         }
     }
 
     class Show(
-            itemView: View,
+            containerView: View,
             clickConsumer: Consumer<ItemClickType>,
             private val viewPool: RecyclerView.RecycledViewPool
-    ) : WatchableViewHolder(itemView, clickConsumer) {
+    ) : WatchableViewHolder(containerView, clickConsumer) {
         private val episodesAdapter = WatchableEpisodeAdapter(clickConsumer::accept)
 
         private var initialScroll = false
 
         init {
-            itemView.rvEpisodes.apply {
+            rvEpisodes.apply {
                 adapter = episodesAdapter
                 setRecycledViewPool(viewPool)
             }
@@ -83,7 +84,7 @@ sealed class WatchableViewHolder(itemView: View, protected val clickConsumer: Co
 
         override fun bindWatchablePayload(watchable: Watchable) {
             super.bindWatchablePayload(watchable)
-            itemView.ivBackgroundShow.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
+            ivBackgroundShow.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
         }
 
         override fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {
@@ -99,7 +100,7 @@ sealed class WatchableViewHolder(itemView: View, protected val clickConsumer: Co
                     ?.indexOfFirst { !it.watched }
                     ?.takeIf { it >= 0 }
                     ?.let { if (it - 1 >= 0) it - 1 else it }
-                    ?.let(itemView.rvEpisodes::scrollToPosition)
+                    ?.let(rvEpisodes::scrollToPosition)
                     ?.also { initialScroll = true }
         }
     }

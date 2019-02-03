@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.util.extensions.inflate
 import at.florianschuster.watchables.util.srcConsumer
-import kotlinx.android.synthetic.main.item_detail_video.view.*
 import android.content.Intent
 import android.net.Uri
 import androidx.annotation.LayoutRes
@@ -31,7 +30,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
-import kotlinx.android.synthetic.main.item_detail_poster.view.*
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.item_detail_poster.*
+import kotlinx.android.synthetic.main.item_detail_video.*
 
 
 sealed class DetailMediaItem(open val id: String, @LayoutRes val layout: Int) {
@@ -65,26 +66,26 @@ class DetailMediaAdapter : ListAdapter<DetailMediaItem, DetailMediaAdapter.Detai
         is DetailViewHolder.Video -> holder.bind(getItem(position) as DetailMediaItem.YoutubeVideo)
     }
 
-    sealed class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        class Poster(itemView: View) : DetailViewHolder(itemView) {
+    sealed class DetailViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+        class Poster(containerView: View) : DetailViewHolder(containerView), LayoutContainer {
             fun bind(poster: DetailMediaItem.Poster) {
-                itemView.ivImage.clipToOutline = true
-                itemView.ivImage.srcConsumer(R.drawable.ic_logo).accept(poster.thumbnail)
-                itemView.ivImage.setOnClickListener { itemView.context.photoDetailConsumer.accept(poster.original) }
+                ivImage.clipToOutline = true
+                ivImage.srcConsumer(R.drawable.ic_logo).accept(poster.thumbnail)
+                ivImage.setOnClickListener { containerView.context.photoDetailConsumer.accept(poster.original) }
             }
         }
 
-        class Video(itemView: View) : DetailViewHolder(itemView) {
+        class Video(containerView: View) : DetailViewHolder(containerView), LayoutContainer {
             fun bind(video: DetailMediaItem.YoutubeVideo) {
-                val resources = itemView.context
-                itemView.ivThumbnail.clipToOutline = true
-                itemView.ivThumbnail.srcConsumer().accept(resources.getString(R.string.youtube_thumbnail, video.key))
-                itemView.ivThumbnail.setOnClickListener {
+                val resources = containerView.context
+                ivThumbnail.clipToOutline = true
+                ivThumbnail.srcConsumer().accept(resources.getString(R.string.youtube_thumbnail, video.key))
+                ivThumbnail.setOnClickListener {
                     val url = resources.getString(R.string.youtube_url, video.key)
-                    itemView.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                    containerView.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 }
-                itemView.videoType.setText(video.typeResource)
-                itemView.fadeView.clipToOutline = true
+                videoType.setText(video.typeResource)
+                fadeView.clipToOutline = true
             }
         }
     }

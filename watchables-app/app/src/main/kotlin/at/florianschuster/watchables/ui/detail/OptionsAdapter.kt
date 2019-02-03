@@ -25,8 +25,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.util.extensions.inflate
-import kotlinx.android.synthetic.main.item_option.view.*
-import kotlinx.android.synthetic.main.item_option_toggle.view.*
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.item_option.*
+import kotlinx.android.synthetic.main.item_option_toggle.*
 
 
 sealed class Option(val title: Int, val icon: Int, val layout: Int) {
@@ -54,21 +55,21 @@ class OptionsAdapter : ListAdapter<Option, OptionsAdapter.MoreOptionViewHolder>(
         }
     }
 
-    sealed class MoreOptionViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        class Action(itemView: View) : MoreOptionViewHolder(itemView) {
+    sealed class MoreOptionViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+        class Action(containerView: View) : MoreOptionViewHolder(containerView) {
             fun bind(option: Option.Action) {
-                itemView.ivIcon.setImageResource(option.icon)
-                itemView.tvTitle.setText(option.title)
-                itemView.setOnClickListener { option.action() }
+                ivIcon.setImageResource(option.icon)
+                tvTitle.setText(option.title)
+                containerView.setOnClickListener { option.action() }
             }
         }
 
-        class Toggle(itemView: View) : MoreOptionViewHolder(itemView) {
+        class Toggle(containerView: View) : MoreOptionViewHolder(containerView) {
             fun bind(option: Option.Toggle) {
-                itemView.ivIconToggle.setImageResource(option.icon)
-                itemView.sw.setText(option.title)
-                itemView.sw.isChecked = option.isToggled
-                itemView.sw.setOnCheckedChangeListener { _, checked -> option.toggled(checked) }
+                ivIconToggle.setImageResource(option.icon)
+                sw.setText(option.title)
+                sw.isChecked = option.isToggled
+                sw.setOnCheckedChangeListener { _, checked -> option.toggled(checked) }
             }
         }
     }

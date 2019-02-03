@@ -14,19 +14,32 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.ui.base.views
+
+package at.florianschuster.watchables.ui.base
 
 import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import at.florianschuster.androidreactor.Reactor
-import at.florianschuster.androidreactor.ReactorView
+import androidx.appcompat.app.AppCompatActivity
+import com.squareup.leakcanary.RefWatcher
+import io.reactivex.disposables.CompositeDisposable
+import org.koin.android.ext.android.inject
 
 
-abstract class ReactorActivity<R>(@LayoutRes layout: Int) : BaseActivity(layout), ReactorView<R> where R : Reactor<*, *, *> {
+abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatActivity() {
+    private val refWatcher: RefWatcher by inject()
+    open val disposables = CompositeDisposable()
+
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        bind(reactor)
+        setContentView(layout)
+    }
+
+    @CallSuper
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
+        refWatcher.watch(this)
     }
 }

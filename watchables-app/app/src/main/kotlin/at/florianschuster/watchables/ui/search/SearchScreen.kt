@@ -23,14 +23,15 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import at.florianschuster.watchables.ui.base.reactor.KoinReactor
+import at.florianschuster.watchables.ui.base.reactor.BaseReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.views.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.AddWatchableWorker
@@ -156,7 +157,7 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
 class SearchReactor(
         private val movieDatabaseApi: MovieDatabaseApi,
         watchablesApi: WatchablesApi
-) : KoinReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
+) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
         data class UpdateQuery(val query: String) : Action()

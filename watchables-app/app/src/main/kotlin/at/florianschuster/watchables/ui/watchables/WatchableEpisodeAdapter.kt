@@ -24,7 +24,8 @@ import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.util.extensions.inflate
 import com.jakewharton.rxbinding3.view.visibility
-import kotlinx.android.synthetic.main.item_watchable_show_episode.view.*
+import kotlinx.android.extensions.LayoutContainer
+import kotlinx.android.synthetic.main.item_watchable_show_episode.*
 
 
 data class WatchableEpisode(val seasonId: String, val seasonIndex: String, val episode: String, val watched: Boolean) {
@@ -39,17 +40,17 @@ class WatchableEpisodeAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchableEpisodeViewHolder = WatchableEpisodeViewHolder(parent.inflate(R.layout.item_watchable_show_episode))
     override fun onBindViewHolder(holder: WatchableEpisodeViewHolder, position: Int) = holder.bind(getItem(position))
 
-    inner class WatchableEpisodeViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class WatchableEpisodeViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
         fun bind(watchableEpisode: WatchableEpisode) {
-            itemView.tvEpisode.text = itemView.resources.getString(R.string.episode_name, watchableEpisode.seasonIndex, watchableEpisode.episode)
-            itemView.tvEpisode.setOnClickListener {
+            tvEpisode.text = containerView.resources.getString(R.string.episode_name, watchableEpisode.seasonIndex, watchableEpisode.episode)
+            tvEpisode.setOnClickListener {
                 itemClick.invoke(ItemClickType.WatchedEpisode(watchableEpisode.seasonId, watchableEpisode.episode, !watchableEpisode.watched))
             }
-            itemView.tvEpisode.setOnLongClickListener {
+            tvEpisode.setOnLongClickListener {
                 itemClick.invoke(ItemClickType.EpisodeOptions(watchableEpisode.seasonId, watchableEpisode.seasonIndex, watchableEpisode.episode))
                 true
             }
-            itemView.ivWatched.visibility(View.INVISIBLE).accept(watchableEpisode.watched)
+            ivWatched.visibility(View.INVISIBLE).accept(watchableEpisode.watched)
         }
     }
 }

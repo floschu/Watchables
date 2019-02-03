@@ -20,7 +20,7 @@ import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.core.os.bundleOf
 import androidx.transition.TransitionInflater
-import at.florianschuster.watchables.ui.base.reactor.KoinReactor
+import at.florianschuster.watchables.ui.base.reactor.BaseReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.service.AnalyticsService
@@ -28,7 +28,8 @@ import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.views.ReactorFragment
+import at.florianschuster.watchables.ui.base.reactor.reactor
+import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
 import at.florianschuster.watchables.ui.detail.ARG_DETAIL_ITEM_ID
 import at.florianschuster.watchables.util.Async
 import at.florianschuster.watchables.util.Utils
@@ -50,8 +51,6 @@ import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
-
-private const val REQUEST_INVITE = 3493
 
 class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_watchables) {
     override val reactor: WatchablesReactor by reactor()
@@ -201,7 +200,7 @@ class WatchablesReactor(
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService,
         private val userSessionService: FirebaseUserSessionService
-) : KoinReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
+) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
     sealed class Action {
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()
@@ -244,10 +243,11 @@ class WatchablesReactor(
         is Mutation.SetWatchables -> state.copy(watchables = mutation.watchables)
     }
 
-    private val watchablesMutation = watchableContainerObservable
-            .map { Mutation.SetWatchables(Async.Success(it)) }
-            .onErrorReturn { Mutation.SetWatchables(Async.Error(it)) }
-            .toObservable()
+    private val watchablesMutation
+        get() = watchableContainerObservable
+                .map { Mutation.SetWatchables(Async.Success(it)) }
+                .onErrorReturn { Mutation.SetWatchables(Async.Error(it)) }
+                .toObservable()
 
     private val watchableContainerObservable: Flowable<List<WatchableContainer>>
         get() {

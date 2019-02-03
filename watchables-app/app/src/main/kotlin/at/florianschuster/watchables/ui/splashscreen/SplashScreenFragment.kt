@@ -19,7 +19,7 @@ package at.florianschuster.watchables.ui.splashscreen
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.FirebaseUserSessionService
-import at.florianschuster.watchables.ui.base.views.BaseFragment
+import at.florianschuster.watchables.ui.base.BaseFragment
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
