@@ -79,19 +79,19 @@ androidExtensions {
 
 
 dependencies {
-    def navVersion = '1.0.0-alpha11'
-    def koinVersion = '2.0.0-alpha-6'
+    def navVersion = '1.0.0-beta01'
+    def koinVersion = '2.0.0-beta-1'
     def retrofitVersion = '2.5.0'
     def okHttpVersion = '3.12.1'
     def glideVersion = '4.8.0'
     def leakCanaryVersion = '1.6.3'
     def rxBindingVersion = '3.0.0-alpha2'
-    def workVersion = "1.0.0-beta03"
+    def workVersion = "1.0.0-beta05"
 
     /**
      * Reactor
      */
-    implementation 'at.florianschuster:androidreactor:0.0.4'
+    implementation 'at.florianschuster:androidreactor:0.0.5'
 
 
     /**
@@ -144,12 +144,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
-    implementation 'com.google.firebase:firebase-firestore:18.0.0'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.8'
+    implementation 'com.google.firebase:firebase-firestore:18.0.1'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
     implementation 'com.google.firebase:firebase-storage:16.0.5'
     implementation 'com.google.firebase:firebase-perf:16.2.3'
-    implementation 'com.google.firebase:firebase-invites:16.0.6'
+    implementation 'com.google.firebase:firebase-invites:16.1.0'
 
 
     /**

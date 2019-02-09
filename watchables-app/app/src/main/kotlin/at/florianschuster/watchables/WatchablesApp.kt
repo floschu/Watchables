@@ -44,7 +44,6 @@ class WatchablesApp : Application() {
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree()) else Timber.plant(CrashlyticsTree())
         RxJavaPlugins.setErrorHandler(Timber::e)
         AndroidThreeTen.init(this)
-        FirebaseFirestore.getInstance().firestoreSettings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
         FirebaseAnalytics.getInstance(this) //initialize for deep link tracking
         AndroidReactor.handleErrorsWith(Timber::e)
 

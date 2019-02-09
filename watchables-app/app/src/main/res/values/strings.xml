@@ -39,6 +39,7 @@
     <string name="empty_watchable_title">Oh no :(</string>
     <string name="empty_watchable_text">You have not added any watchables yet. Add some by using the search on the upper left!</string>
     <string name="settings_logout">Logout</string>
+    <string name="settings_analytics">Analytics</string>
     <string name="settings_licenses">Open Source Licenses</string>
     <string name="settings_privacy_policy">Privacy Policy</string>
     <string name="settings_developer_info">Developer Info</string>

@@ -30,6 +30,12 @@
     </group>
     <group>
         <item
+            android:id="@+id/analytics"
+            android:checkable="true"
+            android:title="@string/settings_analytics" />
+    </group>
+    <group>
+        <item
             android:id="@+id/logout"
             android:icon="@drawable/ic_logout"
             android:title="@string/settings_logout" />

@@ -58,6 +58,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
     private val adapter: WatchablesAdapter by inject()
     private val prefRepo: PrefRepo by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
+    private val analyticsService: AnalyticsService by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,7 +73,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         rvWatchables.addScrolledPastFirstItemListener(fabScroll.visibility())
         fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
-        btnSearch.clicks()
+        flSearch.clicks()
                 .subscribe { navController.navigate(R.id.action_watchables_to_search) }
                 .addTo(disposables)
 
@@ -87,9 +88,14 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .addTo(disposables)
 
         btnOptions.clicks()
-                .flatMapSingle { btnOptions.rxPopup(R.menu.menu_settings) }
+                .flatMapSingle {
+                    btnOptions.rxPopup(R.menu.menu_settings) {
+                        if (it.itemId == R.id.analytics) {
+                            it.isChecked = analyticsService.analyticsEnabled
+                        }
+                    }
+                }
                 .ofType<RxPopupAction.Selected>()
-                .map { it.itemId }
                 .subscribe(::openMenuItem)
                 .addTo(disposables)
 
@@ -173,13 +179,14 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
             .doOnSuccess(reactor.action)
             .ignoreElement()
 
-    private fun openMenuItem(itemId: Int) {
-        when (itemId) {
+    private fun openMenuItem(item: RxPopupAction.Selected) {
+        when (item.itemId) {
             R.id.devInfo -> openChromeTab(getString(R.string.developer_url))
             R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposables)
             R.id.rateApp -> startActivity(Utils.rateApp(getString(R.string.playstore_link, context!!.packageName)))
             R.id.privacyPolicy -> openChromeTab(getString(R.string.privacy_policy_url))
             R.id.licenses -> Utils.showLibraries(context!!)
+            R.id.analytics -> analyticsService.analyticsEnabled = !analyticsService.analyticsEnabled
             R.id.logout -> {
                 rxDialog {
                     titleResource = R.string.dialog_logout_title

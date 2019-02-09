@@ -21,20 +21,22 @@ import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
+import androidx.core.view.forEach
 import io.reactivex.Single
 
 
 sealed class RxPopupAction {
     object Cancelled : RxPopupAction()
-    data class Selected(@IdRes val itemId: Int, val menuItem: MenuItem) : RxPopupAction()
+    data class Selected(@IdRes val itemId: Int) : RxPopupAction()
 }
 
 
-fun View.rxPopup(@MenuRes menuId: Int): Single<RxPopupAction> = Single.create { emitter ->
+fun View.rxPopup(@MenuRes menuId: Int, itemsAdapter: (MenuItem) -> Unit): Single<RxPopupAction> = Single.create { emitter ->
     val menu = PopupMenu(context, this).apply {
         menuInflater.inflate(menuId, menu)
+        menu.forEach { itemsAdapter.invoke(it) }
         setOnMenuItemClickListener {
-            emitter.onSuccess(RxPopupAction.Selected(it.itemId, it))
+            emitter.onSuccess(RxPopupAction.Selected(it.itemId))
             true
         }
         setOnDismissListener { emitter.onSuccess(RxPopupAction.Cancelled) }
