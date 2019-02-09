@@ -91,7 +91,7 @@ dependencies {
     /**
      * Reactor
      */
-    implementation 'at.florianschuster:androidreactor:0.0.5'
+    implementation 'at.florianschuster:androidreactor:0.0.6'
 
 
     /**

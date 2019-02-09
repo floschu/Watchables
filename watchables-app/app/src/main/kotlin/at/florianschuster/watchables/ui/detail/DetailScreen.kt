@@ -20,6 +20,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import at.florianschuster.androidreactor.bind
+import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.model.Watchable
@@ -77,8 +79,8 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                 }
                 .addTo(disposables)
 
-        reactor.state.map { it.deleteResult }
-                .subscribe {
+        reactor.state.changesFrom { it.deleteResult }
+                .bind {
                     when (it) {
                         is Async.Success -> navController.navigateUp()
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)

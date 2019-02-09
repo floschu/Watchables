@@ -23,6 +23,9 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import at.florianschuster.androidreactor.bind
+import at.florianschuster.androidreactor.changesFrom
+import at.florianschuster.androidreactor.consume
 import at.florianschuster.watchables.ui.base.reactor.BaseReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Search
@@ -87,48 +90,45 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
         adapter.imageClick.subscribe(context.photoDetailConsumer).addTo(disposables)
 
         //state
-        reactor.state.map { it.query }
-                .distinctUntilChanged()
+        reactor.state.changesFrom { it.query }
                 .map { it.isNotEmpty() }
-                .subscribe(ivClear.visibility())
+                .bind(ivClear.visibility())
                 .addTo(disposables)
 
-        reactor.state.map { it.allItems }
-                .distinctUntilChanged()
+        reactor.state.changesFrom { it.allItems }
                 .doOnNext(adapter::submitList)
                 .skip(1) //initial state always empty
                 .map { it.isEmpty() }
-                .subscribe(emptyLayout.visibility())
+                .bind(emptyLayout.visibility())
                 .addTo(disposables)
 
-        reactor.state.map { it.loading }
-                .distinctUntilChanged()
-                .subscribe(progressSearch.visibility())
+        reactor.state.changesFrom { it.loading }
+                .bind(progressSearch.visibility())
                 .addTo(disposables)
 
         reactor.state.flatMapOptionalAsMaybe { it.loadingError }
                 .distinctUntilChanged()
-                .subscribe(errorTranslationService.toastConsumer)
+                .bind(errorTranslationService.toastConsumer)
                 .addTo(disposables)
 
         //action
         etSearch.textChanges()
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .map { SearchReactor.Action.UpdateQuery(it.toString()) }
-                .subscribe(reactor.action)
+                .consume(reactor)
                 .addTo(disposables)
 
         rvSearch.scrollEvents()
                 .sample(500, TimeUnit.MILLISECONDS)
                 .filter { it.view.shouldLoadMore() }
                 .map { SearchReactor.Action.LoadNextPage }
-                .subscribe(reactor.action)
+                .consume(reactor)
                 .addTo(disposables)
 
         adapter.addClick
                 .filter { !it.added }
                 .map { SearchReactor.Action.AddItemToWatchables(it) }
-                .subscribe(reactor.action)
+                .consume(reactor)
                 .addTo(disposables)
     }
 

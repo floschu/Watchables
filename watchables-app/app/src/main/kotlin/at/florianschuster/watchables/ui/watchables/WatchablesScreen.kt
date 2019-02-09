@@ -20,6 +20,9 @@ import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.core.os.bundleOf
 import androidx.transition.TransitionInflater
+import at.florianschuster.androidreactor.bind
+import at.florianschuster.androidreactor.changesFrom
+import at.florianschuster.androidreactor.consume
 import at.florianschuster.watchables.ui.base.reactor.BaseReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.*
@@ -100,16 +103,14 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .addTo(disposables)
 
         //state
-        reactor.state.map { it.watchables }
-                .distinctUntilChanged()
+        reactor.state.changesFrom { it.watchables }
                 .ofType<Async.Success<List<WatchableContainer>>>()
                 .map { it.element to (adapter.data to it.element).diff }
-                .subscribe(adapter::setData)
+                .bind(adapter::setData)
                 .addTo(disposables)
 
         var snack: Snackbar? = null
-        reactor.state.map { it.watchables }
-                .distinctUntilChanged()
+        reactor.state.changesFrom { it.watchables }
                 .filter { it.complete }
                 .flatMapOptionalAsMaybe { it() }
                 .doOnNext { rvWatchables.setFastScrollEnabled(it.count() > 5) }
@@ -121,18 +122,18 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                         }
                     }
                 }
-                .subscribe(emptyLayout.visibility())
+                .bind(emptyLayout.visibility())
                 .addTo(disposables)
 
         //action
         adapter.itemClick.ofType<ItemClickType.Watched>()
                 .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
-                .subscribe(reactor.action)
+                .consume(reactor)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.WatchedEpisode>()
                 .map { WatchablesReactor.Action.SetEpisodeWatched(it.seasonId, it.episode, it.watched) }
-                .subscribe(reactor.action)
+                .consume(reactor)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.Options>()

@@ -22,6 +22,8 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.transition.TransitionInflater
+import at.florianschuster.androidreactor.bind
+import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
@@ -78,9 +80,8 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                 .addTo(disposables)
 
         //state
-        reactor.state.map { it.result }
-                .distinctUntilChanged()
-                .subscribe {
+        reactor.state.changesFrom { it.result }
+                .bind {
                     progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
                     when (it) {
                         is Async.Success -> navController.navigate(
