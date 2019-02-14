@@ -22,8 +22,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.util.extensions.inflate
 import com.jakewharton.rxbinding3.view.visibility
+import com.tailoredapps.androidutil.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable_show_episode.*
 

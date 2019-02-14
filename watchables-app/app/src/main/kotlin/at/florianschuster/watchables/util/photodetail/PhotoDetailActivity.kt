@@ -20,8 +20,8 @@ import androidx.core.view.isVisible
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.util.GlideApp
-import at.florianschuster.watchables.util.extensions.extra
-import at.florianschuster.watchables.util.extensions.extras
+import com.tailoredapps.androidutil.extensions.extra
+import com.tailoredapps.androidutil.extensions.extras
 import at.florianschuster.watchables.util.photodetail.immersive.SystemUiHelper
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool

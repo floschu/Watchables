@@ -19,6 +19,7 @@ package at.florianschuster.watchables.ui.watchables
 import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.core.os.bundleOf
+import androidx.core.view.isVisible
 import androidx.transition.TransitionInflater
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
@@ -34,7 +35,6 @@ import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
 import at.florianschuster.watchables.ui.detail.ARG_DETAIL_ITEM_ID
-import at.florianschuster.watchables.util.Async
 import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
@@ -44,6 +44,10 @@ import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.material.visibility
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
+import com.tailoredapps.androidutil.async.Async
+import com.tailoredapps.androidutil.extensions.*
+import com.tailoredapps.androidutil.optional.asOptional
+import com.tailoredapps.androidutil.optional.filterSome
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Flowables
@@ -73,7 +77,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
 
         rvWatchables.adapter = adapter
 
-        rvWatchables.addScrolledPastFirstItemListener(fabScroll.visibility())
+        rvWatchables.addScrolledPastItemListener { fabScroll.isVisible = it }
         fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
         flSearch.clicks()
@@ -82,7 +86,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
 
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
                 .map { bundleOf(ARG_DETAIL_ITEM_ID to it.watchable.id) }
-                .subscribe { navController.navigate(R.id.action_watchables_to_detail, it) }
+                .bind { navController.navigate(R.id.action_watchables_to_detail, it) }
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
@@ -112,7 +116,8 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         var snack: Snackbar? = null
         reactor.state.changesFrom { it.watchables }
                 .filter { it.complete }
-                .flatMapOptionalAsMaybe { it() }
+                .map { it().asOptional }
+                .filterSome()
                 .doOnNext { rvWatchables.setFastScrollEnabled(it.count() > 5) }
                 .map { it.isEmpty() }
                 .doOnNext {

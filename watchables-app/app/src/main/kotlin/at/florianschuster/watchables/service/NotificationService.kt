@@ -32,9 +32,9 @@ import at.florianschuster.watchables.ui.MainActivity
 import at.florianschuster.watchables.ui.detail.ARG_DETAIL_ITEM_ID
 import at.florianschuster.watchables.util.GlideApp
 import at.florianschuster.watchables.util.extensions.asFormattedString
-import at.florianschuster.watchables.util.extensions.observeOnMain
-import at.florianschuster.watchables.util.extensions.subscribeOnIO
 import com.google.firebase.messaging.RemoteMessage
+import com.tailoredapps.androidutil.extensions.observeOnMain
+import com.tailoredapps.androidutil.extensions.subscribeOnIO
 import io.reactivex.Single
 import org.threeten.bp.LocalDate
 import timber.log.Timber

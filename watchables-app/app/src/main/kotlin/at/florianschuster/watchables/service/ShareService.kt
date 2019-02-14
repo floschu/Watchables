@@ -27,7 +27,7 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.original
 import at.florianschuster.watchables.util.GlideApp
-import at.florianschuster.watchables.util.extensions.subscribeOnIO
+import com.tailoredapps.androidutil.extensions.subscribeOnIO
 import io.reactivex.Single
 import java.io.File
 import java.io.FileOutputStream

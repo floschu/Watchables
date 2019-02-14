@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.util.extensions.inflate
 import at.florianschuster.watchables.util.srcConsumer
 import android.content.Intent
 import android.net.Uri
@@ -30,6 +29,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
+import com.tailoredapps.androidutil.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_detail_poster.*
 import kotlinx.android.synthetic.main.item_detail_video.*

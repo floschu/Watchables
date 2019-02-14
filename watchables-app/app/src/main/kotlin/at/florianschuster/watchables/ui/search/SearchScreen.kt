@@ -21,6 +21,7 @@ import android.content.Context
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.androidreactor.bind
@@ -35,15 +36,19 @@ import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
 import at.florianschuster.watchables.ui.base.reactor.reactor
-import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.AddWatchableWorker
-import com.jakewharton.rxbinding3.material.visibility
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.jakewharton.rxbinding3.widget.editorActions
 import com.jakewharton.rxbinding3.widget.textChanges
+import com.tailoredapps.androidutil.extensions.addScrolledPastItemListener
+import com.tailoredapps.androidutil.extensions.afterMeasured
+import com.tailoredapps.androidutil.extensions.smoothScrollUp
+import com.tailoredapps.androidutil.extensions.toObservableDefault
+import com.tailoredapps.androidutil.optional.asOptional
+import com.tailoredapps.androidutil.optional.filterSome
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -69,7 +74,7 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
         }.addTo(disposables)
 
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
-        rvSearch.addScrolledPastFirstItemListener(fabScroll.visibility())
+        rvSearch.addScrolledPastItemListener { fabScroll.isVisible = it }
 
         fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
 
@@ -106,8 +111,9 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
                 .bind(progressSearch.visibility())
                 .addTo(disposables)
 
-        reactor.state.flatMapOptionalAsMaybe { it.loadingError }
+        reactor.state.map { it.loadingError.asOptional }
                 .distinctUntilChanged()
+                .filterSome()
                 .bind(errorTranslationService.toastConsumer)
                 .addTo(disposables)
 

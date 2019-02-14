@@ -27,13 +27,6 @@ import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 
 
-/**
- * Only run this code in DEBUG mode.
- */
-inline fun debug(code: () -> Unit) {
-    if (BuildConfig.DEBUG) code()
-}
-
 object Utils {
     fun web(url: String): Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     fun mail(mail: String): Intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$mail"))

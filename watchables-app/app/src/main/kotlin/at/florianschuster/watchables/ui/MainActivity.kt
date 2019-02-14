@@ -25,10 +25,10 @@ import at.florianschuster.watchables.service.Session
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseActivity
 import at.florianschuster.watchables.util.Utils
-import at.florianschuster.watchables.util.extensions.RxDialogAction
 import at.florianschuster.watchables.util.extensions.RxTasks
-import at.florianschuster.watchables.util.extensions.rxDialog
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.tailoredapps.androidutil.extensions.RxDialogAction
+import com.tailoredapps.androidutil.extensions.rxDialog
 import io.reactivex.rxkotlin.addTo
 import org.koin.android.ext.android.inject
 import org.threeten.bp.LocalDate

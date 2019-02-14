@@ -25,9 +25,9 @@ import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableContainer
-import at.florianschuster.watchables.util.extensions.inflate
 import com.jakewharton.rxrelay2.PublishRelay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.tailoredapps.androidutil.extensions.inflate
 
 
 sealed class ItemClickType {

@@ -43,6 +43,3 @@ fun ImageView.srcBlurConsumer(@DrawableRes fallback: Int? = null): Consumer<in S
                     .apply(RequestOptions.bitmapTransform(BlurTransformation(25, 5)))
                     .into(this)
         }
-
-val SwipeRefreshLayout.refreshingConsumer: Consumer<in Boolean>
-    get() = Consumer { this.isRefreshing = it }

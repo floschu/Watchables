@@ -38,6 +38,11 @@ import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.util.*
 import at.florianschuster.watchables.util.extensions.*
 import com.jakewharton.rxbinding3.view.globalLayouts
+import com.tailoredapps.androidutil.async.Async
+import com.tailoredapps.androidutil.extensions.*
+import com.tailoredapps.androidutil.optional.Optional
+import com.tailoredapps.androidutil.optional.asOptional
+import com.tailoredapps.androidutil.optional.filterSome
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_detail.*
@@ -71,7 +76,8 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
         updateOptions()
 
         //state
-        reactor.state.flatMapOptionalAsMaybe { it.watchable }
+        reactor.state.map { it.watchable.asOptional }
+                .filterSome()
                 .subscribe {
                     loading.isVisible = false
                     tvTitle.text = it.name
@@ -88,17 +94,21 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                 }
                 .addTo(disposables)
 
-        reactor.state.flatMapOptionalAsMaybe { it.imdbId }
+        reactor.state.map { it.imdbId.asOptional }
+                .filterSome()
                 .doOnEach { updateOptions() }
                 .subscribe()
                 .addTo(disposables)
 
-        reactor.state.flatMapOptionalAsMaybe { it.website }
+        reactor.state.map { it.website.asOptional }
+                .filterSome()
+
                 .doOnEach { updateOptions() }
                 .subscribe()
                 .addTo(disposables)
 
-        reactor.state.flatMapOptionalAsMaybe { it.airing }
+        reactor.state.map { it.airing.asOptional }
+                .filterSome()
                 .subscribe {
                     tvAiring.text = if (it.isBefore(ZonedDateTime.now().toLocalDate())) {
                         getString(R.string.release_date_past, it.asFormattedString)
@@ -108,10 +118,13 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                 }
                 .addTo(disposables)
 
-        reactor.state.flatMapOptionalAsMaybe { it.summary }
-                .doOnEach { tvSummary.isVisible = it.isOnNext }
-                .doOnNext(tvSummary::setText)
-                .subscribe()
+        reactor.state.map { it.summary.asOptional }
+                .bind {
+                    tvSummary.isVisible = it is Optional.Some
+                    if (it is Optional.Some) {
+                        tvSummary.text = it.value
+                    }
+                }
                 .addTo(disposables)
 
         val snapToFirstItemObservable = rvMedia.globalLayouts()
