@@ -16,17 +16,13 @@
 
 package at.florianschuster.watchables.ui.search
 
-import android.app.Activity
-import android.content.Context
-import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.androidreactor.consume
+import at.florianschuster.watchables.Direction
+import at.florianschuster.watchables.Director
 import at.florianschuster.watchables.ui.base.reactor.BaseReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Search
@@ -43,10 +39,7 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.jakewharton.rxbinding3.widget.editorActions
 import com.jakewharton.rxbinding3.widget.textChanges
-import com.tailoredapps.androidutil.extensions.addScrolledPastItemListener
-import com.tailoredapps.androidutil.extensions.afterMeasured
-import com.tailoredapps.androidutil.extensions.smoothScrollUp
-import com.tailoredapps.androidutil.extensions.toObservableDefault
+import com.tailoredapps.androidutil.extensions.*
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import io.reactivex.Completable
@@ -58,8 +51,11 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
+enum class SearchDirection : Direction {
+    Back
+}
 
-class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) {
+class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search), Director<SearchDirection> {
     override val reactor: SearchReactor by reactor()
 
     private val errorTranslationService: ErrorTranslationService by inject()
@@ -70,7 +66,7 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
 
         ivBack.clicks().subscribe {
             etSearch.hideKeyboard()
-            navController.navigateUp()
+            direct(SearchDirection.Back)
         }.addTo(disposables)
 
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
@@ -138,24 +134,10 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search) 
                 .addTo(disposables)
     }
 
-    private fun RecyclerView.shouldLoadMore(threshold: Int = 8): Boolean {
-        val layoutManager = layoutManager ?: return false
-        return when (layoutManager) {
-            is LinearLayoutManager -> layoutManager.findLastVisibleItemPosition() + threshold > layoutManager.itemCount
-            else -> false
+    override fun direct(to: SearchDirection) {
+        when (to) {
+            SearchDirection.Back -> navController.navigateUp()
         }
-    }
-
-    private fun View.showKeyBoard() {
-        requestFocus()
-        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    private fun View.hideKeyboard() {
-        val inputMethodManager = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (inputMethodManager.isActive) inputMethodManager.hideSoftInputFromWindow(windowToken, 0)
-        clearFocus()
     }
 }
 

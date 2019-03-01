@@ -17,11 +17,14 @@
 package at.florianschuster.watchables.ui.detail
 
 import androidx.core.view.isVisible
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
+import at.florianschuster.watchables.Direction
+import at.florianschuster.watchables.Director
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.model.Watchable
@@ -52,13 +55,14 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
+enum class DetailDirection : Direction {
+    Back
+}
 
-const val ARG_DETAIL_ITEM_ID = "DetailFragment.args"
+class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail), Director<DetailDirection> {
+    private val args: DetailFragmentArgs by navArgs()
 
-class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) {
-    private val itemId: String by argument(ARG_DETAIL_ITEM_ID)
-
-    override val reactor: DetailReactor by reactor { parametersOf(itemId) }
+    override val reactor: DetailReactor by reactor { parametersOf(args.itemId) }
 
     private val errorTranslationService: ErrorTranslationService by inject()
     private val detailMediaAdapter: DetailMediaAdapter by inject()
@@ -67,7 +71,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
 
     override fun bind(reactor: DetailReactor) {
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-        toolbar.setNavigationOnClickListener { navController.navigateUp() }
+        toolbar.setNavigationOnClickListener { direct(DetailDirection.Back) }
 
         val snapHelper = LinearSnapHelper().also { it.attachToRecyclerView(rvMedia) }
         rvMedia.adapter = detailMediaAdapter
@@ -88,7 +92,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
         reactor.state.changesFrom { it.deleteResult }
                 .bind {
                     when (it) {
-                        is Async.Success -> navController.navigateUp()
+                        is Async.Success -> direct(DetailDirection.Back)
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
@@ -191,6 +195,12 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail) 
                 ?: return 0 to 0
         return distances[0] to distances[1]
     }
+
+    override fun direct(to: DetailDirection) {
+        when (to) {
+            DetailDirection.Back -> navController.navigateUp()
+        }
+    }
 }
 
 
@@ -231,6 +241,7 @@ class DetailReactor(
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.LoadData -> {
+            //todo if change this to id + type for watchable sharing?
             watchablesApi.watchable(currentState.itemId)
                     .flatMapObservable {
                         when (it.type) {

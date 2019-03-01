@@ -4,6 +4,7 @@ apply plugin: "kotlin-android-extensions"
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.akaita.android.easylauncher'
 apply plugin: 'io.fabric'
+apply plugin: 'androidx.navigation.safeargs.kotlin'
 
 def keystorePropertiesFile = rootProject.file("secret.properties")
 def keystoreProperties = new Properties()
@@ -82,14 +83,14 @@ dependencies {
     /**
      * Base
      */
-    implementation 'at.florianschuster:androidreactor:0.0.6'
-    implementation 'com.tailoredapps:androidutil:0.0.6'
+    implementation 'at.florianschuster:androidreactor:0.1.0'
+    implementation 'com.tailoredapps:androidutil:0.0.13'
 
 
     /**
      * UI
      */
-    def navVersion = '1.0.0-beta02'
+    def navVersion = '1.0.0-rc02'
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.fragment:fragment:1.0.0'
@@ -134,10 +135,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.6'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
-    implementation 'com.google.firebase:firebase-firestore:18.0.1'
+    implementation 'com.google.firebase:firebase-firestore:18.1.0'
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
-    implementation 'com.google.firebase:firebase-messaging:17.3.4'
-    implementation 'com.google.firebase:firebase-storage:16.0.5'
+    implementation 'com.google.firebase:firebase-messaging:17.4.0'
+    implementation 'com.google.firebase:firebase-storage:16.1.0'
     implementation 'com.google.firebase:firebase-perf:16.2.3'
     implementation 'com.google.firebase:firebase-invites:16.1.0'
 
@@ -147,8 +148,8 @@ dependencies {
      */
     def rxBindingVersion = '3.0.0-alpha2'
 
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.6'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.7'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
     implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.0'
     implementation "com.jakewharton.rxbinding3:rxbinding:$rxBindingVersion"
@@ -164,7 +165,7 @@ dependencies {
     /**
      * Images
      */
-    def glideVersion = '4.8.0'
+    def glideVersion = '4.9.0'
 
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
@@ -177,13 +178,13 @@ dependencies {
      * Utils
      */
     def leakCanaryVersion = '1.6.3'
-    def workVersion = "1.0.0-beta05"
+    def workVersion = "1.0.0-rc02"
 
     implementation 'com.jakewharton.timber:timber:4.7.1'
     debugImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.2'
     implementation "android.arch.work:work-runtime:$workVersion"
     implementation "android.arch.work:work-rxjava2:$workVersion"
     implementation "com.mikepenz:aboutlibraries:6.2.1"

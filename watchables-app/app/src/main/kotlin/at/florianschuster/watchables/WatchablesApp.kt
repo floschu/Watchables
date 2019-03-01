@@ -45,7 +45,7 @@ class WatchablesApp : Application() {
         RxJavaPlugins.setErrorHandler(Timber::e)
         AndroidThreeTen.init(this)
         FirebaseAnalytics.getInstance(this) //initialize for deep link tracking
-        AndroidReactor.handleErrorsWith(Timber::e)
+        AndroidReactor.handleErrorsWith(handler = Timber::e)
 
         startKoin {
             androidContext(this@WatchablesApp)

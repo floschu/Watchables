@@ -60,5 +60,9 @@
     <fragment
         android:id="@+id/detail"
         android:name="at.florianschuster.watchables.ui.detail.DetailFragment"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail">
+        <argument
+            android:name="itemId"
+            app:argType="string" />
+    </fragment>
 </navigation>

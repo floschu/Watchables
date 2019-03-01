@@ -24,6 +24,8 @@ import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.transition.TransitionInflater
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
+import at.florianschuster.watchables.Direction
+import at.florianschuster.watchables.Director
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
@@ -51,9 +53,13 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.android.ext.android.inject
 
 
+enum class LoginDirection : Direction {
+    Watchables
+}
+
 private const val SIGN_IN_CODE = 3432
 
-class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
+class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login), Director<LoginDirection> {
     override val reactor: LoginReactor by reactor()
 
     private val errorTranslationService: ErrorTranslationService  by inject()
@@ -85,12 +91,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                 .bind {
                     progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
                     when (it) {
-                        is Async.Success -> navController.navigate(
-                                R.id.action_login_to_watchables,
-                                null,
-                                null,
-                                FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
-                        )
+                        is Async.Success -> direct(LoginDirection.Watchables)
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
@@ -106,6 +107,15 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login) {
                 .map { LoginReactor.Action.Login(it) }
                 .subscribe(reactor.action, errorTranslationService.toastConsumer)
                 .addTo(disposables)
+    }
+
+    override fun direct(to: LoginDirection) {
+        when (to) {
+            LoginDirection.Watchables -> {
+                val extras = FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
+                navController.navigate(LoginFragmentDirections.actionLoginToWatchables(), extras)
+            }
+        }
     }
 }
 

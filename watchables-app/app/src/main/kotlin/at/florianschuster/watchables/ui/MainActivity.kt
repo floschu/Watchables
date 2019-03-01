@@ -35,13 +35,16 @@ import org.threeten.bp.LocalDate
 import timber.log.Timber
 
 
+private val noSessionNeededDestinations = arrayOf(
+        R.id.splashscreen,
+        R.id.login
+)
+
 class MainActivity : BaseActivity(R.layout.activity_main) {
     private val navController by lazy { findNavController(R.id.navHost) }
 
     private val userSessionService: FirebaseUserSessionService by inject()
     private val prefRepo: PrefRepo by inject()
-
-    private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -78,6 +81,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
             }.subscribe().addTo(disposables)
         }
     }
+
 
     override fun onSupportNavigateUp() = navController.navigateUp()
 }

@@ -16,7 +16,10 @@
 
 package at.florianschuster.watchables.ui.splashscreen
 
+import androidx.navigation.NavDirections
 import androidx.navigation.fragment.FragmentNavigatorExtras
+import at.florianschuster.watchables.Direction
+import at.florianschuster.watchables.Director
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.ui.base.BaseFragment
@@ -28,19 +31,22 @@ import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
 
-class SplashScreenFragment : BaseFragment(R.layout.fragment_splashscreen) {
+sealed class SplashDirection(val navDirections: NavDirections) : Direction {
+    object Login : SplashDirection(SplashScreenFragmentDirections.actionSplashscreenToLogin())
+    object Watchables : SplashDirection(SplashScreenFragmentDirections.actionSplashscreenToWatchables())
+}
+
+
+class SplashScreenFragment : BaseFragment(R.layout.fragment_splashscreen), Director<SplashDirection> {
     private val userSessionService: FirebaseUserSessionService by inject()
     private var timerDisposable: Disposable? = null
 
     override fun onResume() {
         super.onResume()
         Completable.timer(200, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe {
-            val extras = FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
             when {
-                !userSessionService.loggedIn -> {
-                    navController.navigate(R.id.action_splashscreen_to_login, null, null, extras)
-                }
-                else -> navController.navigate(R.id.action_splashscreen_to_watchables, null, null, extras)
+                !userSessionService.loggedIn -> direct(SplashDirection.Login)
+                else -> direct(SplashDirection.Watchables)
             }
         }.let { timerDisposable = it }
     }
@@ -49,4 +55,10 @@ class SplashScreenFragment : BaseFragment(R.layout.fragment_splashscreen) {
         super.onPause()
         timerDisposable?.dispose()
     }
+
+    override fun direct(to: SplashDirection) {
+        val extras = FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
+        navController.navigate(to.navDirections, extras)
+    }
 }
+

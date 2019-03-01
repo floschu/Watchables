@@ -20,10 +20,13 @@ import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
+import androidx.navigation.NavDirections
 import androidx.transition.TransitionInflater
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.androidreactor.consume
+import at.florianschuster.watchables.Direction
+import at.florianschuster.watchables.Director
 import at.florianschuster.watchables.ui.base.reactor.BaseReactor
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.*
@@ -34,14 +37,12 @@ import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.reactor.reactor
 import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
-import at.florianschuster.watchables.ui.detail.ARG_DETAIL_ITEM_ID
 import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.worker.UpdateWatchablesWorker
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding3.material.visibility
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
@@ -59,7 +60,13 @@ import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 
-class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_watchables) {
+sealed class WatchablesDirection(val navDirections: NavDirections) : Direction {
+    class Detail(itemId: String) : WatchablesDirection(WatchablesFragmentDirections.actionWatchablesToDetail(itemId))
+    object Search : WatchablesDirection(WatchablesFragmentDirections.actionWatchablesToSearch())
+}
+
+
+class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_watchables), Director<WatchablesDirection> {
     override val reactor: WatchablesReactor by reactor()
 
     private val adapter: WatchablesAdapter by inject()
@@ -81,12 +88,12 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
         flSearch.clicks()
-                .subscribe { navController.navigate(R.id.action_watchables_to_search) }
+                .map { WatchablesDirection.Search }
+                .bind(::direct)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
-                .map { bundleOf(ARG_DETAIL_ITEM_ID to it.watchable.id) }
-                .bind { navController.navigate(R.id.action_watchables_to_detail, it) }
+                .bind { direct(WatchablesDirection.Detail(it.watchable.id)) }
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
@@ -122,9 +129,11 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .map { it.isEmpty() }
                 .doOnNext {
                     if (!it && !prefRepo.onboardingSnackShown && snack == null) {
-                        snack = rootLayout.snack(R.string.onboarding_snack, R.string.dialog_ok) {
-                            prefRepo.onboardingSnackShown = true
-                        }
+                        snack = rootLayout.snack(
+                                R.string.onboarding_snack,
+                                Snackbar.LENGTH_INDEFINITE,
+                                R.string.dialog_ok
+                        ) { prefRepo.onboardingSnackShown = true }
                     }
                 }
                 .bind(emptyLayout.visibility())
@@ -205,6 +214,10 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                         .addTo(disposables)
             }
         }
+    }
+
+    override fun direct(to: WatchablesDirection) {
+        navController.navigate(to.navDirections)
     }
 }
 

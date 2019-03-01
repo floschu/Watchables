@@ -24,12 +24,11 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.os.bundleOf
 import androidx.navigation.NavDeepLinkBuilder
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.ui.MainActivity
-import at.florianschuster.watchables.ui.detail.ARG_DETAIL_ITEM_ID
+import at.florianschuster.watchables.ui.watchables.WatchablesFragmentDirections
 import at.florianschuster.watchables.util.GlideApp
 import at.florianschuster.watchables.util.extensions.asFormattedString
 import com.google.firebase.messaging.RemoteMessage
@@ -104,7 +103,7 @@ class NotificationService(private val context: Context) {
         val pendingIntent = NavDeepLinkBuilder(context).apply {
             setGraph(R.navigation.nav_graph)
             setDestination(R.id.detail)
-            setArguments(bundleOf(ARG_DETAIL_ITEM_ID to watchable.id))
+            setArguments(WatchablesFragmentDirections.actionWatchablesToDetail(watchable.id).arguments)
         }.createPendingIntent()
 
         val pushNotificationBuilder = NotificationCompat.Builder(context, UPDATE_CHANNEL_ID).apply {
