@@ -18,29 +18,24 @@ package at.florianschuster.watchables.util
 
 import android.content.Intent
 import android.net.Uri
-import at.florianschuster.watchables.BuildConfig
 import android.content.ActivityNotFoundException
 import android.content.Context
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.WatchablesApp
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
+import com.tailoredapps.androidutil.IntentUtil
 
 
 object Utils {
-    fun web(url: String): Intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-    fun mail(mail: String): Intent = Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$mail"))
-    fun call(number: String): Intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:$number"))
-    fun maps(location: String): Intent = Intent(Intent.ACTION_VIEW, Uri.parse("http://maps.google.co.in/maps?q=$location"))
-
-    fun rateApp(playStoreFallbackLink: String): Intent {
+    fun rateApp(context: Context): Intent {
         val marketIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${WatchablesApp.instance.packageName}")).apply {
             addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
         }
         return try {
             marketIntent
         } catch (e: ActivityNotFoundException) {
-            Intent(Intent.ACTION_VIEW, Uri.parse(playStoreFallbackLink))
+            IntentUtil.playstore(context)
         }
     }
 

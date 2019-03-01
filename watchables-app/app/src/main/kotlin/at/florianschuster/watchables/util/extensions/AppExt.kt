@@ -24,7 +24,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.util.Utils
+import com.tailoredapps.androidutil.IntentUtil
 import timber.log.Timber
 
 
@@ -39,7 +39,7 @@ fun FragmentActivity.openChromeTab(url: String) {
         tabsIntent.launchUrl(this, Uri.parse(url))
     } catch (throwable: Throwable) {
         Timber.w(throwable)
-        startActivity(Utils.web(url)) //fallback of chrome not installed -> open default browser
+        startActivity(IntentUtil.web(url)) //fallback of chrome not installed -> open default browser
     }
 }
 

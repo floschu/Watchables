@@ -17,7 +17,6 @@
 package at.florianschuster.watchables.ui.splashscreen
 
 import androidx.navigation.NavDirections
-import androidx.navigation.fragment.FragmentNavigatorExtras
 import at.florianschuster.watchables.Direction
 import at.florianschuster.watchables.Director
 import at.florianschuster.watchables.R
@@ -26,7 +25,6 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import kotlinx.android.synthetic.main.fragment_splashscreen.*
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
@@ -57,8 +55,7 @@ class SplashScreenFragment : BaseFragment(R.layout.fragment_splashscreen), Direc
     }
 
     override fun direct(to: SplashDirection) {
-        val extras = FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
-        navController.navigate(to.navDirections, extras)
+        navController.navigate(to.navDirections)
     }
 }
 

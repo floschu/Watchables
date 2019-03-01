@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph.xml"
+    android:id="@+id/app"
     app:startDestination="@id/splashscreen">
 
     <fragment
@@ -12,14 +12,35 @@
         <action
             android:id="@+id/action_splashscreen_to_watchables"
             app:destination="@id/watchables"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:launchSingleTop="true"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
             app:popUpTo="@+id/splashscreen"
             app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_splashscreen_to_login"
             app:destination="@id/login"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:launchSingleTop="true"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
             app:popUpTo="@+id/splashscreen"
             app:popUpToInclusive="true" />
     </fragment>
+
+    <action
+        android:id="@+id/to_login"
+        app:destination="@id/login"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:launchSingleTop="true"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out"
+        app:popUpTo="@+id/login"
+        app:popUpToInclusive="true" />
 
     <fragment
         android:id="@+id/login"
@@ -28,7 +49,12 @@
         <action
             android:id="@+id/action_login_to_watchables"
             app:destination="@id/watchables"
-            app:popUpTo="@+id/splashscreen"
+            app:enterAnim="@anim/fade_in"
+            app:exitAnim="@anim/fade_out"
+            app:launchSingleTop="true"
+            app:popEnterAnim="@anim/fade_in"
+            app:popExitAnim="@anim/fade_out"
+            app:popUpTo="@+id/login"
             app:popUpToInclusive="true" />
     </fragment>
 
@@ -48,6 +74,7 @@
             app:destination="@id/search"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
+            app:launchSingleTop="true"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>

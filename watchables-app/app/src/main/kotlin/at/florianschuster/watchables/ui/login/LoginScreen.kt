@@ -17,11 +17,9 @@
 package at.florianschuster.watchables.ui.login
 
 import android.content.Intent
-import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.navigation.fragment.FragmentNavigatorExtras
-import androidx.transition.TransitionInflater
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.watchables.Direction
@@ -64,13 +62,8 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login), Di
 
     private val errorTranslationService: ErrorTranslationService  by inject()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(activity).inflateTransition(R.transition.shared_elements)
-    }
-
     override fun bind(reactor: LoginReactor) {
-        onSharedEnterTransition { AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation) }
+        AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
         tvSource.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposables)
         tvPolicy.clicks().subscribe { openChromeTab(getString(R.string.privacy_policy_url)) }.addTo(disposables)

@@ -18,8 +18,7 @@ package at.florianschuster.watchables.ui
 
 import android.os.Bundle
 import androidx.navigation.findNavController
-import androidx.navigation.navOptions
-import at.florianschuster.watchables.R
+import at.florianschuster.watchables.*
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.Session
 import at.florianschuster.watchables.service.local.PrefRepo
@@ -27,6 +26,7 @@ import at.florianschuster.watchables.ui.base.BaseActivity
 import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.RxTasks
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.tailoredapps.androidutil.IntentUtil
 import com.tailoredapps.androidutil.extensions.RxDialogAction
 import com.tailoredapps.androidutil.extensions.rxDialog
 import io.reactivex.rxkotlin.addTo
@@ -35,16 +35,17 @@ import org.threeten.bp.LocalDate
 import timber.log.Timber
 
 
-private val noSessionNeededDestinations = arrayOf(
-        R.id.splashscreen,
-        R.id.login
-)
+enum class MainDirection : Direction {
+    Login
+}
 
-class MainActivity : BaseActivity(R.layout.activity_main) {
+class MainActivity : BaseActivity(R.layout.activity_main), Director<MainDirection> {
     private val navController by lazy { findNavController(R.id.navHost) }
 
     private val userSessionService: FirebaseUserSessionService by inject()
     private val prefRepo: PrefRepo by inject()
+
+    private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,14 +58,11 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                 .distinctUntilChanged()
                 .filter { it is Session.None }
                 .filter { navController.currentDestination?.id !in noSessionNeededDestinations }
-                .subscribe {
-                    val navOptions = navOptions { popUpTo(R.id.splashscreen) { inclusive = true } }
-                    navController.navigate(R.id.login, null, navOptions)
-                }
+                .subscribe { direct(MainDirection.Login) }
                 .addTo(disposables)
 
         if (userSessionService.loggedIn && prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))) {
-            rxDialog {
+            rxDialog(R.style.DialogTheme) {
                 titleResource = R.string.enjoying_dialog_title
                 messageResource = R.string.enjoying_dialog_message
                 positiveButtonResource = R.string.enjoying_dialog_positive
@@ -73,8 +71,8 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
             }.doOnSuccess {
                 prefRepo.enjoyingAppDialogShownDate = LocalDate.now()
                 val intent = when (it) {
-                    is RxDialogAction.Positive -> Utils.rateApp(getString(R.string.playstore_link, packageName))
-                    is RxDialogAction.Negative -> Utils.mail(getString(R.string.dev_mail))
+                    is RxDialogAction.Positive -> Utils.rateApp(this)
+                    is RxDialogAction.Negative -> IntentUtil.mail(getString(R.string.dev_mail))
                     else -> null
                 }
                 intent?.let(::startActivity)
@@ -82,6 +80,11 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         }
     }
 
-
     override fun onSupportNavigateUp() = navController.navigateUp()
+
+    override fun direct(to: MainDirection) {
+        when (to) {
+            MainDirection.Login -> navController.navigate(AppDirections.toLogin())
+        }
+    }
 }

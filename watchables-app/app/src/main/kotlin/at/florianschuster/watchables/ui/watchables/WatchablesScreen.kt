@@ -16,12 +16,9 @@
 
 package at.florianschuster.watchables.ui.watchables
 
-import android.os.Bundle
 import android.view.animation.AnimationUtils
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.navigation.NavDirections
-import androidx.transition.TransitionInflater
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.androidreactor.consume
@@ -74,13 +71,8 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
     private val shareService: ShareService by inject { parametersOf(activity) }
     private val analyticsService: AnalyticsService by inject()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        sharedElementEnterTransition = TransitionInflater.from(activity).inflateTransition(R.transition.shared_elements)
-    }
-
     override fun bind(reactor: WatchablesReactor) {
-        onSharedEnterTransition { AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation) }
+        AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
         rvWatchables.adapter = adapter
 
@@ -153,7 +145,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         adapter.itemClick.ofType<ItemClickType.Options>()
                 .map { it.watchable }
                 .flatMapCompletable { watchable ->
-                    rxDialog {
+                    rxDialog(R.style.DialogTheme) {
                         title = getString(R.string.dialog_options_watchable, watchable.name)
                         negativeButtonResource = R.string.dialog_cancel
                         setItems(getString(R.string.menu_watchable_share), getString(R.string.menu_watchable_delete))
@@ -171,7 +163,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
         adapter.itemClick.ofType<ItemClickType.EpisodeOptions>()
                 .flatMapCompletable {
                     val seasonId = it.seasonId
-                    rxDialog {
+                    rxDialog(R.style.DialogTheme) {
                         title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, it.seasonIndex, it.episodeIndex))
                         negativeButtonResource = R.string.dialog_cancel
                         setItems(getString(R.string.menu_watchable_season_set_watched), getString(R.string.menu_watchable_season_set_not_watched))
@@ -184,26 +176,27 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .addTo(disposables)
     }
 
-    private fun deleteWatchableDialog(watchable: Watchable) = rxDialog {
-        titleResource = R.string.dialog_delete_watchable_title
-        messageResource = R.string.dialog_delete_watchable_message
-        positiveButtonResource = R.string.dialog_ok
-        negativeButtonResource = R.string.dialog_cancel
-    }.ofType<RxDialogAction.Positive>()
-            .map { WatchablesReactor.Action.DeleteWatchable(watchable.id) }
-            .doOnSuccess(reactor.action)
-            .ignoreElement()
+    private fun deleteWatchableDialog(watchable: Watchable) =
+            rxDialog(R.style.DialogTheme) {
+                titleResource = R.string.dialog_delete_watchable_title
+                messageResource = R.string.dialog_delete_watchable_message
+                positiveButtonResource = R.string.dialog_ok
+                negativeButtonResource = R.string.dialog_cancel
+            }.ofType<RxDialogAction.Positive>()
+                    .map { WatchablesReactor.Action.DeleteWatchable(watchable.id) }
+                    .doOnSuccess(reactor.action)
+                    .ignoreElement()
 
     private fun openMenuItem(item: RxPopupAction.Selected) {
         when (item.itemId) {
             R.id.devInfo -> openChromeTab(getString(R.string.developer_url))
             R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposables)
-            R.id.rateApp -> startActivity(Utils.rateApp(getString(R.string.playstore_link, context!!.packageName)))
+            R.id.rateApp -> startActivity(Utils.rateApp(requireContext()))
             R.id.privacyPolicy -> openChromeTab(getString(R.string.privacy_policy_url))
             R.id.licenses -> Utils.showLibraries(context!!)
             R.id.analytics -> analyticsService.analyticsEnabled = !analyticsService.analyticsEnabled
             R.id.logout -> {
-                rxDialog {
+                rxDialog(R.style.DialogTheme) {
                     titleResource = R.string.dialog_logout_title
                     messageResource = R.string.dialog_logout_message
                     positiveButtonResource = R.string.dialog_ok

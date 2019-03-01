@@ -177,7 +177,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail),
 
     private val deleteOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_delete, R.drawable.ic_delete_forever) {
-            rxDialog {
+            rxDialog(R.style.DialogTheme) {
                 titleResource = R.string.dialog_delete_watchable_title
                 messageResource = R.string.dialog_delete_watchable_message
                 positiveButtonResource = R.string.dialog_ok
