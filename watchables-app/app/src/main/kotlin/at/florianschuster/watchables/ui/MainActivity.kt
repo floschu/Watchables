@@ -18,6 +18,7 @@ package at.florianschuster.watchables.ui
 
 import android.os.Bundle
 import androidx.navigation.findNavController
+import androidx.navigation.navOptions
 import at.florianschuster.watchables.*
 import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.Session
@@ -84,7 +85,12 @@ class MainActivity : BaseActivity(R.layout.activity_main), Director<MainDirectio
 
     override fun direct(to: MainDirection) {
         when (to) {
-            MainDirection.Login -> navController.navigate(AppDirections.toLogin())
+            MainDirection.Login -> {
+                val options = navController.currentDestination?.id?.let {
+                    navOptions { popUpTo(it) { inclusive = true } }
+                }
+                navController.navigate(AppDirections.toLogin(), options)
+            }
         }
     }
 }

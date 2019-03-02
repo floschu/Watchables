@@ -41,7 +41,7 @@ class SplashScreenFragment : BaseFragment(R.layout.fragment_splashscreen), Direc
 
     override fun onResume() {
         super.onResume()
-        Completable.timer(200, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe {
+        Completable.timer(1000, TimeUnit.MILLISECONDS).observeOn(AndroidSchedulers.mainThread()).subscribe {
             when {
                 !userSessionService.loggedIn -> direct(SplashDirection.Login)
                 else -> direct(SplashDirection.Watchables)

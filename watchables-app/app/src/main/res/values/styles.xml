@@ -59,12 +59,14 @@
     </style>
 
     <style name="DialogWindowTitleAppearance">
+        <item name="fontFamily">sans-serif</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/text_size_tall</item>
         <item name="android:textColor">@color/textColor</item>
     </style>
 
     <style name="DialogTextAppearance">
+        <item name="fontFamily">sans-serif</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">@dimen/text_size_regular</item>
     </style>

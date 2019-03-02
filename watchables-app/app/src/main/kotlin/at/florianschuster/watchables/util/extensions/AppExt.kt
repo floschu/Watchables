@@ -17,9 +17,7 @@
 package at.florianschuster.watchables.util.extensions
 
 import android.net.Uri
-import android.view.View
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.app.SharedElementCallback
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -49,11 +47,3 @@ fun Fragment.openChromeTab(url: String) {
             ?: throw RuntimeException("No Activity attached to Fragment. Cannot show Dialog.")
     activity.openChromeTab(url)
 }
-
-
-fun Fragment.onSharedEnterTransition(callback: () -> Unit) = setEnterSharedElementCallback(object : SharedElementCallback() {
-    override fun onSharedElementEnd(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, sharedElementSnapshots: MutableList<View>?) {
-        super.onSharedElementEnd(sharedElementNames, sharedElements, sharedElementSnapshots)
-        callback.invoke()
-    }
-})
