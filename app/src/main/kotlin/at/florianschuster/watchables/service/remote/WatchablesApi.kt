@@ -20,8 +20,10 @@ import at.florianschuster.watchables.*
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableSeason
-import at.florianschuster.watchables.service.FirebaseUserSessionService
+import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.util.extensions.*
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -57,55 +59,55 @@ interface WatchablesApi {
 
 
 class FirebaseWatchablesApi(
-        private val userSessionService: FirebaseUserSessionService
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : WatchablesApi {
     private val fireStore = FirebaseFirestore.getInstance()
 
     override val watchableUser: Single<WatchableUser>
-        get() = userSessionService.user
+        get() = sessionService.user
                 .map { fireStore.user(it.uid) }
                 .flatMap { it.localObject<WatchableUser>() }
                 .subscribeOn(Schedulers.io())
 
     override val watchableUserObservable: Flowable<WatchableUser>
-        get() = userSessionService.user
+        get() = sessionService.user
                 .map { fireStore.user(it.uid) }
                 .flatMapPublisher { it.localObjectObservable<WatchableUser>() }
                 .subscribeOn(Schedulers.io())
 
-    override fun createUser(user: WatchableUser): Completable = userSessionService.user
+    override fun createUser(user: WatchableUser): Completable = sessionService.user
             .map { fireStore.users() }
             .flatMapCompletable { it.createObject(user) }
             .subscribeOn(Schedulers.io())
 
-    override val watchablesObservable: Flowable<List<Watchable>> = userSessionService.user
+    override val watchablesObservable: Flowable<List<Watchable>> = sessionService.user
             .map { fireStore.watchables(it.uid).whereEqualTo(Watchable::deleted.name, false) }
             .flatMapPublisher { it.localObjectListObservable<Watchable>() }
             .subscribeOn(Schedulers.io())
 
-    override fun watchable(id: String): Single<Watchable> = userSessionService.user
+    override fun watchable(id: String): Single<Watchable> = sessionService.user
             .map { fireStore.watchables(it.uid).document(id) }
             .flatMap { it.localObject<Watchable>() }
             .subscribeOn(Schedulers.io())
 
-    override fun createWatchable(watchable: Watchable): Single<Watchable> = userSessionService.user
+    override fun createWatchable(watchable: Watchable): Single<Watchable> = sessionService.user
             .map { fireStore.watchables(it.uid) }
             .flatMapCompletable { it.createObject(watchable) }
             .toSingleDefault(watchable)
             .subscribeOn(Schedulers.io())
 
-    override fun updateWatchable(watchableId: String, watched: Boolean): Completable = userSessionService.user
+    override fun updateWatchable(watchableId: String, watched: Boolean): Completable = sessionService.user
             .map { fireStore.watchables(it.uid).document(watchableId) }
             .flatMapCompletable { it.updateField(Watchable::watched.name, watched) }
             .subscribeOn(Schedulers.io())
 
-    override fun setWatchableDeleted(watchableId: String): Completable = userSessionService.user
+    override fun setWatchableDeleted(watchableId: String): Completable = sessionService.user
             .map { fireStore.watchables(it.uid).document(watchableId) }
             .flatMapCompletable { it.updateField(Watchable::deleted.name, true) }
             .andThen(deleteSeasonsOf(watchableId))
             .subscribeOn(Schedulers.io())
 
-    private fun deleteSeasonsOf(watchableId: String): Completable = userSessionService.user.map { it.uid }
+    private fun deleteSeasonsOf(watchableId: String): Completable = sessionService.user.map { it.uid }
             .flatMapCompletable { userId ->
                 RxTasks.single { fireStore.seasons(userId).whereEqualTo(WatchableSeason::watchableId.name, watchableId).get() }
                         .map { it.documents.map { it.id } }
@@ -114,24 +116,24 @@ class FirebaseWatchablesApi(
             }
             .subscribeOn(Schedulers.io())
 
-    override val watchableSeasonsObservable: Flowable<List<WatchableSeason>> = userSessionService.user
+    override val watchableSeasonsObservable: Flowable<List<WatchableSeason>> = sessionService.user
             .map { fireStore.seasons(it.uid).whereEqualTo(WatchableSeason::deleted.name, false) }
             .flatMapPublisher { it.localObjectListObservable<WatchableSeason>() }
             .subscribeOn(Schedulers.io())
 
-    override fun season(id: String): Single<WatchableSeason> = userSessionService.user
+    override fun season(id: String): Single<WatchableSeason> = sessionService.user
             .map { fireStore.seasons(it.uid).document(id) }
             .flatMap { it.localObject<WatchableSeason>() }
             .subscribeOn(Schedulers.io())
 
-    override fun createSeason(season: WatchableSeason): Single<WatchableSeason> = userSessionService.user
+    override fun createSeason(season: WatchableSeason): Single<WatchableSeason> = sessionService.user
             .map { fireStore.seasons(it.uid) }
             .flatMapCompletable { it.createObject(season) }
             .toSingleDefault(season)
             .subscribeOn(Schedulers.io())
 
     override fun updateSeason(seasonId: String, watched: Boolean): Completable {
-        return userSessionService.user
+        return sessionService.user
                 .map { fireStore.seasons(it.uid).document(seasonId) }
                 .flatMapCompletable { seasonDocument ->
                     seasonDocument.localObject<WatchableSeason>()
@@ -142,13 +144,13 @@ class FirebaseWatchablesApi(
 
     }
 
-    override fun updateSeasonEpisode(seasonId: String, episode: String, watched: Boolean): Completable = userSessionService.user
+    override fun updateSeasonEpisode(seasonId: String, episode: String, watched: Boolean): Completable = sessionService.user
             .map { fireStore.seasons(it.uid).document(seasonId) }
             .flatMapCompletable { it.updateNestedField(WatchableSeason::episodes.name, episode to watched) }
             .subscribeOn(Schedulers.io())
 
     override val watchablesToUpdate: Single<List<Watchable>>
-        get() = userSessionService.user
+        get() = sessionService.user
                 .map {
                     fireStore.watchables(it.uid)
                             .whereEqualTo(Watchable::status.name, Watchable.Status.running.name)
@@ -158,23 +160,23 @@ class FirebaseWatchablesApi(
                 .subscribeOn(Schedulers.io())
 
     override val watchablesToDelete: Single<List<Watchable>>
-        get() = userSessionService.user
+        get() = sessionService.user
                 .map { fireStore.watchables(it.uid).whereEqualTo(Watchable::deleted.name, true) }
                 .flatMap { it.localObjectList<Watchable>() }
                 .subscribeOn(Schedulers.io())
 
-    override fun deleteWatchable(watchableId: String): Completable = userSessionService.user
+    override fun deleteWatchable(watchableId: String): Completable = sessionService.user
             .map { fireStore.watchables(it.uid).document(watchableId) }
             .flatMapCompletable { RxTasks.completable { it.delete() } }
             .subscribeOn(Schedulers.io())
 
     override val watchableSeasonsToDelete: Single<List<WatchableSeason>>
-        get() = userSessionService.user
+        get() = sessionService.user
                 .map { fireStore.seasons(it.uid).whereEqualTo(WatchableSeason::deleted.name, true) }
                 .flatMap { it.localObjectList<WatchableSeason>() }
                 .subscribeOn(Schedulers.io())
 
-    override fun deleteWatchableSeason(seasonId: String): Completable = userSessionService.user
+    override fun deleteWatchableSeason(seasonId: String): Completable = sessionService.user
             .map { fireStore.seasons(it.uid).document(seasonId) }
             .flatMapCompletable { RxTasks.completable { it.delete() } }
             .subscribeOn(Schedulers.io())

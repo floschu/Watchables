@@ -34,7 +34,9 @@ import java.io.FileOutputStream
 import java.io.IOException
 
 
-class ShareService(private val activity: AppCompatActivity) {
+class ShareService(
+        private val activity: AppCompatActivity
+) {
     private val resources = activity.resources
 
     private val cachedName = "shareimage.jpg"

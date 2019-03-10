@@ -17,15 +17,18 @@
 package at.florianschuster.watchables.ui
 
 import android.os.Bundle
+import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import at.florianschuster.watchables.*
-import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.Session
+import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseActivity
 import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.RxTasks
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
 import com.tailoredapps.androidutil.IntentUtil
 import com.tailoredapps.androidutil.extensions.RxDialogAction
@@ -36,14 +39,10 @@ import org.threeten.bp.LocalDate
 import timber.log.Timber
 
 
-enum class MainDirection : Direction {
-    Login
-}
+class MainActivity : BaseActivity(R.layout.activity_main) {
+    private val navController: NavController by lazy { findNavController(R.id.navHost) }
 
-class MainActivity : BaseActivity(R.layout.activity_main), Director<MainDirection> {
-    private val navController by lazy { findNavController(R.id.navHost) }
-
-    private val userSessionService: FirebaseUserSessionService by inject()
+    private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
     private val prefRepo: PrefRepo by inject()
 
     private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
@@ -55,14 +54,19 @@ class MainActivity : BaseActivity(R.layout.activity_main), Director<MainDirectio
                 .subscribe({ Timber.d("Deeplink: ${it.link}") }, Timber::e) //todo
                 .addTo(disposables)
 
-        userSessionService.session
+        sessionService.session
                 .distinctUntilChanged()
                 .filter { it is Session.None }
                 .filter { navController.currentDestination?.id !in noSessionNeededDestinations }
-                .subscribe { direct(MainDirection.Login) }
+                .subscribe {
+                    val options = navController.currentDestination?.id?.let {
+                        navOptions { popUpTo(it) { inclusive = true } }
+                    }
+                    navController.navigate(AppDirections.toLogin(), options)
+                }
                 .addTo(disposables)
 
-        if (userSessionService.loggedIn && prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))) {
+        if (sessionService.loggedIn && prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))) {
             rxDialog(R.style.DialogTheme) {
                 titleResource = R.string.enjoying_dialog_title
                 messageResource = R.string.enjoying_dialog_message
@@ -82,15 +86,4 @@ class MainActivity : BaseActivity(R.layout.activity_main), Director<MainDirectio
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()
-
-    override fun direct(to: MainDirection) {
-        when (to) {
-            MainDirection.Login -> {
-                val options = navController.currentDestination?.id?.let {
-                    navOptions { popUpTo(it) { inclusive = true } }
-                }
-                navController.navigate(AppDirections.toLogin(), options)
-            }
-        }
-    }
 }

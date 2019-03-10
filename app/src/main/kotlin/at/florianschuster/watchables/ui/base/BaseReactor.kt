@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.ui.base.reactor
+package at.florianschuster.watchables.ui.base
 
 import androidx.annotation.CallSuper
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModel
-import at.florianschuster.androidreactor.Reactor
 import at.florianschuster.androidreactor.ViewModelReactor
-import com.jakewharton.rxrelay2.PublishRelay
 import com.squareup.leakcanary.RefWatcher
-import io.reactivex.Observable
-import io.reactivex.disposables.CompositeDisposable
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.androidx.viewmodel.ext.viewModel
 import org.koin.core.KoinComponent
@@ -53,7 +48,7 @@ inline fun <reified Reactor : BaseReactor<*, *, *>> Module.reactor(
         name: String? = null,
         override: Boolean = false,
         noinline definition: Definition<Reactor>
-) = viewModel(name, override, definition)
+): Unit = viewModel(name, override, definition)
 
 
 /**
@@ -62,4 +57,4 @@ inline fun <reified Reactor : BaseReactor<*, *, *>> Module.reactor(
 inline fun <reified Reactor : BaseReactor<*, *, *>> LifecycleOwner.reactor(
         name: String? = null,
         noinline parameters: ParametersDefinition? = null
-) = viewModel<Reactor>(name, parameters)
+): Lazy<Reactor> = viewModel(name, parameters)

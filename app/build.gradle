@@ -83,8 +83,8 @@ dependencies {
     /**
      * Base
      */
-    implementation 'at.florianschuster:androidreactor:0.1.0'
-    implementation 'com.tailoredapps:androidutil:0.0.13'
+    implementation 'at.florianschuster:androidreactor:0.1.1'
+    implementation 'com.tailoredapps:androidutil:19'
 
 
     /**
@@ -184,7 +184,7 @@ dependencies {
     debugImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.1.2'
+    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
     implementation "android.arch.work:work-runtime:$workVersion"
     implementation "android.arch.work:work-rxjava2:$workVersion"
     implementation "com.mikepenz:aboutlibraries:6.2.1"

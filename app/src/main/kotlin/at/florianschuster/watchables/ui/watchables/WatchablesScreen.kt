@@ -16,36 +16,41 @@
 
 package at.florianschuster.watchables.ui.watchables
 
+import android.os.Bundle
 import android.view.animation.AnimationUtils
 import androidx.core.view.isVisible
-import androidx.navigation.NavDirections
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import at.florianschuster.androidreactor.ReactorView
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.androidreactor.consume
-import at.florianschuster.watchables.Direction
-import at.florianschuster.watchables.Director
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
-import at.florianschuster.watchables.R
+import at.florianschuster.watchables.*
+import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.service.AnalyticsService
-import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.ShareService
+import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.reactor
-import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
+import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.reactor
 import at.florianschuster.watchables.util.Utils
+import at.florianschuster.watchables.util.coordinator.*
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.worker.UpdateWatchablesWorker
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.extensions.*
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
+import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.Flowables
@@ -57,35 +62,58 @@ import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 
-sealed class WatchablesDirection(val navDirections: NavDirections) : Direction {
-    class Detail(itemId: String) : WatchablesDirection(WatchablesFragmentDirections.actionWatchablesToDetail(itemId))
-    object Search : WatchablesDirection(WatchablesFragmentDirections.actionWatchablesToSearch())
+class WatchablesCoordinator(fragment: Fragment) : FragmentCoordinator<WatchablesCoordinator.Route>(fragment) {
+    sealed class Route : CoordinatorRoute {
+        data class ShowWatchable(val itemId: String) : Route()
+        object Search : Route()
+    }
+
+    private val navController = fragment.findNavController()
+
+    override fun navigate(to: Route) {
+        when (to) {
+            is Route.ShowWatchable -> {
+                WatchablesFragmentDirections.actionWatchablesToDetail(to.itemId)
+            }
+            is Route.Search -> {
+                WatchablesFragmentDirections.actionWatchablesToSearch()
+            }
+        }.also(navController::navigate)
+    }
 }
 
 
-class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_watchables), Director<WatchablesDirection> {
+class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorView<WatchablesReactor> {
     override val reactor: WatchablesReactor by reactor()
+    private val coordinator: WatchablesCoordinator by fragmentCoordinator { WatchablesCoordinator(this) }
 
     private val adapter: WatchablesAdapter by inject()
     private val prefRepo: PrefRepo by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
     private val analyticsService: AnalyticsService by inject()
 
-    override fun bind(reactor: WatchablesReactor) {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
         AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
-        rvWatchables.adapter = adapter
+        with(rvWatchables) {
+            adapter = this@WatchablesFragment.adapter
+            addScrolledPastItemListener { fabScroll.isVisible = it }
+        }
 
-        rvWatchables.addScrolledPastItemListener { fabScroll.isVisible = it }
-        fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
+        fabScroll.clicks()
+                .subscribe { rvWatchables.smoothScrollUp() }
+                .addTo(disposables)
 
         flSearch.clicks()
-                .map { WatchablesDirection.Search }
-                .bind(::direct)
+                .map { WatchablesCoordinator.Route.Search }
+                .subscribe(coordinator::navigate)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
-                .bind { direct(WatchablesDirection.Detail(it.watchable.id)) }
+                .map { WatchablesCoordinator.Route.ShowWatchable(it.watchable.id) }
+                .subscribe(coordinator::navigate)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
@@ -105,6 +133,10 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .subscribe(::openMenuItem)
                 .addTo(disposables)
 
+        bind(reactor)
+    }
+
+    override fun bind(reactor: WatchablesReactor) {
         //state
         reactor.state.changesFrom { it.watchables }
                 .ofType<Async.Success<List<WatchableContainer>>>()
@@ -161,10 +193,10 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.EpisodeOptions>()
-                .flatMapCompletable {
-                    val seasonId = it.seasonId
+                .flatMapCompletable { clickType ->
+                    val seasonId = clickType.seasonId
                     rxDialog(R.style.DialogTheme) {
-                        title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, it.seasonIndex, it.episodeIndex))
+                        title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, clickType.seasonIndex, clickType.episodeIndex))
                         negativeButtonResource = R.string.dialog_cancel
                         setItems(getString(R.string.menu_watchable_season_set_watched), getString(R.string.menu_watchable_season_set_not_watched))
                     }.ofType<RxDialogAction.Selected<*>>()
@@ -176,41 +208,40 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
                 .addTo(disposables)
     }
 
-    private fun deleteWatchableDialog(watchable: Watchable) =
-            rxDialog(R.style.DialogTheme) {
-                titleResource = R.string.dialog_delete_watchable_title
-                messageResource = R.string.dialog_delete_watchable_message
-                positiveButtonResource = R.string.dialog_ok
-                negativeButtonResource = R.string.dialog_cancel
-            }.ofType<RxDialogAction.Positive>()
-                    .map { WatchablesReactor.Action.DeleteWatchable(watchable.id) }
-                    .doOnSuccess(reactor.action)
-                    .ignoreElement()
-
     private fun openMenuItem(item: RxPopupAction.Selected) {
         when (item.itemId) {
             R.id.devInfo -> openChromeTab(getString(R.string.developer_url))
             R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposables)
             R.id.rateApp -> startActivity(Utils.rateApp(requireContext()))
             R.id.privacyPolicy -> openChromeTab(getString(R.string.privacy_policy_url))
-            R.id.licenses -> Utils.showLibraries(context!!)
+            R.id.licenses -> Utils.showLibraries(requireContext())
             R.id.analytics -> analyticsService.analyticsEnabled = !analyticsService.analyticsEnabled
-            R.id.logout -> {
-                rxDialog(R.style.DialogTheme) {
-                    titleResource = R.string.dialog_logout_title
-                    messageResource = R.string.dialog_logout_message
-                    positiveButtonResource = R.string.dialog_ok
-                    negativeButtonResource = R.string.dialog_cancel
-                }.filter { it is RxDialogAction.Positive }
-                        .map { WatchablesReactor.Action.Logout }
-                        .subscribe(reactor.action)
-                        .addTo(disposables)
-            }
+            R.id.logout -> showLogoutDialog()
         }
     }
 
-    override fun direct(to: WatchablesDirection) {
-        navController.navigate(to.navDirections)
+    private fun deleteWatchableDialog(watchable: Watchable): Completable {
+        return rxDialog(R.style.DialogTheme) {
+            titleResource = R.string.dialog_delete_watchable_title
+            messageResource = R.string.dialog_delete_watchable_message
+            positiveButtonResource = R.string.dialog_ok
+            negativeButtonResource = R.string.dialog_cancel
+        }.ofType<RxDialogAction.Positive>()
+                .map { WatchablesReactor.Action.DeleteWatchable(watchable.id) }
+                .doOnSuccess(reactor.action)
+                .ignoreElement()
+    }
+
+    private fun showLogoutDialog() {
+        rxDialog(R.style.DialogTheme) {
+            titleResource = R.string.dialog_logout_title
+            messageResource = R.string.dialog_logout_message
+            positiveButtonResource = R.string.dialog_ok
+            negativeButtonResource = R.string.dialog_cancel
+        }.ofType<RxDialogAction.Positive>()
+                .map { WatchablesReactor.Action.Logout }
+                .subscribe(reactor.action)
+                .addTo(disposables)
     }
 }
 
@@ -218,7 +249,7 @@ class WatchablesFragment : ReactorFragment<WatchablesReactor>(R.layout.fragment_
 class WatchablesReactor(
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService,
-        private val userSessionService: FirebaseUserSessionService
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
     sealed class Action {
@@ -252,7 +283,7 @@ class WatchablesReactor(
         is Action.DeleteWatchable -> watchablesApi
                 .setWatchableDeleted(action.watchableId)
                 .andThen(Observable.empty())
-        is Action.Logout -> userSessionService.logout()
+        is Action.Logout -> sessionService.logout()
                 .doOnComplete { UpdateWatchablesWorker.stop() }
                 .doOnComplete { DeleteWatchablesWorker.stop() }
                 .andThen(Observable.empty())

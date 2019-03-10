@@ -16,22 +16,25 @@
 
 package at.florianschuster.watchables.ui.search
 
+import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import at.florianschuster.androidreactor.ReactorView
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
 import at.florianschuster.androidreactor.consume
-import at.florianschuster.watchables.Direction
-import at.florianschuster.watchables.Director
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
-import at.florianschuster.watchables.R
+import at.florianschuster.watchables.*
+import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
-import at.florianschuster.watchables.ui.base.reactor.reactor
+import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.reactor
+import at.florianschuster.watchables.util.coordinator.*
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.AddWatchableWorker
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
@@ -51,23 +54,39 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-enum class SearchDirection : Direction {
-    Back
+
+class SearchCoordinator(fragment: Fragment) : FragmentCoordinator<SearchCoordinator.Route>(fragment) {
+    enum class Route : CoordinatorRoute {
+        OnDismissed
+    }
+
+    private val navController = fragment.findNavController()
+
+    override fun navigate(to: Route) {
+        when (to) {
+            Route.OnDismissed -> navController.navigateUp()
+        }
+    }
 }
 
-class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search), Director<SearchDirection> {
+
+class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<SearchReactor> {
     override val reactor: SearchReactor by reactor()
+    private val coordinator: SearchCoordinator by fragmentCoordinator { SearchCoordinator(this) }
 
     private val errorTranslationService: ErrorTranslationService by inject()
     private val adapter: SearchAdapter by inject()
 
-    override fun bind(reactor: SearchReactor) {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
         rvSearch.adapter = adapter
 
-        ivBack.clicks().subscribe {
-            etSearch.hideKeyboard()
-            direct(SearchDirection.Back)
-        }.addTo(disposables)
+        ivBack.clicks()
+                .doOnNext { etSearch.hideKeyboard() }
+                .map { SearchCoordinator.Route.OnDismissed }
+                .subscribe(coordinator::navigate)
+                .addTo(disposables)
 
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
         rvSearch.addScrolledPastItemListener { fabScroll.isVisible = it }
@@ -90,7 +109,10 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search),
 
         adapter.imageClick.subscribe(context.photoDetailConsumer).addTo(disposables)
 
-        //state
+        bind(reactor)
+    }
+
+    override fun bind(reactor: SearchReactor) {
         reactor.state.changesFrom { it.query }
                 .map { it.isNotEmpty() }
                 .bind(ivClear.visibility())
@@ -113,7 +135,6 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search),
                 .bind(errorTranslationService.toastConsumer)
                 .addTo(disposables)
 
-        //action
         etSearch.textChanges()
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .map { SearchReactor.Action.UpdateQuery(it.toString()) }
@@ -132,12 +153,6 @@ class SearchFragment : ReactorFragment<SearchReactor>(R.layout.fragment_search),
                 .map { SearchReactor.Action.AddItemToWatchables(it) }
                 .consume(reactor)
                 .addTo(disposables)
-    }
-
-    override fun direct(to: SearchDirection) {
-        when (to) {
-            SearchDirection.Back -> navController.navigateUp()
-        }
     }
 }
 

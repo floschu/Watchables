@@ -19,10 +19,12 @@ package at.florianschuster.watchables.worker
 import android.content.Context
 import androidx.work.*
 import at.florianschuster.watchables.model.*
-import at.florianschuster.watchables.service.FirebaseUserSessionService
 import at.florianschuster.watchables.service.NotificationService
+import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toFlowable
@@ -33,13 +35,13 @@ import java.util.concurrent.TimeUnit
 
 
 class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
-    private val userSessionService: FirebaseUserSessionService by inject()
+    private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
     private val notificationService: NotificationService by inject()
     private val movieDatabaseApi: MovieDatabaseApi by inject()
     private val watchablesApi: WatchablesApi by inject()
 
     override fun doWork(): Result =
-            if (userSessionService.user.ignoreElement().blockingGet() != null) {
+            if (sessionService.user.ignoreElement().blockingGet() != null) {
                 Result.failure()
             } else {
                 val error = watchablesApi.watchablesToUpdate

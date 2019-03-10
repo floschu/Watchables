@@ -7,8 +7,8 @@
 
     <fragment
         android:id="@+id/splashscreen"
-        android:name="at.florianschuster.watchables.ui.splashscreen.SplashScreenFragment"
-        tools:layout="@layout/fragment_splashscreen">
+        android:name="at.florianschuster.watchables.ui.splashscreen.SplashFragment"
+        tools:layout="@layout/fragment_splash">
         <action
             android:id="@+id/action_splashscreen_to_watchables"
             app:destination="@id/watchables"

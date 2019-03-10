@@ -50,7 +50,7 @@ class WatchablesApp : Application() {
         startKoin {
             androidContext(this@WatchablesApp)
             androidLogger(Level.INFO)
-            modules(appModule, localModule, remoteModule, reactorModule, viewModule)
+            modules(appModule, localModule, remoteModule, viewModule)
         }
     }
 

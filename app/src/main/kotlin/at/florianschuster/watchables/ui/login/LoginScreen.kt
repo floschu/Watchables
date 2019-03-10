@@ -19,19 +19,20 @@ package at.florianschuster.watchables.ui.login
 import android.content.Intent
 import android.view.View
 import android.view.animation.AnimationUtils
-import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import at.florianschuster.androidreactor.ReactorView
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
-import at.florianschuster.watchables.Direction
-import at.florianschuster.watchables.Director
-import at.florianschuster.watchables.R
+import at.florianschuster.watchables.*
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
-import at.florianschuster.watchables.service.FirebaseUserSessionService
+import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
-import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
-import at.florianschuster.watchables.ui.base.reactor.reactor
+import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor
+import at.florianschuster.watchables.util.coordinator.*
 import at.florianschuster.watchables.util.extensions.*
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.worker.UpdateWatchablesWorker
@@ -51,14 +52,26 @@ import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.android.ext.android.inject
 
 
-enum class LoginDirection : Direction {
-    Watchables
+class LoginCoordinator(fragment: Fragment) : FragmentCoordinator<LoginCoordinator.Route>(fragment) {
+    enum class Route : CoordinatorRoute {
+        OnLoggedIn
+    }
+
+    private val navController = fragment.findNavController()
+
+    override fun navigate(to: Route) {
+        when (to) {
+            Route.OnLoggedIn -> {
+                navController.navigate(LoginFragmentDirections.actionLoginToWatchables())
+            }
+        }
+    }
 }
 
-private const val SIGN_IN_CODE = 3432
 
-class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login), Director<LoginDirection> {
+class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginReactor> {
     override val reactor: LoginReactor by reactor()
+    private val coordinator: LoginCoordinator by fragmentCoordinator { LoginCoordinator(this) }
 
     private val errorTranslationService: ErrorTranslationService  by inject()
 
@@ -84,7 +97,7 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login), Di
                 .bind {
                     progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
                     when (it) {
-                        is Async.Success -> direct(LoginDirection.Watchables)
+                        is Async.Success -> coordinator.navigate(LoginCoordinator.Route.OnLoggedIn)
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
@@ -102,20 +115,15 @@ class LoginFragment : ReactorFragment<LoginReactor>(R.layout.fragment_login), Di
                 .addTo(disposables)
     }
 
-    override fun direct(to: LoginDirection) {
-        when (to) {
-            LoginDirection.Watchables -> {
-                val extras = FragmentNavigatorExtras(ivLogo to ivLogo.transitionName)
-                navController.navigate(LoginFragmentDirections.actionLoginToWatchables(), extras)
-            }
-        }
+    companion object {
+        private const val SIGN_IN_CODE = 3432
     }
 }
 
 
 class LoginReactor(
         private val watchablesApi: WatchablesApi,
-        private val userSessionService: FirebaseUserSessionService
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
     sealed class Action {
         data class Login(val credential: AuthCredential) : Action()
@@ -141,8 +149,8 @@ class LoginReactor(
     }
 
     private fun loginMutation(credential: AuthCredential): Observable<Mutation.Login> =
-            userSessionService.login(credential)
-                    .andThen(userSessionService.user)
+            sessionService.login(credential)
+                    .andThen(sessionService.user)
                     .flatMapCompletable(::createWatchableUserIfNeeded)
                     .doOnComplete { UpdateWatchablesWorker.start() }
                     .doOnComplete { DeleteWatchablesWorker.start() }

@@ -18,6 +18,8 @@ package at.florianschuster.watchables.di
 
 import androidx.appcompat.app.AppCompatActivity
 import at.florianschuster.watchables.service.*
+import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import com.squareup.leakcanary.LeakCanary
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
@@ -26,7 +28,7 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { LeakCanary.install(androidApplication()) }
-    single { FirebaseUserSessionService(androidContext()) }
+    single { FirebaseSessionService(androidContext()) as SessionService<FirebaseUser, AuthCredential> }
     single { ErrorTranslationService(androidContext()) }
     single { AnalyticsService(androidContext(), get()) }
     single { (activity: AppCompatActivity) -> ShareService(activity) }

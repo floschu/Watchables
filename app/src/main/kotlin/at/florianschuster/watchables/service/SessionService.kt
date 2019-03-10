@@ -41,24 +41,23 @@ sealed class Session<out UserType> {
     }
 }
 
-interface UserSessionService<User, Credential> {
+interface SessionService<User, Credential> {
     val loggedIn: Boolean
     val user: Single<User>
-    val sessionRefreshTrigger: PublishRelay<Unit>
     val session: Flowable<Session<User>>
 
     fun login(credential: Credential): Completable
     fun logout(): Completable
 }
 
-class FirebaseUserSessionService(
+class FirebaseSessionService(
         private val context: Context
-) : UserSessionService<FirebaseUser, AuthCredential> {
+) : SessionService<FirebaseUser, AuthCredential> {
     private val auth = FirebaseAuth.getInstance()
     private val authThrowable: FirebaseAuthException
         get() = FirebaseAuthException("69", context.getString(R.string.error_not_authenticated))
 
-    override val sessionRefreshTrigger = PublishRelay.create<Unit>()
+    private val sessionRefreshTrigger = PublishRelay.create<Unit>()
 
     override val loggedIn: Boolean
         get() = try {

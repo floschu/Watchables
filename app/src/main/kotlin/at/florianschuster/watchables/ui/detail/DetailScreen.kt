@@ -16,16 +16,18 @@
 
 package at.florianschuster.watchables.ui.detail
 
+import android.os.Bundle
 import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import at.florianschuster.androidreactor.ReactorView
 import at.florianschuster.androidreactor.bind
 import at.florianschuster.androidreactor.changesFrom
-import at.florianschuster.watchables.Direction
-import at.florianschuster.watchables.Director
-import at.florianschuster.watchables.R
+import at.florianschuster.watchables.*
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.original
@@ -35,11 +37,13 @@ import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
-import at.florianschuster.watchables.ui.base.reactor.BaseReactor
-import at.florianschuster.watchables.ui.base.reactor.ReactorFragment
-import at.florianschuster.watchables.ui.base.reactor.reactor
-import at.florianschuster.watchables.util.*
+import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.watchables.ui.base.reactor
+import at.florianschuster.watchables.util.coordinator.*
 import at.florianschuster.watchables.util.extensions.*
+import at.florianschuster.watchables.util.srcBlurConsumer
+import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.extensions.*
@@ -55,31 +59,56 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
-enum class DetailDirection : Direction {
-    Back
+
+class DetailCoordinator(fragment: Fragment) : FragmentCoordinator<DetailCoordinator.Route>(fragment) {
+    enum class Route : CoordinatorRoute {
+        OnDismissed
+    }
+
+    private val navController = fragment.findNavController()
+
+    override fun navigate(to: Route) {
+        when (to) {
+            Route.OnDismissed -> navController.navigateUp()
+        }
+    }
 }
 
-class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail), Director<DetailDirection> {
+
+class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<DetailReactor> {
     private val args: DetailFragmentArgs by navArgs()
 
     override val reactor: DetailReactor by reactor { parametersOf(args.itemId) }
+    private val coordinator: DetailCoordinator by fragmentCoordinator { DetailCoordinator(this) }
 
     private val errorTranslationService: ErrorTranslationService by inject()
     private val detailMediaAdapter: DetailMediaAdapter by inject()
     private val optionsAdapter: OptionsAdapter by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
 
-    override fun bind(reactor: DetailReactor) {
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back)
-        toolbar.setNavigationOnClickListener { direct(DetailDirection.Back) }
+    private val snapHelper = LinearSnapHelper()
 
-        val snapHelper = LinearSnapHelper().also { it.attachToRecyclerView(rvMedia) }
-        rvMedia.adapter = detailMediaAdapter
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        btnBack.clicks()
+                .map { DetailCoordinator.Route.OnDismissed }
+                .subscribe(coordinator::navigate)
+                .addTo(disposables)
+
+
+        with(rvMedia) {
+            snapHelper.attachToRecyclerView(this)
+            adapter = detailMediaAdapter
+        }
 
         rvOptions.adapter = optionsAdapter
-        updateOptions()
+        optionsAdapter.update()
 
-        //state
+        bind(reactor)
+    }
+
+    override fun bind(reactor: DetailReactor) {
         reactor.state.map { it.watchable.asOptional }
                 .filterSome()
                 .subscribe {
@@ -92,7 +121,7 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail),
         reactor.state.changesFrom { it.deleteResult }
                 .bind {
                     when (it) {
-                        is Async.Success -> direct(DetailDirection.Back)
+                        is Async.Success -> coordinator.navigate(DetailCoordinator.Route.OnDismissed)
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
@@ -100,20 +129,17 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail),
 
         reactor.state.map { it.imdbId.asOptional }
                 .filterSome()
-                .doOnEach { updateOptions() }
-                .subscribe()
+                .bind { optionsAdapter.update() }
                 .addTo(disposables)
 
         reactor.state.map { it.website.asOptional }
                 .filterSome()
-
-                .doOnEach { updateOptions() }
-                .subscribe()
+                .bind { optionsAdapter.update() }
                 .addTo(disposables)
 
         reactor.state.map { it.airing.asOptional }
                 .filterSome()
-                .subscribe {
+                .bind {
                     tvAiring.text = if (it.isBefore(ZonedDateTime.now().toLocalDate())) {
                         getString(R.string.release_date_past, it.asFormattedString)
                     } else {
@@ -148,13 +174,13 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail),
         reactor.action.accept(DetailReactor.Action.LoadData)
     }
 
-    private fun updateOptions() {
-        optionsAdapter.submitList(listOfNotNull(
+    private fun OptionsAdapter.update() {
+        listOfNotNull(
                 reactor.currentState.website?.let { openWebOption },
                 reactor.currentState.imdbId?.let { openImdbOption },
                 reactor.currentState.watchable?.let { shareOption },
                 deleteOption
-        ))
+        ).also(::submitList)
     }
 
     private val openWebOption: Option.Action
@@ -195,12 +221,6 @@ class DetailFragment : ReactorFragment<DetailReactor>(R.layout.fragment_detail),
                 ?: return 0 to 0
         return distances[0] to distances[1]
     }
-
-    override fun direct(to: DetailDirection) {
-        when (to) {
-            DetailDirection.Back -> navController.navigateUp()
-        }
-    }
 }
 
 
@@ -218,8 +238,8 @@ class DetailReactor(
 
     sealed class Mutation {
         data class DeleteWatchableResult(val deleteResult: Async<Unit>) : Mutation()
+        data class SetWatchable(val watchable: Watchable?) : Mutation()
         data class SetData(
-                val watchable: Watchable? = null,
                 val website: String? = null,
                 val imdbId: String? = null,
                 val videos: List<Videos.Video> = emptyList(),
@@ -244,10 +264,12 @@ class DetailReactor(
             //todo if change this to id + type for watchable sharing?
             watchablesApi.watchable(currentState.itemId)
                     .flatMapObservable {
-                        when (it.type) {
-                            Watchable.Type.movie -> loadMovieInfoMutation(it)
-                            Watchable.Type.show -> loadShowInfoMutation(it)
+                        val watchableMutation = Observable.just(Mutation.SetWatchable(it))
+                        val loadMutation = when (it.type) {
+                            Watchable.Type.movie -> loadMovieInfoMutation
+                            Watchable.Type.show -> loadShowInfoMutation
                         }
+                        Observable.concat(watchableMutation, loadMutation)
                     }
         }
         is Action.DeleteWatchable -> {
@@ -260,13 +282,14 @@ class DetailReactor(
 
     override fun reduce(state: State, mutation: Mutation): State = when (mutation) {
         is Mutation.DeleteWatchableResult -> state.copy(deleteResult = mutation.deleteResult)
+        is Mutation.SetWatchable -> state.copy(watchable = mutation.watchable)
         is Mutation.SetData -> {
-            val youtubeVideos = mutation.videos
+            val youtubeVideos = mutation.videos.asSequence()
                     .filter { it.isYoutube }
                     .sortedBy { it.type }
                     .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
+                    .toList()
             state.copy(
-                    watchable = mutation.watchable,
                     website = mutation.website,
                     imdbId = mutation.imdbId,
                     videos = youtubeVideos,
@@ -276,16 +299,18 @@ class DetailReactor(
         }
     }
 
-    private fun loadMovieInfoMutation(watchable: Watchable) = movieDatabaseApi
-            .movie(currentState.itemId.toInt())
-            .map { Mutation.SetData(watchable, it.website, it.imdbId, it.videos.results, it.summary, it.releaseDate) }
-            .onErrorReturnItem(Mutation.SetData())
-            .toObservable()
+    private val loadMovieInfoMutation: Observable<out Mutation>
+        get() = movieDatabaseApi
+                .movie(currentState.itemId.toInt())
+                .map { Mutation.SetData(it.website, it.imdbId, it.videos.results, it.summary, it.releaseDate) }
+                .onErrorReturnItem(Mutation.SetData())
+                .toObservable()
 
 
-    private fun loadShowInfoMutation(watchable: Watchable) = movieDatabaseApi
-            .show(currentState.itemId.toInt())
-            .map { Mutation.SetData(watchable, it.website, it.externalIds.imdbId, it.videos.results, it.summary, it.nextEpisode?.airingDate) }
-            .onErrorReturnItem(Mutation.SetData())
-            .toObservable()
+    private val loadShowInfoMutation: Observable<out Mutation>
+        get() = movieDatabaseApi
+                .show(currentState.itemId.toInt())
+                .map { Mutation.SetData(it.website, it.externalIds.imdbId, it.videos.results, it.summary, it.nextEpisode?.airingDate) }
+                .onErrorReturnItem(Mutation.SetData())
+                .toObservable()
 }
