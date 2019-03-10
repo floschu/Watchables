@@ -6,7 +6,7 @@
 
 Click [here](https://play.google.com/store/apps/details?id=at.florianschuster.watchables) to download.
 
-![Watchables App Logo](watchables-app/app/src/main/ic_launcher-web.png)
+![Watchables App Logo](app/src/main/ic_launcher-web.png)
 
 
 ## License
