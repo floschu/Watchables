@@ -20,7 +20,8 @@ import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
-import at.florianschuster.watchables.*
+import at.florianschuster.watchables.AppDirections
+import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.Session
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
@@ -38,7 +39,6 @@ import org.koin.android.ext.android.inject
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 
-
 class MainActivity : BaseActivity(R.layout.activity_main) {
     private val navController: NavController by lazy { findNavController(R.id.navHost) }
 
@@ -51,7 +51,7 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
         super.onCreate(savedInstanceState)
 
         RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
-                .subscribe({ Timber.d("Deeplink: ${it.link}") }, Timber::e) //todo
+                .subscribe({ Timber.d("Deeplink: ${it.link}") }, Timber::e) // todo
                 .addTo(disposables)
 
         sessionService.session

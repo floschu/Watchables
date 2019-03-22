@@ -21,13 +21,11 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import org.threeten.bp.LocalDate
 
-
 interface PrefRepo {
     var analyticsEnabled: Boolean
     var onboardingSnackShown: Boolean
     var enjoyingAppDialogShownDate: LocalDate
 }
-
 
 class SharedPrefRepo(context: Context) : PrefRepo {
     private val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)

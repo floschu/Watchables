@@ -105,7 +105,7 @@ class ZoomableGestureImageView(context: Context, attrs: AttributeSet) : GestureI
         val state = controller.state
         controller.stateController.getMovementArea(state, imageMovementRect)
 
-        return (downwardPan.not() && State.compare(state.y, imageMovementRect.bottom) < 0f
-                || downwardPan && State.compare(state.y, imageMovementRect.top) > 0f)
+        return (downwardPan.not() && State.compare(state.y, imageMovementRect.bottom) < 0f ||
+                downwardPan && State.compare(state.y, imageMovementRect.top) > 0f)
     }
 }

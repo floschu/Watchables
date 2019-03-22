@@ -22,9 +22,7 @@ import androidx.core.os.bundleOf
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.local.PrefRepo
-import at.florianschuster.watchables.worker.UpdateWatchablesWorker
 import com.google.firebase.analytics.FirebaseAnalytics
-
 
 class AnalyticsService(private val context: Context, private val prefRepo: PrefRepo) {
     private val analytics = FirebaseAnalytics.getInstance(context)

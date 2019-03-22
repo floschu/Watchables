@@ -16,17 +16,15 @@
 
 package at.florianschuster.watchables.util.gson
 
-import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 
-
 class SearchItemTypeAdapter : TypeAdapter<Search.SearchItem>() {
     override fun write(out: JsonWriter, value: Search.SearchItem) {
-        //unused
+        // unused
     }
 
     override fun read(reader: JsonReader): Search.SearchItem? {

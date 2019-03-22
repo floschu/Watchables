@@ -17,14 +17,18 @@
 package at.florianschuster.watchables.di
 
 import androidx.appcompat.app.AppCompatActivity
-import at.florianschuster.watchables.service.*
+import at.florianschuster.watchables.service.AnalyticsService
+import at.florianschuster.watchables.service.ErrorTranslationService
+import at.florianschuster.watchables.service.FirebaseSessionService
+import at.florianschuster.watchables.service.NotificationService
+import at.florianschuster.watchables.service.SessionService
+import at.florianschuster.watchables.service.ShareService
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.squareup.leakcanary.LeakCanary
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-
 
 val appModule = module {
     single { LeakCanary.install(androidApplication()) }

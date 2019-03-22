@@ -34,7 +34,6 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-
 val remoteModule = module {
     single { provideGson() }
     single { provideOkHttpClient() }
@@ -42,12 +41,10 @@ val remoteModule = module {
     single { FirebaseWatchablesApi(get()) as WatchablesApi }
 }
 
-
 private fun provideGson(): Gson = GsonBuilder().apply {
     registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter())
     registerTypeAdapter(Search.SearchItem::class.java, SearchItemTypeAdapter())
 }.create()
-
 
 private fun provideOkHttpClient() =
         OkHttpClient().newBuilder().apply {
@@ -57,7 +54,6 @@ private fun provideOkHttpClient() =
                 addInterceptor(loggingInterceptor)
             }
         }.build()
-
 
 private fun provideMovieDatabaseApi(okHttpClient: OkHttpClient, gson: Gson, apiUrl: String): MovieDatabaseApi {
     val httpClientBuilder = okHttpClient.newBuilder()

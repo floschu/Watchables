@@ -33,9 +33,8 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-
 class ShareService(
-        private val activity: AppCompatActivity
+    private val activity: AppCompatActivity
 ) {
     private val resources = activity.resources
 

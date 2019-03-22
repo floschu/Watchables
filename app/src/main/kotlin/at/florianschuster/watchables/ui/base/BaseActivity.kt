@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package at.florianschuster.watchables.ui.base
 
 import android.os.Bundle
@@ -24,7 +23,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.squareup.leakcanary.RefWatcher
 import io.reactivex.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
-
 
 abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatActivity() {
     private val refWatcher: RefWatcher by inject()

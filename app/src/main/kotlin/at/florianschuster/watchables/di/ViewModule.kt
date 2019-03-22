@@ -28,7 +28,6 @@ import at.florianschuster.watchables.ui.watchables.WatchablesReactor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-
 val viewModule = module {
     reactor { LoginReactor(get(), get()) }
 

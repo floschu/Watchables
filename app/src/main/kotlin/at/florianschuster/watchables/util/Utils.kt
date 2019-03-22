@@ -26,7 +26,6 @@ import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import com.tailoredapps.androidutil.IntentUtil
 
-
 object Utils {
     fun rateApp(context: Context): Intent {
         val marketIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${WatchablesApp.instance.packageName}")).apply {

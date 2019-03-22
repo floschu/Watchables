@@ -32,7 +32,6 @@ import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.Flowables
 import java.lang.Exception
 
-
 sealed class Session<out UserType> {
     open operator fun invoke(): UserType? = null
     data class None<out UserType>(val error: Throwable? = null) : Session<UserType>()
@@ -51,7 +50,7 @@ interface SessionService<User, Credential> {
 }
 
 class FirebaseSessionService(
-        private val context: Context
+    private val context: Context
 ) : SessionService<FirebaseUser, AuthCredential> {
     private val auth = FirebaseAuth.getInstance()
     private val authThrowable: FirebaseAuthException

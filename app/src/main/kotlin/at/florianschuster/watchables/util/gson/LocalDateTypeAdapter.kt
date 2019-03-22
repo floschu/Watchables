@@ -20,10 +20,9 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
-import org.threeten.bp.*
+import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
-import java.util.*
-
+import java.util.Locale
 
 class LocalDateTypeAdapter : TypeAdapter<LocalDate?>() {
 

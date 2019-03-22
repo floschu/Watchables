@@ -22,7 +22,6 @@ import com.google.firebase.messaging.RemoteMessage
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
-
 class FbMessagingService : FirebaseMessagingService(), KoinComponent {
     private val notificationService: NotificationService by inject()
 

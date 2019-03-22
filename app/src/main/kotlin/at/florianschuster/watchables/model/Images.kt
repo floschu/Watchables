@@ -18,7 +18,6 @@ package at.florianschuster.watchables.model
 
 import at.florianschuster.watchables.BuildConfig
 
-
 enum class Images(private val url: String?) {
     thumbnail(BuildConfig.MOVIEDB_POSTER_THUMBNAIL),
     original(BuildConfig.MOVIEDB_POSTER_ORIGINAL);
@@ -26,17 +25,14 @@ enum class Images(private val url: String?) {
     fun from(posterPath: String?): String? = posterPath?.let { "$url$posterPath" }
 }
 
-
 val Watchable.thumbnail: String?
     get() = Images.thumbnail.from(this.posterPath)
 
 val Watchable.original: String?
     get() = Images.original.from(this.posterPath)
 
-
 val Search.SearchItem.thumbnail: String?
     get() = Images.thumbnail.from(this.posterPath)
 
 val Search.SearchItem.original: String?
     get() = Images.original.from(this.posterPath)
-

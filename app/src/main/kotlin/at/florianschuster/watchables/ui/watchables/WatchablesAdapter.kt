@@ -29,7 +29,6 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tailoredapps.androidutil.extensions.inflate
 
-
 sealed class ItemClickType {
     data class Options(val watchable: Watchable) : ItemClickType()
     data class PhotoDetail(val url: String?) : ItemClickType()
@@ -39,9 +38,8 @@ sealed class ItemClickType {
     data class EpisodeOptions(val seasonId: String, val seasonIndex: String, val episodeIndex: String) : ItemClickType()
 }
 
-
 class WatchablesAdapter(
-        private val resources: Resources
+    private val resources: Resources
 ) : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
     val itemClick = PublishRelay.create<ItemClickType>()
 
@@ -84,7 +82,6 @@ class WatchablesAdapter(
         return "$watched - ${item.watchable.name.firstOrNull()}"
     }
 }
-
 
 private const val DIFF_WATCHABLE = "watchable"
 private const val DIFF_SEASONS = "seasons"

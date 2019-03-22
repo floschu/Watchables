@@ -33,7 +33,6 @@ import com.tailoredapps.androidutil.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_search.*
 
-
 class SearchAdapter : ListAdapter<Search.SearchItem, SearchAdapter.SearchViewHolder>(searchDiff) {
     val addClick = PublishRelay.create<Search.SearchItem>()
     val imageClick = PublishRelay.create<String>()
@@ -60,7 +59,6 @@ class SearchAdapter : ListAdapter<Search.SearchItem, SearchAdapter.SearchViewHol
         }
     }
 }
-
 
 private val searchDiff = object : DiffUtil.ItemCallback<Search.SearchItem>() {
     override fun areItemsTheSame(oldItem: Search.SearchItem, newItem: Search.SearchItem): Boolean = oldItem.id == newItem.id

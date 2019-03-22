@@ -21,7 +21,11 @@ import androidx.annotation.CallSuper
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.model.*
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.model.WatchableContainer
+import at.florianschuster.watchables.model.WatchableSeason
+import at.florianschuster.watchables.model.original
+import at.florianschuster.watchables.model.thumbnail
 import at.florianschuster.watchables.util.srcBlurConsumer
 import at.florianschuster.watchables.util.srcConsumer
 import io.reactivex.functions.Consumer
@@ -29,7 +33,6 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable.*
 import kotlinx.android.synthetic.main.item_watchable_movie.*
 import kotlinx.android.synthetic.main.item_watchable_show.*
-
 
 sealed class WatchableViewHolder(override val containerView: View, protected val clickConsumer: Consumer<ItemClickType>) : RecyclerView.ViewHolder(containerView), LayoutContainer {
 
@@ -53,8 +56,8 @@ sealed class WatchableViewHolder(override val containerView: View, protected val
     open fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {}
 
     class Movie(
-            containerView: View,
-            clickConsumer: Consumer<ItemClickType>
+        containerView: View,
+        clickConsumer: Consumer<ItemClickType>
     ) : WatchableViewHolder(containerView, clickConsumer) {
 
         override fun bindWatchablePayload(watchable: Watchable) {
@@ -67,9 +70,9 @@ sealed class WatchableViewHolder(override val containerView: View, protected val
     }
 
     class Show(
-            containerView: View,
-            clickConsumer: Consumer<ItemClickType>,
-            private val viewPool: RecyclerView.RecycledViewPool
+        containerView: View,
+        clickConsumer: Consumer<ItemClickType>,
+        private val viewPool: RecyclerView.RecycledViewPool
     ) : WatchableViewHolder(containerView, clickConsumer) {
         private val episodesAdapter = WatchableEpisodeAdapter(clickConsumer::accept)
 

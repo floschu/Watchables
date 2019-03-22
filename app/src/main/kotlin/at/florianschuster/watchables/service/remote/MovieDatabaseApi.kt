@@ -16,12 +16,14 @@
 
 package at.florianschuster.watchables.service.remote
 
-import at.florianschuster.watchables.model.*
+import at.florianschuster.watchables.model.Movie
+import at.florianschuster.watchables.model.Search
+import at.florianschuster.watchables.model.Season
+import at.florianschuster.watchables.model.Show
 import io.reactivex.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-
 
 interface MovieDatabaseApi {
 
@@ -39,5 +41,4 @@ interface MovieDatabaseApi {
 
     @GET("tv/{tv_id}/season/{season_number}")
     fun season(@Path("tv_id") tvId: Int, @Path("season_number") seasonNumber: Int): Single<Season>
-
 }

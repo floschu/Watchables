@@ -16,7 +16,9 @@
 
 package at.florianschuster.watchables.service
 
-import android.app.*
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -26,7 +28,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavDeepLinkBuilder
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.model.*
+import at.florianschuster.watchables.model.Movie
+import at.florianschuster.watchables.model.Season
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.model.thumbnail
 import at.florianschuster.watchables.ui.MainActivity
 import at.florianschuster.watchables.ui.watchables.WatchablesFragmentDirections
 import at.florianschuster.watchables.util.GlideApp
@@ -38,7 +43,6 @@ import io.reactivex.Single
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-
 
 class NotificationService(private val context: Context) {
 
@@ -52,8 +56,7 @@ class NotificationService(private val context: Context) {
             return PendingIntent.getActivity(context, 0, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
 
-
-    //add watchable
+    // add watchable
 
     fun addWatchableError(id: Int, name: String?) {
         val notification = NotificationCompat.Builder(context, ADD_CHANNEL_ID).apply {
@@ -69,8 +72,7 @@ class NotificationService(private val context: Context) {
         NotificationManagerCompat.from(context).notify(ADD_ERROR_NOTIFICATION_ID + id, notification)
     }
 
-
-    //push
+    // push
 
     fun push(remote: RemoteMessage.Notification) {
         val pushNotification = NotificationCompat.Builder(context, MESSAGE_CHANNEL_ID).apply {
@@ -86,8 +88,7 @@ class NotificationService(private val context: Context) {
         NotificationManagerCompat.from(context).notify(MESSAGE_NOTIFICATION_ID, pushNotification)
     }
 
-
-    //update
+    // update
 
     fun movieUpdate(watchable: Watchable, movie: Movie) {
         val date = movie.releaseDate ?: return
@@ -145,8 +146,7 @@ class NotificationService(private val context: Context) {
                 .subscribe()
     }
 
-
-    //channels
+    // channels
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun generateChannels() {

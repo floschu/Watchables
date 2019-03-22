@@ -7,10 +7,10 @@ import android.view.View
 
 @TargetApi(Build.VERSION_CODES.KITKAT)
 internal class SystemUiHelperImplKK(
-        activity: Activity,
-        level: Int,
-        flags: Int,
-        onSystemUiVisibilityChangeListener: SystemUiHelper.OnSystemUiVisibilityChangeListener?
+    activity: Activity,
+    level: Int,
+    flags: Int,
+    onSystemUiVisibilityChangeListener: SystemUiHelper.OnSystemUiVisibilityChangeListener?
 ) : SystemUiHelperImplJB(activity, level, flags, onSystemUiVisibilityChangeListener) {
 
     override fun createHideFlags(): Int {

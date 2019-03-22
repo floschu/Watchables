@@ -25,7 +25,6 @@ import at.florianschuster.watchables.R
 import com.tailoredapps.androidutil.IntentUtil
 import timber.log.Timber
 
-
 fun FragmentActivity.openChromeTab(url: String) {
     if (url.isEmpty()) return
     try {
@@ -37,10 +36,9 @@ fun FragmentActivity.openChromeTab(url: String) {
         tabsIntent.launchUrl(this, Uri.parse(url))
     } catch (throwable: Throwable) {
         Timber.w(throwable)
-        startActivity(IntentUtil.web(url)) //fallback of chrome not installed -> open default browser
+        startActivity(IntentUtil.web(url)) // fallback of chrome not installed -> open default browser
     }
 }
-
 
 fun Fragment.openChromeTab(url: String) {
     val activity = this.activity

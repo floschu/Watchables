@@ -18,15 +18,28 @@ package at.florianschuster.watchables.util.extensions
 
 import android.net.Uri
 import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.Exclude
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.StorageMetadata
 import com.google.firebase.storage.StorageReference
-import io.reactivex.*
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Completable
+import io.reactivex.CompletableEmitter
+import io.reactivex.Flowable
+import io.reactivex.FlowableEmitter
+import io.reactivex.Maybe
+import io.reactivex.MaybeEmitter
+import io.reactivex.Single
+import io.reactivex.SingleEmitter
 import java.io.File
 import java.lang.ArithmeticException
 
-
-//google task
+// google task
 
 object RxTasks {
     fun <T> single(taskCreator: () -> Task<T>): Single<T> =
@@ -57,7 +70,7 @@ object RxTasks {
     }
 }
 
-//firestore
+// firestore
 
 open class FirestoreObject(var deleted: Boolean = false) {
     @get:Exclude
@@ -127,7 +140,7 @@ inline fun <reified T : FirestoreObject> Query.localObjectListObservable(): Flow
             emitter.setCancellable(listener::remove)
         }, BackpressureStrategy.LATEST)
 
-//firebase storage
+// firebase storage
 
 fun StorageReference.upload(file: File, customMetaData: StorageMetadata? = null): Flowable<Long> =
         Flowable.create({ emitter ->

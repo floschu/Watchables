@@ -17,8 +17,19 @@
 package at.florianschuster.watchables.worker
 
 import android.content.Context
-import androidx.work.*
-import at.florianschuster.watchables.model.*
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
+import androidx.work.Operation
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import at.florianschuster.watchables.model.Movie
+import at.florianschuster.watchables.model.Search
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.model.convertToWatchable
+import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
@@ -28,7 +39,6 @@ import io.reactivex.rxkotlin.toFlowable
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
-
 
 class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
     private val movieDatabaseApi: MovieDatabaseApi by inject()

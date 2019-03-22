@@ -19,7 +19,6 @@ package at.florianschuster.watchables.util.extensions
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 
-
 private val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyy")
 
 val LocalDate.asFormattedString: String

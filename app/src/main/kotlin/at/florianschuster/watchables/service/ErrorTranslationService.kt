@@ -27,7 +27,6 @@ import io.reactivex.functions.Consumer
 import timber.log.Timber
 import java.io.IOException
 
-
 class ErrorTranslationService(private val context: Context) {
 
     val toastConsumer: Consumer<in Throwable>

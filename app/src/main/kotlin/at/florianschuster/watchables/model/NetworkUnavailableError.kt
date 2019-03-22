@@ -16,5 +16,4 @@
 
 package at.florianschuster.watchables.model
 
-
 class NetworkUnavailableError : Error()

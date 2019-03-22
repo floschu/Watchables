@@ -34,7 +34,6 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_detail_poster.*
 import kotlinx.android.synthetic.main.item_detail_video.*
 
-
 sealed class DetailMediaItem(open val id: String, @LayoutRes val layout: Int) {
     data class Poster(val thumbnail: String?, val original: String?) : DetailMediaItem("$thumbnail$original", R.layout.item_detail_poster)
 
@@ -50,7 +49,6 @@ sealed class DetailMediaItem(open val id: String, @LayoutRes val layout: Int) {
             }
     }
 }
-
 
 class DetailMediaAdapter : ListAdapter<DetailMediaItem, DetailMediaAdapter.DetailViewHolder>(detailMediaItemDiff) {
 
@@ -90,7 +88,6 @@ class DetailMediaAdapter : ListAdapter<DetailMediaItem, DetailMediaAdapter.Detai
         }
     }
 }
-
 
 private val detailMediaItemDiff = object : DiffUtil.ItemCallback<DetailMediaItem>() {
     override fun areItemsTheSame(oldItem: DetailMediaItem, newItem: DetailMediaItem): Boolean = oldItem.id == newItem.id

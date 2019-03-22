@@ -21,8 +21,6 @@ import at.florianschuster.watchables.service.local.SharedPrefRepo
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
-
 val localModule = module {
     single { SharedPrefRepo(androidContext()) as PrefRepo }
 }
-

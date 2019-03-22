@@ -20,17 +20,15 @@ import androidx.fragment.app.Fragment
 import android.app.Activity
 import android.view.ViewGroup
 
-
 /**
  * An object defining the routes that are possible results within or through a Coordinator.
  * This could be an enum or a sealed class.
  *
- * It is not up to the Route to decide where or how to navigate! Do not couple view flows to a
+ * It is not up to the [CoordinatorRoute] to decide where or how to navigate! Do not couple view flows to a
  * route, rather try to define a coordinated action as route.
  * e.g. "ShowIsPicked(show: Show)" instead of "OpenShowDetailViewWith(show: Show)"
  */
 interface CoordinatorRoute
-
 
 /**
  * A Coordinator handles navigation or view flow for one or more view controller (e.g. [Fragment],
@@ -42,7 +40,4 @@ interface Coordinator<Route> where Route : CoordinatorRoute {
      * Method that handles the navigation that is defined through a [Route].
      */
     fun navigate(to: Route)
-
 }
-
-

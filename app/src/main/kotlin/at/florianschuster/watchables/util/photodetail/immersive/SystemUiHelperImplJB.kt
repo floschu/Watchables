@@ -1,17 +1,16 @@
 package at.florianschuster.watchables.util.photodetail.immersive
 
 import android.annotation.TargetApi
-import android.app.ActionBar
 import android.app.Activity
 import android.os.Build
 import android.view.View
 
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 internal open class SystemUiHelperImplJB(
-        activity: Activity,
-        level: Int,
-        flags: Int,
-        onSystemUiVisibilityChangeListener: SystemUiHelper.OnSystemUiVisibilityChangeListener?
+    activity: Activity,
+    level: Int,
+    flags: Int,
+    onSystemUiVisibilityChangeListener: SystemUiHelper.OnSystemUiVisibilityChangeListener?
 ) : SystemUiHelper.SystemUiHelperImpl(activity, level, flags, onSystemUiVisibilityChangeListener), View.OnSystemUiVisibilityChangeListener {
 
     private val mDecorView: View = activity.window.decorView

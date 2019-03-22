@@ -21,13 +21,16 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import at.florianschuster.androidreactor.ReactorView
-import at.florianschuster.androidreactor.bind
-import at.florianschuster.androidreactor.changesFrom
-import at.florianschuster.androidreactor.consume
-import at.florianschuster.watchables.*
+import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.bind
+import at.florianschuster.reaktor.changesFrom
+import at.florianschuster.reaktor.consume
+import at.florianschuster.watchables.R
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.model.WatchableContainer
+import at.florianschuster.watchables.model.WatchableSeason
+import at.florianschuster.watchables.model.convertToWatchableContainer
 import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.model.*
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.SessionService
@@ -36,8 +39,10 @@ import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.reactor
 import at.florianschuster.watchables.util.Utils
-import at.florianschuster.watchables.util.coordinator.*
-import at.florianschuster.watchables.util.extensions.*
+import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
+import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
+import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
+import at.florianschuster.watchables.util.extensions.openChromeTab
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.worker.UpdateWatchablesWorker
@@ -47,9 +52,16 @@ import com.google.firebase.auth.FirebaseUser
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
-import com.tailoredapps.androidutil.extensions.*
+import com.tailoredapps.androidutil.extensions.RxDialogAction
+import com.tailoredapps.androidutil.extensions.RxPopupAction
+import com.tailoredapps.androidutil.extensions.addScrolledPastItemListener
+import com.tailoredapps.androidutil.extensions.rxDialog
+import com.tailoredapps.androidutil.extensions.rxPopup
+import com.tailoredapps.androidutil.extensions.smoothScrollUp
+import com.tailoredapps.androidutil.extensions.snack
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
+import com.tailoredapps.androidutil.optional.ofType
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -61,27 +73,21 @@ import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
-
 class WatchablesCoordinator(fragment: Fragment) : FragmentCoordinator<WatchablesCoordinator.Route>(fragment) {
     sealed class Route : CoordinatorRoute {
-        data class ShowWatchable(val itemId: String) : Route()
-        object Search : Route()
+        data class OnWatchableSelected(val id: String) : Route()
+        object SearchIsRequired : Route()
     }
 
     private val navController = fragment.findNavController()
 
     override fun navigate(to: Route) {
         when (to) {
-            is Route.ShowWatchable -> {
-                WatchablesFragmentDirections.actionWatchablesToDetail(to.itemId)
-            }
-            is Route.Search -> {
-                WatchablesFragmentDirections.actionWatchablesToSearch()
-            }
+            is Route.OnWatchableSelected -> WatchablesFragmentDirections.actionWatchablesToDetail(to.id)
+            is Route.SearchIsRequired -> WatchablesFragmentDirections.actionWatchablesToSearch()
         }.also(navController::navigate)
     }
 }
-
 
 class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorView<WatchablesReactor> {
     override val reactor: WatchablesReactor by reactor()
@@ -107,12 +113,12 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         flSearch.clicks()
-                .map { WatchablesCoordinator.Route.Search }
+                .map { WatchablesCoordinator.Route.SearchIsRequired }
                 .subscribe(coordinator::navigate)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
-                .map { WatchablesCoordinator.Route.ShowWatchable(it.watchable.id) }
+                .map { WatchablesCoordinator.Route.OnWatchableSelected(it.watchable.id) }
                 .subscribe(coordinator::navigate)
                 .addTo(disposables)
 
@@ -137,7 +143,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
     }
 
     override fun bind(reactor: WatchablesReactor) {
-        //state
+        // state
         reactor.state.changesFrom { it.watchables }
                 .ofType<Async.Success<List<WatchableContainer>>>()
                 .map { it.element to (adapter.data to it.element).diff }
@@ -163,7 +169,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .bind(emptyLayout.visibility())
                 .addTo(disposables)
 
-        //action
+        // action
         adapter.itemClick.ofType<ItemClickType.Watched>()
                 .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
                 .consume(reactor)
@@ -245,11 +251,10 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
     }
 }
 
-
 class WatchablesReactor(
-        private val watchablesApi: WatchablesApi,
-        private val analyticsService: AnalyticsService,
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+    private val watchablesApi: WatchablesApi,
+    private val analyticsService: AnalyticsService,
+    private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
     sealed class Action {
@@ -319,6 +324,6 @@ class WatchablesReactor(
                                 .sortedWith(compareBy({ it.watchable.watched }, { it.watchable.name }))
                                 .toList()
                     }
-                    .skip(1) //skips initial startWith emptyLists that are needed when seasons are still empty
+                    .skip(1) // skips initial startWith emptyLists that are needed when seasons are still empty
         }
 }

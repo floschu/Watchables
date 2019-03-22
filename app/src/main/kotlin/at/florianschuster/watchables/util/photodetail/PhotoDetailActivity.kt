@@ -36,7 +36,6 @@ import me.saket.flick.FlickGestureListener
 import me.saket.flick.InterceptResult
 import java.security.MessageDigest
 
-
 private const val ARG_PHOTO_URL = "photo.url"
 
 val Context?.photoDetailConsumer: Consumer<String?>
@@ -46,7 +45,7 @@ val Context?.photoDetailConsumer: Consumer<String?>
         }
     }
 
-//https://github.com/saket/Flick/
+// https://github.com/saket/Flick/
 class PhotoDetailActivity : AppCompatActivity() {
 
     private val url: String by extra(ARG_PHOTO_URL, "")
@@ -183,7 +182,6 @@ class PhotoDetailActivity : AppCompatActivity() {
     }
 }
 
-
 class TargetWithEntryAnimation(private val imageView: ImageView, private val progress: ProgressBar) : CustomViewTarget<ImageView, Bitmap>(imageView) {
     override fun onLoadFailed(errorDrawable: Drawable?) {
         progress.isVisible = false
@@ -209,7 +207,6 @@ class TargetWithEntryAnimation(private val imageView: ImageView, private val pro
                 .start()
     }
 }
-
 
 class PaddingTransformation(private val paddingPx: Float, @ColorInt private val paddingColor: Int) : BitmapTransformation() {
     override fun updateDiskCacheKey(messageDigest: MessageDigest) {

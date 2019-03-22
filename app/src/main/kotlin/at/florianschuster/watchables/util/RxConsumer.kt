@@ -18,12 +18,10 @@ package at.florianschuster.watchables.util
 
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
 import io.reactivex.functions.Consumer
 import jp.wasabeef.glide.transformations.BlurTransformation
-
 
 fun ImageView.srcConsumer(@DrawableRes fallback: Int? = null): Consumer<in String?> =
         Consumer {

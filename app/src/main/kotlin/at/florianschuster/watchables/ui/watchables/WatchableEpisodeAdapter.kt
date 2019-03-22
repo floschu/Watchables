@@ -27,14 +27,12 @@ import com.tailoredapps.androidutil.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable_show_episode.*
 
-
 data class WatchableEpisode(val seasonId: String, val seasonIndex: String, val episode: String, val watched: Boolean) {
     val id = "${seasonId}S${seasonIndex}E$episode"
 }
 
-
 class WatchableEpisodeAdapter(
-        private val itemClick: (ItemClickType) -> Unit
+    private val itemClick: (ItemClickType) -> Unit
 ) : ListAdapter<WatchableEpisode, WatchableEpisodeAdapter.WatchableEpisodeViewHolder>(episodesDiff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchableEpisodeViewHolder = WatchableEpisodeViewHolder(parent.inflate(R.layout.item_watchable_show_episode))
@@ -54,7 +52,6 @@ class WatchableEpisodeAdapter(
         }
     }
 }
-
 
 private val episodesDiff = object : DiffUtil.ItemCallback<WatchableEpisode>() {
     override fun areItemsTheSame(oldItem: WatchableEpisode, newItem: WatchableEpisode): Boolean = oldItem.id == newItem.id

@@ -21,11 +21,11 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import at.florianschuster.androidreactor.ReactorView
-import at.florianschuster.androidreactor.bind
-import at.florianschuster.androidreactor.changesFrom
-import at.florianschuster.androidreactor.consume
-import at.florianschuster.watchables.*
+import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.bind
+import at.florianschuster.reaktor.changesFrom
+import at.florianschuster.reaktor.consume
+import at.florianschuster.watchables.R
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
@@ -34,7 +34,9 @@ import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.reactor
-import at.florianschuster.watchables.util.coordinator.*
+import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
+import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
+import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.AddWatchableWorker
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
@@ -42,7 +44,13 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.jakewharton.rxbinding3.widget.editorActions
 import com.jakewharton.rxbinding3.widget.textChanges
-import com.tailoredapps.androidutil.extensions.*
+import com.tailoredapps.androidutil.extensions.addScrolledPastItemListener
+import com.tailoredapps.androidutil.extensions.afterMeasured
+import com.tailoredapps.androidutil.extensions.hideKeyboard
+import com.tailoredapps.androidutil.extensions.shouldLoadMore
+import com.tailoredapps.androidutil.extensions.showKeyBoard
+import com.tailoredapps.androidutil.extensions.smoothScrollUp
+import com.tailoredapps.androidutil.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import io.reactivex.Completable
@@ -53,7 +61,6 @@ import kotlinx.android.synthetic.main.fragment_search_toolbar.*
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-
 
 class SearchCoordinator(fragment: Fragment) : FragmentCoordinator<SearchCoordinator.Route>(fragment) {
     enum class Route : CoordinatorRoute {
@@ -68,7 +75,6 @@ class SearchCoordinator(fragment: Fragment) : FragmentCoordinator<SearchCoordina
         }
     }
 }
-
 
 class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<SearchReactor> {
     override val reactor: SearchReactor by reactor()
@@ -120,7 +126,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         reactor.state.changesFrom { it.allItems }
                 .doOnNext(adapter::submitList)
-                .skip(1) //initial state always empty
+                .skip(1) // initial state always empty
                 .map { it.isEmpty() }
                 .bind(emptyLayout.visibility())
                 .addTo(disposables)
@@ -156,10 +162,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
     }
 }
 
-
 class SearchReactor(
-        private val movieDatabaseApi: MovieDatabaseApi,
-        watchablesApi: WatchablesApi
+    private val movieDatabaseApi: MovieDatabaseApi,
+    watchablesApi: WatchablesApi
 ) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
@@ -179,12 +184,12 @@ class SearchReactor(
     }
 
     data class State(
-            val query: String = "",
-            val page: Int = 1,
-            val allItems: List<Search.SearchItem> = emptyList(),
-            val loading: Boolean = false,
-            val loadingError: Throwable? = null,
-            val addedWatchableIds: List<String> = emptyList()
+        val query: String = "",
+        val page: Int = 1,
+        val allItems: List<Search.SearchItem> = emptyList(),
+        val loading: Boolean = false,
+        val loadingError: Throwable? = null,
+        val addedWatchableIds: List<String> = emptyList()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =

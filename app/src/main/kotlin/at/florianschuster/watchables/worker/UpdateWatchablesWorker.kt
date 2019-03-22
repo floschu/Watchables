@@ -17,8 +17,18 @@
 package at.florianschuster.watchables.worker
 
 import android.content.Context
-import androidx.work.*
-import at.florianschuster.watchables.model.*
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import at.florianschuster.watchables.model.Movie
+import at.florianschuster.watchables.model.Season
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.model.convertToWatchable
+import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
@@ -32,7 +42,6 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
-
 
 class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
@@ -88,7 +97,6 @@ class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             Single.just(season.convertToWatchableSeason(watchableId))
                     .flatMap(watchablesApi::createSeason)
                     .ignoreElement()
-
 
     companion object {
         fun start() = PeriodicWorkRequest.Builder(UpdateWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {

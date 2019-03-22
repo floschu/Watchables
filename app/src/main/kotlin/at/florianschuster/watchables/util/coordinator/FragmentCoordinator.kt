@@ -21,28 +21,26 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 
-
 /**
  * A [Coordinator] that handles [CoordinatorRoute]s for a [Fragment]. It also observes the
  * [Lifecycle] of the [Fragment] to provide a way of clearing resources.
  */
 abstract class FragmentCoordinator<Route>(
-        val fragment: Fragment
+    val fragment: Fragment
 ) : Coordinator<Route>, LifecycleObserver where Route : CoordinatorRoute {
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     open fun onCleared() {
-        //noop
+        // noop
     }
 }
-
 
 /**
  * Lazily creates a [FragmentCoordinator] for a [Fragment].
  */
 fun <F, Route, C> F.fragmentCoordinator(
-        factory: () -> C
-): Lazy<C> where  Route : CoordinatorRoute, C : FragmentCoordinator<Route>, F : Fragment =
+    factory: () -> C
+): Lazy<C> where Route : CoordinatorRoute, C : FragmentCoordinator<Route>, F : Fragment =
         lazy {
             val coordinator = factory.invoke()
             this.lifecycle.addObserver(coordinator)

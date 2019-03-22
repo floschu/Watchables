@@ -17,21 +17,21 @@
 package at.florianschuster.watchables
 
 import android.app.Application
-import at.florianschuster.androidreactor.AndroidReactor
+import at.florianschuster.reaktor.Reaktor
+import at.florianschuster.watchables.di.appModule
+import at.florianschuster.watchables.di.localModule
+import at.florianschuster.watchables.di.remoteModule
+import at.florianschuster.watchables.di.viewModule
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.squareup.leakcanary.LeakCanary
-import at.florianschuster.watchables.di.*
 import at.florianschuster.watchables.util.CrashlyticsTree
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.firestore.FirebaseFirestore
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import timber.log.Timber
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-
 
 class WatchablesApp : Application() {
 
@@ -44,8 +44,8 @@ class WatchablesApp : Application() {
         if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree()) else Timber.plant(CrashlyticsTree())
         RxJavaPlugins.setErrorHandler(Timber::e)
         AndroidThreeTen.init(this)
-        FirebaseAnalytics.getInstance(this) //initialize for deep link tracking
-        AndroidReactor.handleErrorsWith(handler = Timber::e)
+        FirebaseAnalytics.getInstance(this) // initialize for deep link tracking
+        Reaktor.handleErrorsWith(handler = Timber::e)
 
         startKoin {
             androidContext(this@WatchablesApp)
@@ -58,5 +58,4 @@ class WatchablesApp : Application() {
         lateinit var instance: WatchablesApp
             private set
     }
-
 }

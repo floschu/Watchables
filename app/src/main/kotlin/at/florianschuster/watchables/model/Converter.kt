@@ -16,7 +16,6 @@
 
 package at.florianschuster.watchables.model
 
-
 fun Movie.convertToWatchable(): Watchable = Watchable(
         false,
         name,
@@ -34,7 +33,6 @@ private fun Movie.watchableStatus(): Watchable.Status = when (status) {
     Movie.Status.released -> Watchable.Status.finished
     Movie.Status.canceled -> Watchable.Status.finished
 }
-
 
 fun Show.convertToWatchable(): Watchable = Watchable(
         false,
@@ -54,14 +52,12 @@ private fun Show.watchableStatus(): Watchable.Status = when (status) {
     Show.Status.pilot -> Watchable.Status.running
 }
 
-
 fun Season.convertToWatchableSeason(watchableId: String): WatchableSeason = WatchableSeason(
         watchableId,
         index,
         image,
         episodes.sortedBy { it.episodeIndex }.associate { "${it.episodeIndex}" to false }
 ).apply { id = "${this@convertToWatchableSeason.id}" }
-
 
 fun Watchable.convertToWatchableContainer(seasons: List<WatchableSeason>): WatchableContainer = when {
     type == Watchable.Type.movie || seasons.isEmpty() -> WatchableContainer(this, null)

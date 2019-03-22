@@ -16,9 +16,9 @@ class SystemUiHelper
  * Construct a new SystemUiHelper.
  *
  * @param activity The Activity who's system UI should be changed
- * @param level    The level of hiding. Should be either [.LEVEL_LOW_PROFILE], [.LEVEL_HIDE_STATUS_BAR], [.LEVEL_LEAN_BACK] or
+ * @param level The level of hiding. Should be either [.LEVEL_LOW_PROFILE], [.LEVEL_HIDE_STATUS_BAR], [.LEVEL_LEAN_BACK] or
  * [.LEVEL_IMMERSIVE]
- * @param flags    Additional options. See [.FLAG_LAYOUT_IN_SCREEN_OLDER_DEVICES] and [.FLAG_IMMERSIVE_STICKY]
+ * @param flags Additional options. See [.FLAG_LAYOUT_IN_SCREEN_OLDER_DEVICES] and [.FLAG_IMMERSIVE_STICKY]
  * @param listener A listener which is called when the system visibility is changed
  */
 constructor(activity: Activity, level: Int, flags: Int, listener: OnSystemUiVisibilityChangeListener?) {

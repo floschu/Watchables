@@ -29,7 +29,6 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_option.*
 import kotlinx.android.synthetic.main.item_option_toggle.*
 
-
 sealed class Option(val title: Int, val icon: Int, val layout: Int) {
     class Action(@StringRes title: Int, @DrawableRes icon: Int, val action: () -> Unit) :
             Option(title, icon, R.layout.item_option)
@@ -37,7 +36,6 @@ sealed class Option(val title: Int, val icon: Int, val layout: Int) {
     class Toggle(@StringRes title: Int, @DrawableRes icon: Int, val isToggled: Boolean, val toggled: (Boolean) -> Unit) :
             Option(title, icon, R.layout.item_option_toggle)
 }
-
 
 class OptionsAdapter : ListAdapter<Option, OptionsAdapter.MoreOptionViewHolder>(optionDiff) {
 
@@ -74,7 +72,6 @@ class OptionsAdapter : ListAdapter<Option, OptionsAdapter.MoreOptionViewHolder>(
         }
     }
 }
-
 
 private val optionDiff = object : DiffUtil.ItemCallback<Option>() {
     override fun areItemsTheSame(oldItem: Option, newItem: Option): Boolean = oldItem.title == newItem.title
