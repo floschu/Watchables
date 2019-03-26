@@ -19,8 +19,6 @@ package at.florianschuster.watchables.ui.search
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
@@ -33,10 +31,6 @@ import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.reactor
-import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
-import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
-import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.AddWatchableWorker
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
@@ -53,6 +47,7 @@ import com.tailoredapps.androidutil.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
+import com.tailoredapps.reaktor.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -62,23 +57,8 @@ import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class SearchCoordinator(fragment: Fragment) : FragmentCoordinator<SearchCoordinator.Route>(fragment) {
-    enum class Route : CoordinatorRoute {
-        OnDismissed
-    }
-
-    private val navController = fragment.findNavController()
-
-    override fun navigate(to: Route) {
-        when (to) {
-            Route.OnDismissed -> navController.navigateUp()
-        }
-    }
-}
-
 class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<SearchReactor> {
     override val reactor: SearchReactor by reactor()
-    private val coordinator: SearchCoordinator by fragmentCoordinator { SearchCoordinator(this) }
 
     private val errorTranslationService: ErrorTranslationService by inject()
     private val adapter: SearchAdapter by inject()
@@ -90,8 +70,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         ivBack.clicks()
                 .doOnNext { etSearch.hideKeyboard() }
-                .map { SearchCoordinator.Route.OnDismissed }
-                .subscribe(coordinator::navigate)
+                .subscribe { navController.navigateUp() }
                 .addTo(disposables)
 
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
@@ -163,8 +142,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 }
 
 class SearchReactor(
-    private val movieDatabaseApi: MovieDatabaseApi,
-    watchablesApi: WatchablesApi
+        private val movieDatabaseApi: MovieDatabaseApi,
+        watchablesApi: WatchablesApi
 ) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
@@ -184,12 +163,12 @@ class SearchReactor(
     }
 
     data class State(
-        val query: String = "",
-        val page: Int = 1,
-        val allItems: List<Search.SearchItem> = emptyList(),
-        val loading: Boolean = false,
-        val loadingError: Throwable? = null,
-        val addedWatchableIds: List<String> = emptyList()
+            val query: String = "",
+            val page: Int = 1,
+            val allItems: List<Search.SearchItem> = emptyList(),
+            val loading: Boolean = false,
+            val loadingError: Throwable? = null,
+            val addedWatchableIds: List<String> = emptyList()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
@@ -223,26 +202,26 @@ class SearchReactor(
         }
     }
 
-    override fun reduce(state: State, mutation: Mutation): State = when (mutation) {
-        is Mutation.SetQuery -> state.copy(query = mutation.query)
-        is Mutation.SetLoading -> state.copy(loading = mutation.loading)
-        is Mutation.SetLoadingError -> state.copy(loadingError = mutation.throwable)
+    override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
+        is Mutation.SetQuery -> previousState.copy(query = mutation.query)
+        is Mutation.SetLoading -> previousState.copy(loading = mutation.loading)
+        is Mutation.SetLoadingError -> previousState.copy(loadingError = mutation.throwable)
         is Mutation.SetSearchItems -> {
-            val filteredItems = mutation.items.mapAdded(state.addedWatchableIds)
-            state.copy(allItems = filteredItems, page = 1)
+            val filteredItems = mutation.items.mapAdded(previousState.addedWatchableIds)
+            previousState.copy(allItems = filteredItems, page = 1)
         }
         is Mutation.AppendSearchItems -> {
-            val filteredItems = state.allItems + mutation.items.mapAdded(state.addedWatchableIds)
-            state.copy(allItems = filteredItems, page = state.page + 1)
+            val filteredItems = previousState.allItems + mutation.items.mapAdded(previousState.addedWatchableIds)
+            previousState.copy(allItems = filteredItems, page = previousState.page + 1)
         }
         is Mutation.SetAddedWatchableIds -> {
-            val filteredItems = state.allItems.mapAdded(mutation.watchableIds)
-            state.copy(allItems = filteredItems, addedWatchableIds = mutation.watchableIds)
+            val filteredItems = previousState.allItems.mapAdded(mutation.watchableIds)
+            previousState.copy(allItems = filteredItems, addedWatchableIds = mutation.watchableIds)
         }
         is Mutation.AddCurrentlyAddingWatchableId -> {
-            val newWatchableIds = (state.addedWatchableIds + mutation.watchableId).distinct()
-            val filteredItems = state.allItems.mapAdded(newWatchableIds)
-            state.copy(allItems = filteredItems, addedWatchableIds = newWatchableIds)
+            val newWatchableIds = (previousState.addedWatchableIds + mutation.watchableId).distinct()
+            val filteredItems = previousState.allItems.mapAdded(newWatchableIds)
+            previousState.copy(allItems = filteredItems, addedWatchableIds = newWatchableIds)
         }
     }
 

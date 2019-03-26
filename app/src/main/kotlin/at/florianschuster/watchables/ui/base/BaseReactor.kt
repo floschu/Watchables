@@ -17,20 +17,14 @@
 package at.florianschuster.watchables.ui.base
 
 import androidx.annotation.CallSuper
-import androidx.lifecycle.LifecycleOwner
 import at.florianschuster.reaktor.android.ViewModelReactor
 import com.squareup.leakcanary.RefWatcher
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.androidx.viewmodel.ext.viewModel
 import org.koin.core.KoinComponent
-import org.koin.core.definition.Definition
 import org.koin.core.inject
-import org.koin.core.module.Module
-import org.koin.core.parameter.ParametersDefinition
 
 abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
-    initialState: State,
-    initialAction: Action? = null
+        initialState: State,
+        initialAction: Action? = null
 ) : ViewModelReactor<Action, Mutation, State>(initialState, initialAction), KoinComponent {
 
     private val refWatcher: RefWatcher by inject()
@@ -41,20 +35,3 @@ abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
         refWatcher.watch(this)
     }
 }
-
-/**
- * Reactor DSL extension for Koin.
- */
-inline fun <reified Reactor : BaseReactor<*, *, *>> Module.reactor(
-    name: String? = null,
-    override: Boolean = false,
-    noinline definition: Definition<Reactor>
-): Unit = viewModel(name, override, definition)
-
-/**
- * Lazily gets a reactor instance.
- */
-inline fun <reified Reactor : BaseReactor<*, *, *>> LifecycleOwner.reactor(
-    name: String? = null,
-    noinline parameters: ParametersDefinition? = null
-): Lazy<Reactor> = viewModel(name, parameters)

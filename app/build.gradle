@@ -83,11 +83,12 @@ dependencies {
     /**
      * Base
      */
-    implementation 'at.florianschuster.reaktor:core:0.1.0'
-    implementation 'at.florianschuster.reaktor:android:0.1.0'
+    def reaktorVersion = '1.0.1'
+    implementation "at.florianschuster.reaktor:core:${reaktorVersion}"
+    implementation "at.florianschuster.reaktor:android:${reaktorVersion}"
+    implementation "at.florianschuster.reaktor:androidkoin:${reaktorVersion}"
 
     implementation 'com.tailoredapps:androidutil:25'
-
 
     /**
      * UI
@@ -105,17 +106,15 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.0.1'
     implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.20'
 
-
     /**
      * Dependency Injection
      */
-    def koinVersion = '2.0.0-beta-1'
+    def koinVersion = '2.0.0-rc-1'
 
     implementation "org.koin:koin-core:$koinVersion"
     implementation "org.koin:koin-android:$koinVersion"
     implementation "org.koin:koin-androidx-scope:$koinVersion"
     implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
-
 
     /**
      * Networking
@@ -130,7 +129,6 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
 
-
     /**
      * Firebase
      */
@@ -143,7 +141,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage:16.1.0'
     implementation 'com.google.firebase:firebase-perf:16.2.3'
     implementation 'com.google.firebase:firebase-invites:16.1.0'
-
 
     /**
      * Rx
@@ -163,7 +160,6 @@ dependencies {
     implementation "com.jakewharton.rxbinding3:rxbinding-viewpager:$rxBindingVersion"
     implementation "com.jakewharton.rxbinding3:rxbinding-material:$rxBindingVersion"
 
-
     /**
      * Images
      */
@@ -174,7 +170,6 @@ dependencies {
     implementation 'jp.wasabeef:glide-transformations:4.0.1'
     implementation 'me.saket:flick:1.4.0'
     implementation 'com.alexvasilkov:gesture-views:2.5.2'
-
 
     /**
      * Utils

@@ -16,14 +16,9 @@
 
 package at.florianschuster.watchables.ui.splashscreen
 
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
-import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
-import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.Completable
@@ -32,25 +27,7 @@ import io.reactivex.disposables.Disposable
 import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
-class SplashCoordinator(fragment: Fragment) : FragmentCoordinator<SplashCoordinator.Route>(fragment) {
-    enum class Route : CoordinatorRoute {
-        OnNotLoggedIn, OnLoggedIn
-    }
-
-    private val navController = fragment.findNavController()
-
-    override fun navigate(to: Route) {
-        val navDirections = when (to) {
-            Route.OnNotLoggedIn -> SplashFragmentDirections.actionSplashscreenToLogin()
-            Route.OnLoggedIn -> SplashFragmentDirections.actionSplashscreenToWatchables()
-        }
-        navController.navigate(navDirections)
-    }
-}
-
 class SplashFragment : BaseFragment(R.layout.fragment_splash) {
-    private val coordinator: SplashCoordinator by fragmentCoordinator { SplashCoordinator(this) }
-
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
     private var timerDisposable: Disposable? = null
 
@@ -60,9 +37,9 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     when {
-                        !sessionService.loggedIn -> coordinator.navigate(SplashCoordinator.Route.OnNotLoggedIn)
-                        else -> coordinator.navigate(SplashCoordinator.Route.OnLoggedIn)
-                    }
+                        !sessionService.loggedIn -> SplashFragmentDirections.actionSplashscreenToLogin()
+                        else -> SplashFragmentDirections.actionSplashscreenToWatchables()
+                    }.also(navController::navigate)
                 }
     }
 

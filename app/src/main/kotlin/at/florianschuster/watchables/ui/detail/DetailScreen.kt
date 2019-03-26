@@ -18,8 +18,6 @@ package at.florianschuster.watchables.ui.detail
 
 import android.os.Bundle
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -39,10 +37,6 @@ import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.ui.base.reactor
-import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
-import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
-import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
 import at.florianschuster.watchables.util.extensions.asFormattedString
 import at.florianschuster.watchables.util.extensions.openChromeTab
 import at.florianschuster.watchables.util.srcBlurConsumer
@@ -50,12 +44,14 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.extensions.RxDialogAction
+import com.tailoredapps.androidutil.extensions.observeOnMain
 import com.tailoredapps.androidutil.extensions.rxDialog
 import com.tailoredapps.androidutil.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.Optional
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
+import com.tailoredapps.reaktor.koin.reactor
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_detail.*
@@ -66,25 +62,10 @@ import org.threeten.bp.ZonedDateTime
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class DetailCoordinator(fragment: Fragment) : FragmentCoordinator<DetailCoordinator.Route>(fragment) {
-    enum class Route : CoordinatorRoute {
-        OnDismissed
-    }
-
-    private val navController = fragment.findNavController()
-
-    override fun navigate(to: Route) {
-        when (to) {
-            Route.OnDismissed -> navController.navigateUp()
-        }
-    }
-}
-
 class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<DetailReactor> {
     private val args: DetailFragmentArgs by navArgs()
 
     override val reactor: DetailReactor by reactor { parametersOf(args.itemId) }
-    private val coordinator: DetailCoordinator by fragmentCoordinator { DetailCoordinator(this) }
 
     private val errorTranslationService: ErrorTranslationService by inject()
     private val detailMediaAdapter: DetailMediaAdapter by inject()
@@ -96,10 +77,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        btnBack.clicks()
-                .map { DetailCoordinator.Route.OnDismissed }
-                .subscribe(coordinator::navigate)
-                .addTo(disposables)
+        btnBack.clicks().subscribe { navController.navigateUp() }.addTo(disposables)
 
         with(rvMedia) {
             snapHelper.attachToRecyclerView(this)
@@ -115,7 +93,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     override fun bind(reactor: DetailReactor) {
         reactor.state.map { it.watchable.asOptional }
                 .filterSome()
-                .subscribe {
+                .bind {
                     loading.isVisible = false
                     tvTitle.text = it.name
                     ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(it.thumbnail)
@@ -125,7 +103,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         reactor.state.changesFrom { it.deleteResult }
                 .bind {
                     when (it) {
-                        is Async.Success -> coordinator.navigate(DetailCoordinator.Route.OnDismissed)
+                        is Async.Success -> navController.navigateUp()
                         is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
@@ -170,6 +148,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         reactor.state.map { DetailMediaItem.Poster(it.watchable?.thumbnail, it.watchable?.original) to it.videos }
                 .map { listOf(it.first, *it.second.toTypedArray()) }
                 .distinctUntilChanged()
+                .observeOnMain()
                 .doOnNext(detailMediaAdapter::submitList)
                 .switchMap { snapToFirstItemObservable }
                 .subscribe()
@@ -226,10 +205,10 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 }
 
 class DetailReactor(
-    private val itemId: String,
-    private val movieDatabaseApi: MovieDatabaseApi,
-    private val watchablesApi: WatchablesApi,
-    private val analyticsService: AnalyticsService
+        private val itemId: String,
+        private val movieDatabaseApi: MovieDatabaseApi,
+        private val watchablesApi: WatchablesApi,
+        private val analyticsService: AnalyticsService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
         initialState = State(),
         initialAction = Action.LoadData
@@ -244,11 +223,11 @@ class DetailReactor(
         data class DeleteWatchableResult(val deleteResult: Async<Unit>) : Mutation()
         data class SetWatchable(val watchable: Watchable?) : Mutation()
         data class SetData(
-            val website: String? = null,
-            val imdbId: String? = null,
-            val videos: List<Videos.Video> = emptyList(),
-            val summary: String? = null,
-            val airing: LocalDate? = null
+                val website: String? = null,
+                val imdbId: String? = null,
+                val videos: List<Videos.Video> = emptyList(),
+                val summary: String? = null,
+                val airing: LocalDate? = null
         ) : Mutation()
     }
 
@@ -257,13 +236,13 @@ class DetailReactor(
     }
 
     data class State(
-        val watchable: Watchable? = null,
-        val deleteResult: Async<Unit> = Async.Uninitialized,
-        val website: String? = null,
-        val imdbId: String? = null,
-        val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
-        val summary: String? = null,
-        val airing: LocalDate? = null
+            val watchable: Watchable? = null,
+            val deleteResult: Async<Unit> = Async.Uninitialized,
+            val website: String? = null,
+            val imdbId: String? = null,
+            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
+            val summary: String? = null,
+            val airing: LocalDate? = null
     )
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
@@ -287,16 +266,16 @@ class DetailReactor(
         }
     }
 
-    override fun reduce(state: State, mutation: Mutation): State = when (mutation) {
-        is Mutation.DeleteWatchableResult -> state.copy(deleteResult = mutation.deleteResult)
-        is Mutation.SetWatchable -> state.copy(watchable = mutation.watchable)
+    override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
+        is Mutation.DeleteWatchableResult -> previousState.copy(deleteResult = mutation.deleteResult)
+        is Mutation.SetWatchable -> previousState.copy(watchable = mutation.watchable)
         is Mutation.SetData -> {
             val youtubeVideos = mutation.videos.asSequence()
                     .filter { it.isYoutube }
                     .sortedBy { it.type }
                     .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
                     .toList()
-            state.copy(
+            previousState.copy(
                     website = mutation.website,
                     imdbId = mutation.imdbId,
                     videos = youtubeVideos,

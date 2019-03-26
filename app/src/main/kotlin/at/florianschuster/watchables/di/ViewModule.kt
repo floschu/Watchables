@@ -16,7 +16,6 @@
 
 package at.florianschuster.watchables.di
 
-import at.florianschuster.watchables.ui.base.reactor
 import at.florianschuster.watchables.ui.detail.OptionsAdapter
 import at.florianschuster.watchables.ui.detail.DetailMediaAdapter
 import at.florianschuster.watchables.ui.detail.DetailReactor
@@ -25,13 +24,14 @@ import at.florianschuster.watchables.ui.search.SearchAdapter
 import at.florianschuster.watchables.ui.search.SearchReactor
 import at.florianschuster.watchables.ui.watchables.WatchablesAdapter
 import at.florianschuster.watchables.ui.watchables.WatchablesReactor
+import com.tailoredapps.reaktor.koin.reactor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val viewModule = module {
-    reactor { LoginReactor(get(), get()) }
+    reactor { LoginReactor(get(), get(), get()) }
 
-    reactor { WatchablesReactor(get(), get(), get()) }
+    reactor { WatchablesReactor(get(), get(), get(), get()) }
     factory { WatchablesAdapter(androidContext().resources) }
 
     reactor { SearchReactor(get(), get()) }

@@ -23,6 +23,8 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import com.squareup.leakcanary.RefWatcher
 import io.reactivex.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
@@ -30,10 +32,12 @@ import org.koin.android.ext.android.inject
 abstract class BaseFragment(@LayoutRes protected val layoutResource: Int? = null) : Fragment() {
     private val refWatcher: RefWatcher by inject()
     open val disposables = CompositeDisposable()
+    protected val navController: NavController get() = findNavController()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             if (layoutResource != null) inflater.inflate(layoutResource, container, false)
             else throw RuntimeException("Please implement onCreateView().")
+
 
     @CallSuper
     override fun onDestroyView() {

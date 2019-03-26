@@ -17,6 +17,7 @@
 package at.florianschuster.watchables.di
 
 import androidx.appcompat.app.AppCompatActivity
+import at.florianschuster.watchables.Router
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.FirebaseSessionService
@@ -37,4 +38,6 @@ val appModule = module {
     single { AnalyticsService(androidContext(), get()) }
     single { (activity: AppCompatActivity) -> ShareService(activity) }
     single { NotificationService(androidContext()) }
+
+    single { Router() }
 }

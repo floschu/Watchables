@@ -17,15 +17,21 @@
 package at.florianschuster.watchables.ui.watchables
 
 import android.os.Bundle
+import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.core.view.isVisible
-import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.consume
+import at.florianschuster.reaktor.emptyMutation
+import at.florianschuster.watchables.Coordinator
+import at.florianschuster.watchables.AppRoute
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.Router
+import at.florianschuster.watchables.coordinator
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableContainer
 import at.florianschuster.watchables.model.WatchableSeason
@@ -37,11 +43,7 @@ import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.reactor
 import at.florianschuster.watchables.util.Utils
-import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
-import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
-import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
 import at.florianschuster.watchables.util.extensions.openChromeTab
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
@@ -62,6 +64,7 @@ import com.tailoredapps.androidutil.extensions.snack
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
+import com.tailoredapps.reaktor.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -70,36 +73,39 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
-class WatchablesCoordinator(fragment: Fragment) : FragmentCoordinator<WatchablesCoordinator.Route>(fragment) {
-    sealed class Route : CoordinatorRoute {
-        data class OnWatchableSelected(val id: String) : Route()
-        object SearchIsRequired : Route()
-    }
-
-    private val navController = fragment.findNavController()
-
-    override fun navigate(to: Route) {
-        when (to) {
-            is Route.OnWatchableSelected -> WatchablesFragmentDirections.actionWatchablesToDetail(to.id)
-            is Route.SearchIsRequired -> WatchablesFragmentDirections.actionWatchablesToSearch()
-        }.also(navController::navigate)
+class WatchablesCoordinator(
+        router: Router
+) : Coordinator<WatchablesReactor.Route, NavController>(router) {
+    override fun navigate(route: WatchablesReactor.Route, handler: NavController) {
+        when (route) {
+            is WatchablesReactor.Route.OnWatchableSelected -> {
+                WatchablesFragmentDirections.actionWatchablesToDetail(route.id)
+            }
+            is WatchablesReactor.Route.SearchIsRequired -> {
+                WatchablesFragmentDirections.actionWatchablesToSearch()
+            }
+        }.also(handler::navigate)
     }
 }
 
 class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorView<WatchablesReactor> {
     override val reactor: WatchablesReactor by reactor()
-    private val coordinator: WatchablesCoordinator by fragmentCoordinator { WatchablesCoordinator(this) }
 
     private val adapter: WatchablesAdapter by inject()
     private val prefRepo: PrefRepo by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
     private val analyticsService: AnalyticsService by inject()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    private val coordinator: WatchablesCoordinator by coordinator { WatchablesCoordinator(get()) }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        coordinator.provideNavigationHandler(findNavController())
 
         AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
@@ -110,16 +116,6 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         fabScroll.clicks()
                 .subscribe { rvWatchables.smoothScrollUp() }
-                .addTo(disposables)
-
-        flSearch.clicks()
-                .map { WatchablesCoordinator.Route.SearchIsRequired }
-                .subscribe(coordinator::navigate)
-                .addTo(disposables)
-
-        adapter.itemClick.ofType<ItemClickType.ItemDetail>()
-                .map { WatchablesCoordinator.Route.OnWatchableSelected(it.watchable.id) }
-                .subscribe(coordinator::navigate)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
@@ -143,6 +139,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
     }
 
     override fun bind(reactor: WatchablesReactor) {
+
         // state
         reactor.state.changesFrom { it.watchables }
                 .ofType<Async.Success<List<WatchableContainer>>>()
@@ -212,6 +209,18 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 }
                 .subscribe()
                 .addTo(disposables)
+
+        flSearch.clicks()
+                .map { WatchablesReactor.Action.Search }
+                .consume(reactor)
+                .addTo(disposables)
+
+        adapter.itemClick.ofType<ItemClickType.ItemDetail>()
+                .map { WatchablesFragmentDirections.actionWatchablesToDetail(it.watchable.id) }
+                .subscribe(navController::navigate)
+//                .map { WatchablesReactor.Action.SetWatchablesSelected(it.watchable.id) }
+//                .consume(reactor)
+                .addTo(disposables)
     }
 
     private fun openMenuItem(item: RxPopupAction.Selected) {
@@ -251,11 +260,18 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
     }
 }
 
+
 class WatchablesReactor(
-    private val watchablesApi: WatchablesApi,
-    private val analyticsService: AnalyticsService,
-    private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val router: Router,
+        private val watchablesApi: WatchablesApi,
+        private val analyticsService: AnalyticsService,
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
+
+    sealed class Route : AppRoute {
+        data class OnWatchableSelected(val id: String) : Route()
+        object SearchIsRequired : Route()
+    }
 
     sealed class Action {
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()
@@ -263,42 +279,62 @@ class WatchablesReactor(
         data class SetSeasonWatched(val watchableSeasonId: String, val watched: Boolean) : Action()
         data class DeleteWatchable(val watchableId: String) : Action()
         object Logout : Action()
+        object Search : Action()
+        data class SetWatchablesSelected(val watchableId: String) : Action()
     }
 
     sealed class Mutation {
         data class SetWatchables(val watchables: Async<List<WatchableContainer>>) : Mutation()
     }
 
-    data class State(val watchables: Async<List<WatchableContainer>> = Async.Uninitialized)
+    data class State(
+            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized
+    )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
             Observable.merge(mutation, watchablesMutation)
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
-        is Action.SetWatched -> watchablesApi
-                .updateWatchable(action.watchableId, action.watched)
-                .doOnComplete { analyticsService.logWatchableWatched(action.watchableId, action.watched) }
-                .andThen(Observable.empty())
-        is Action.SetEpisodeWatched -> watchablesApi
-                .updateSeasonEpisode(action.watchableSeasonId, action.episode, action.watched)
-                .andThen(Observable.empty())
-        is Action.SetSeasonWatched -> watchablesApi
-                .updateSeason(action.watchableSeasonId, action.watched)
-                .andThen(Observable.empty())
-        is Action.DeleteWatchable -> watchablesApi
-                .setWatchableDeleted(action.watchableId)
-                .andThen(Observable.empty())
-        is Action.Logout -> sessionService.logout()
-                .doOnComplete { UpdateWatchablesWorker.stop() }
-                .doOnComplete { DeleteWatchablesWorker.stop() }
-                .andThen(Observable.empty())
+        is Action.SetWatched -> {
+            watchablesApi
+                    .updateWatchable(action.watchableId, action.watched)
+                    .doOnComplete { analyticsService.logWatchableWatched(action.watchableId, action.watched) }
+                    .andThen(Observable.empty())
+        }
+        is Action.SetEpisodeWatched -> {
+            watchablesApi
+                    .updateSeasonEpisode(action.watchableSeasonId, action.episode, action.watched)
+                    .andThen(Observable.empty())
+        }
+        is Action.SetSeasonWatched -> {
+            watchablesApi
+                    .updateSeason(action.watchableSeasonId, action.watched)
+                    .andThen(Observable.empty())
+        }
+        is Action.DeleteWatchable -> {
+            watchablesApi
+                    .setWatchableDeleted(action.watchableId)
+                    .andThen(Observable.empty())
+        }
+        is Action.Logout -> {
+            sessionService.logout()
+                    .doOnComplete { UpdateWatchablesWorker.stop() }
+                    .doOnComplete { DeleteWatchablesWorker.stop() }
+                    .andThen(Observable.empty())
+        }
+        is Action.Search -> {
+            emptyMutation { router follow Route.SearchIsRequired }
+        }
+        is Action.SetWatchablesSelected -> {
+            emptyMutation { router follow Route.OnWatchableSelected(action.watchableId) }
+        }
     }
 
-    override fun reduce(state: State, mutation: Mutation): State = when (mutation) {
-        is Mutation.SetWatchables -> state.copy(watchables = mutation.watchables)
+    override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
+        is Mutation.SetWatchables -> previousState.copy(watchables = mutation.watchables)
     }
 
-    private val watchablesMutation
+    private val watchablesMutation: Observable<out Mutation>
         get() = watchableContainerObservable
                 .map { Mutation.SetWatchables(Async.Success(it)) }
                 .onErrorReturn { Mutation.SetWatchables(Async.Error(it)) }

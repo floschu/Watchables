@@ -17,24 +17,25 @@
 package at.florianschuster.watchables.ui.login
 
 import android.content.Intent
+import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
+import at.florianschuster.watchables.AppRoute
+import at.florianschuster.watchables.Coordinator
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.Router
+import at.florianschuster.watchables.coordinator
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.ui.base.reactor
-import at.florianschuster.watchables.util.coordinator.CoordinatorRoute
-import at.florianschuster.watchables.util.coordinator.FragmentCoordinator
-import at.florianschuster.watchables.util.coordinator.fragmentCoordinator
 import at.florianschuster.watchables.util.extensions.RxTasks
 import at.florianschuster.watchables.util.extensions.openChromeTab
 import at.florianschuster.watchables.worker.DeleteWatchablesWorker
@@ -48,23 +49,21 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.extensions.toObservableDefault
+import com.tailoredapps.reaktor.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
+import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 
-class LoginCoordinator(fragment: Fragment) : FragmentCoordinator<LoginCoordinator.Route>(fragment) {
-    enum class Route : CoordinatorRoute {
-        OnLoggedIn
-    }
-
-    private val navController = fragment.findNavController()
-
-    override fun navigate(to: Route) {
-        when (to) {
-            Route.OnLoggedIn -> {
-                navController.navigate(LoginFragmentDirections.actionLoginToWatchables())
+class LoginCoordinator(
+        router: Router
+) : Coordinator<LoginReactor.Route, NavController>(router) {
+    override fun navigate(route: LoginReactor.Route, handler: NavController) {
+        when (route) {
+            LoginReactor.Route.OnLoggedIn -> {
+                handler.navigate(LoginFragmentDirections.actionLoginToWatchables())
             }
         }
     }
@@ -72,11 +71,19 @@ class LoginCoordinator(fragment: Fragment) : FragmentCoordinator<LoginCoordinato
 
 class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginReactor> {
     override val reactor: LoginReactor by reactor()
-    private val coordinator: LoginCoordinator by fragmentCoordinator { LoginCoordinator(this) }
 
     private val errorTranslationService: ErrorTranslationService by inject()
 
+    private val coordinator: LoginCoordinator by coordinator { LoginCoordinator(get()) }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        bind(reactor)
+    }
+
     override fun bind(reactor: LoginReactor) {
+        coordinator.provideNavigationHandler(findNavController())
+
         AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
         tvSource.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposables)
@@ -97,9 +104,8 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         reactor.state.changesFrom { it.result }
                 .bind {
                     progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
-                    when (it) {
-                        is Async.Success -> coordinator.navigate(LoginCoordinator.Route.OnLoggedIn)
-                        is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
+                    if (it is Async.Error) {
+                        errorTranslationService.toastConsumer.accept(it.error)
                     }
                 }
                 .addTo(disposables)
@@ -122,9 +128,14 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 }
 
 class LoginReactor(
-    private val watchablesApi: WatchablesApi,
-    private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val router: Router,
+        private val watchablesApi: WatchablesApi,
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
+    enum class Route : AppRoute {
+        OnLoggedIn
+    }
+
     sealed class Action {
         data class Login(val credential: AuthCredential) : Action()
     }
@@ -134,18 +145,20 @@ class LoginReactor(
     }
 
     data class State(
-        val result: Async<Boolean> = Async.Uninitialized
+            val result: Async<Boolean> = Async.Uninitialized
     )
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.Login -> {
             val loading = Observable.just(Mutation.Login(Async.Loading))
+
+
             Observable.concat(loading, loginMutation(action.credential))
         }
     }
 
-    override fun reduce(state: State, mutation: Mutation): State = when (mutation) {
-        is Mutation.Login -> state.copy(result = mutation.result)
+    override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
+        is Mutation.Login -> previousState.copy(result = mutation.result)
     }
 
     private fun loginMutation(credential: AuthCredential): Observable<Mutation.Login> =
@@ -154,6 +167,7 @@ class LoginReactor(
                     .flatMapCompletable(::createWatchableUserIfNeeded)
                     .doOnComplete { UpdateWatchablesWorker.start() }
                     .doOnComplete { DeleteWatchablesWorker.start() }
+                    .doOnComplete { router follow Route.OnLoggedIn }
                     .toObservableDefault(Mutation.Login(Async.Success(true)))
                     .onErrorReturn { Mutation.Login(Async.Error(it)) }
 
