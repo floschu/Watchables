@@ -27,7 +27,7 @@ import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableContainer
 import com.jakewharton.rxrelay2.PublishRelay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
-import com.tailoredapps.androidutil.extensions.inflate
+import com.tailoredapps.androidutil.core.extensions.inflate
 
 sealed class ItemClickType {
     data class Options(val watchable: Watchable) : ItemClickType()

@@ -48,7 +48,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
-import com.tailoredapps.androidutil.extensions.toObservableDefault
+import com.tailoredapps.androidutil.core.extensions.toObservableDefault
 import com.tailoredapps.reaktor.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable

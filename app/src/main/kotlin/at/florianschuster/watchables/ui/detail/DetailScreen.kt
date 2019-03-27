@@ -43,10 +43,10 @@ import at.florianschuster.watchables.util.srcBlurConsumer
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.tailoredapps.androidutil.async.Async
-import com.tailoredapps.androidutil.extensions.RxDialogAction
-import com.tailoredapps.androidutil.extensions.observeOnMain
-import com.tailoredapps.androidutil.extensions.rxDialog
-import com.tailoredapps.androidutil.extensions.toObservableDefault
+import com.tailoredapps.androidutil.core.extensions.RxDialogAction
+import com.tailoredapps.androidutil.core.extensions.observeOnMain
+import com.tailoredapps.androidutil.core.extensions.rxDialog
+import com.tailoredapps.androidutil.core.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.Optional
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome

@@ -29,7 +29,7 @@ import at.florianschuster.watchables.model.thumbnail
 import at.florianschuster.watchables.util.srcBlurConsumer
 import at.florianschuster.watchables.util.srcConsumer
 import com.jakewharton.rxrelay2.PublishRelay
-import com.tailoredapps.androidutil.extensions.inflate
+import com.tailoredapps.androidutil.core.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_search.*
 

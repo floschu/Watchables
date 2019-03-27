@@ -61,6 +61,8 @@ android {
 
     packagingOptions {
         exclude 'META-INF/proguard/androidx-annotations.pro'
+        exclude 'META-INF/core_release.kotlin_module'
+
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -93,7 +95,17 @@ dependencies {
     implementation "at.florianschuster.koordinator:android:${koordinatorVersion}"
     implementation "at.florianschuster.koordinator:androidkoin:${koordinatorVersion}"
 
-    implementation 'com.tailoredapps:androidutil:25' //todo
+    def androidutilVersion = '3'
+    def androidutil = [
+            core       : "com.tailoredapps.androidutil:core:${androidutilVersion}",
+            async      : "com.tailoredapps.androidutil:async:${androidutilVersion}",
+            network    : "com.tailoredapps.androidutil:network:${androidutilVersion}",
+            optional   : "com.tailoredapps.androidutil:optional:${androidutilVersion}",
+            permissions: "com.tailoredapps.androidutil:permissions:${androidutilVersion}",
+            validation : "com.tailoredapps.androidutil:validation:${androidutilVersion}",
+            viewstate  : "com.tailoredapps.androidutil:viewstate:${androidutilVersion}"
+    ]
+    implementation androidutil.values()
 
     /**
      * UI
