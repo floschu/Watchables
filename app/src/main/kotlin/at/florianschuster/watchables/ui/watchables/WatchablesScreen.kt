@@ -22,16 +22,15 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import at.florianschuster.android.koin.coordinator
+import at.florianschuster.koordinator.CoordinatorRoute
+import at.florianschuster.koordinator.Router
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.consume
 import at.florianschuster.reaktor.emptyMutation
-import at.florianschuster.watchables.Coordinator
-import at.florianschuster.watchables.AppRoute
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.Router
-import at.florianschuster.watchables.coordinator
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableContainer
 import at.florianschuster.watchables.model.WatchableSeason
@@ -43,6 +42,7 @@ import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.util.Utils
 import at.florianschuster.watchables.util.extensions.openChromeTab
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
@@ -73,13 +73,12 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
-import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 class WatchablesCoordinator(
         router: Router
-) : Coordinator<WatchablesReactor.Route, NavController>(router) {
+) : BaseCoordinator<WatchablesReactor.Route, NavController>(router) {
     override fun navigate(route: WatchablesReactor.Route, handler: NavController) {
         when (route) {
             is WatchablesReactor.Route.OnWatchableSelected -> {
@@ -100,7 +99,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
     private val shareService: ShareService by inject { parametersOf(activity) }
     private val analyticsService: AnalyticsService by inject()
 
-    private val coordinator: WatchablesCoordinator by coordinator { WatchablesCoordinator(get()) }
+    private val coordinator: WatchablesCoordinator by coordinator()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -268,7 +267,7 @@ class WatchablesReactor(
         private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
-    sealed class Route : AppRoute {
+    sealed class Route : CoordinatorRoute {
         data class OnWatchableSelected(val id: String) : Route()
         object SearchIsRequired : Route()
     }

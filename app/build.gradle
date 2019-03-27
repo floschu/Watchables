@@ -88,7 +88,12 @@ dependencies {
     implementation "at.florianschuster.reaktor:android:${reaktorVersion}"
     implementation "at.florianschuster.reaktor:androidkoin:${reaktorVersion}"
 
-    implementation 'com.tailoredapps:androidutil:25'
+    def koordinatorVersion = '0.0.3'
+    implementation "at.florianschuster.koordinator:core:${koordinatorVersion}"
+    implementation "at.florianschuster.koordinator:android:${koordinatorVersion}"
+    implementation "at.florianschuster.koordinator:androidkoin:${koordinatorVersion}"
+
+    implementation 'com.tailoredapps:androidutil:25' //todo
 
     /**
      * UI

@@ -22,19 +22,19 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import at.florianschuster.android.koin.coordinator
+import at.florianschuster.koordinator.CoordinatorRoute
+import at.florianschuster.koordinator.Router
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
-import at.florianschuster.watchables.AppRoute
-import at.florianschuster.watchables.Coordinator
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.Router
-import at.florianschuster.watchables.coordinator
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.util.extensions.RxTasks
 import at.florianschuster.watchables.util.extensions.openChromeTab
@@ -54,12 +54,11 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.koin.android.ext.android.get
 import org.koin.android.ext.android.inject
 
 class LoginCoordinator(
         router: Router
-) : Coordinator<LoginReactor.Route, NavController>(router) {
+): BaseCoordinator<LoginReactor.Route, NavController>(router) {
     override fun navigate(route: LoginReactor.Route, handler: NavController) {
         when (route) {
             LoginReactor.Route.OnLoggedIn -> {
@@ -74,7 +73,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 
     private val errorTranslationService: ErrorTranslationService by inject()
 
-    private val coordinator: LoginCoordinator by coordinator { LoginCoordinator(get()) }
+    private val coordinator: LoginCoordinator by coordinator()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -132,7 +131,7 @@ class LoginReactor(
         private val watchablesApi: WatchablesApi,
         private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
-    enum class Route : AppRoute {
+    enum class Route : CoordinatorRoute {
         OnLoggedIn
     }
 

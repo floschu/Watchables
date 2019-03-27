@@ -17,15 +17,17 @@
 package at.florianschuster.watchables.ui.base
 
 import androidx.annotation.CallSuper
-import at.florianschuster.reaktor.android.ViewModelReactor
+import at.florianschuster.koordinator.CoordinatorRoute
+import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import com.squareup.leakcanary.RefWatcher
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
-abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
-        initialState: State,
-        initialAction: Action? = null
-) : ViewModelReactor<Action, Mutation, State>(initialState, initialAction), KoinComponent {
+abstract class BaseCoordinator<Route, NavigationHandler>(
+        router: Router
+) : LifecycleCoordinator<Route, NavigationHandler>(router), KoinComponent
+        where Route : CoordinatorRoute, NavigationHandler : Any {
     private val refWatcher: RefWatcher by inject()
 
     @CallSuper
