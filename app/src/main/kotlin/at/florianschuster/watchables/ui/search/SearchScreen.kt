@@ -22,7 +22,6 @@ import androidx.core.view.isVisible
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
-import at.florianschuster.reaktor.consume
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
@@ -123,20 +122,20 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
         etSearch.textChanges()
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .map { SearchReactor.Action.UpdateQuery(it.toString()) }
-                .consume(reactor)
+                .bind(to = reactor.action)
                 .addTo(disposables)
 
         rvSearch.scrollEvents()
                 .sample(500, TimeUnit.MILLISECONDS)
                 .filter { it.view.shouldLoadMore() }
                 .map { SearchReactor.Action.LoadNextPage }
-                .consume(reactor)
+                .bind(to = reactor.action)
                 .addTo(disposables)
 
         adapter.addClick
                 .filter { !it.added }
                 .map { SearchReactor.Action.AddItemToWatchables(it) }
-                .consume(reactor)
+                .bind(to = reactor.action)
                 .addTo(disposables)
     }
 }

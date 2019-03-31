@@ -107,5 +107,27 @@
     <!-- License section -->
     <string name="library_flick_licenseId" translatable="false">apache_2_0</string>
 
+    <string name="define_reaktor" />
+    <string name="library_reaktor_author">Florian Schuster</string>
+    <string name="library_reaktor_authorWebsite">https://florianschuster.at</string>
+    <string name="library_reaktor_libraryName">Reaktor</string>
+    <string name="library_reaktor_libraryDescription">Reaktor is a framework for a reactive and unidirectional application architecture.</string>
+    <string name="library_reaktor_libraryWebsite">https://github.com/floschu/Reaktor</string>
+    <string name="library_reaktor_libraryVersion">1.0.3</string>
+    <string name="library_reaktor_isOpenSource">true</string>
+    <string name="library_reaktor_repositoryLink">https://github.com/floschu/Reaktor</string>
+    <string name="library_reaktor_classPath">at.florianschuster.reaktor</string>
+    <string name="library_reaktor_licenseId">apache_2_0</string>
 
+    <string name="define_koordinator" />
+    <string name="library_koordinator_author">Florian Schuster</string>
+    <string name="library_koordinator_authorWebsite">https://florianschuster.at</string>
+    <string name="library_koordinator_libraryName">Koordinator</string>
+    <string name="library_koordinator_libraryDescription">Koordinator is a simple pattern to separate specific navigation implementation from view controllers.</string>
+    <string name="library_koordinator_libraryWebsite">https://github.com/floschu/Koordinator</string>
+    <string name="library_koordinator_libraryVersion">0.0.4</string>
+    <string name="library_koordinator_isOpenSource">true</string>
+    <string name="library_koordinator_repositoryLink">https://github.com/floschu/Koordinator</string>
+    <string name="library_koordinator_classPath">at.florianschuster.koordinator</string>
+    <string name="library_koordinator_licenseId">apache_2_0</string>
 </resources>

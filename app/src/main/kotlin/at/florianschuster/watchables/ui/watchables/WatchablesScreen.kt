@@ -28,7 +28,6 @@ import at.florianschuster.koordinator.Router
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
-import at.florianschuster.reaktor.consume
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
@@ -76,9 +75,7 @@ import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
-class WatchablesCoordinator(
-        router: Router
-) : BaseCoordinator<WatchablesReactor.Route, NavController>(router) {
+class WatchablesCoordinator : BaseCoordinator<WatchablesReactor.Route, NavController>() {
     override fun navigate(route: WatchablesReactor.Route, handler: NavController) {
         when (route) {
             is WatchablesReactor.Route.OnWatchableSelected -> {
@@ -168,12 +165,12 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
         // action
         adapter.itemClick.ofType<ItemClickType.Watched>()
                 .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
-                .consume(reactor)
+                .bind(to = reactor.action)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.WatchedEpisode>()
                 .map { WatchablesReactor.Action.SetEpisodeWatched(it.seasonId, it.episode, it.watched) }
-                .consume(reactor)
+                .bind(to = reactor.action)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.Options>()
@@ -211,14 +208,12 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         flSearch.clicks()
                 .map { WatchablesReactor.Action.Search }
-                .consume(reactor)
+                .bind(to = reactor.action)
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
-                .map { WatchablesFragmentDirections.actionWatchablesToDetail(it.watchable.id) }
-                .subscribe(navController::navigate)
-//                .map { WatchablesReactor.Action.SetWatchablesSelected(it.watchable.id) }
-//                .consume(reactor)
+                .map { WatchablesReactor.Action.SetWatchablesSelected(it.watchable.id) }
+                .bind(to = reactor.action)
                 .addTo(disposables)
     }
 
@@ -261,7 +256,6 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
 
 class WatchablesReactor(
-        private val router: Router,
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService,
         private val sessionService: SessionService<FirebaseUser, AuthCredential>
@@ -322,10 +316,10 @@ class WatchablesReactor(
                     .andThen(Observable.empty())
         }
         is Action.Search -> {
-            emptyMutation { router follow Route.SearchIsRequired }
+            emptyMutation { Router follow Route.SearchIsRequired }
         }
         is Action.SetWatchablesSelected -> {
-            emptyMutation { router follow Route.OnWatchableSelected(action.watchableId) }
+            emptyMutation { Router follow Route.OnWatchableSelected(action.watchableId) }
         }
     }
 

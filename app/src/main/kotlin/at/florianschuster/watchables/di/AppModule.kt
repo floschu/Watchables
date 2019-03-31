@@ -38,5 +38,4 @@ val appModule = module {
     single { AnalyticsService(androidContext(), get()) }
     single { (activity: AppCompatActivity) -> ShareService(activity) }
     single { NotificationService(androidContext()) }
-    single { Router() }
 }

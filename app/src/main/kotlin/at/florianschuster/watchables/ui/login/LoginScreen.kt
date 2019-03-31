@@ -56,9 +56,7 @@ import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.android.ext.android.inject
 
-class LoginCoordinator(
-        router: Router
-): BaseCoordinator<LoginReactor.Route, NavController>(router) {
+class LoginCoordinator : BaseCoordinator<LoginReactor.Route, NavController>() {
     override fun navigate(route: LoginReactor.Route, handler: NavController) {
         when (route) {
             LoginReactor.Route.OnLoggedIn -> {
@@ -70,9 +68,7 @@ class LoginCoordinator(
 
 class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginReactor> {
     override val reactor: LoginReactor by reactor()
-
     private val errorTranslationService: ErrorTranslationService by inject()
-
     private val coordinator: LoginCoordinator by coordinator()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

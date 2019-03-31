@@ -32,11 +32,11 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val viewModule = module {
-    coordinator { LoginCoordinator(get())  }
+    coordinator { LoginCoordinator() }
     reactor { LoginReactor(get(), get(), get()) }
 
-    coordinator { WatchablesCoordinator(get())  }
-    reactor { WatchablesReactor(get(), get(), get(), get()) }
+    coordinator { WatchablesCoordinator() }
+    reactor { WatchablesReactor(get(), get(), get()) }
     factory { WatchablesAdapter(androidContext().resources) }
 
     reactor { SearchReactor(get(), get()) }

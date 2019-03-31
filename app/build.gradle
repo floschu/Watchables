@@ -55,14 +55,11 @@ android {
     dataBinding {
         enabled = false
     }
-    lintOptions {
-        abortOnError false
-    }
-
     packagingOptions {
         exclude 'META-INF/proguard/androidx-annotations.pro'
         exclude 'META-INF/core_release.kotlin_module'
-
+        exclude 'META-INF/androidkoin_release.kotlin_module'
+        exclude 'META-INF/android_release.kotlin_module'
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -85,12 +82,12 @@ dependencies {
     /**
      * Base
      */
-    def reaktorVersion = '1.0.1'
+    def reaktorVersion = '1.0.3'
     implementation "at.florianschuster.reaktor:core:${reaktorVersion}"
     implementation "at.florianschuster.reaktor:android:${reaktorVersion}"
     implementation "at.florianschuster.reaktor:androidkoin:${reaktorVersion}"
 
-    def koordinatorVersion = '0.0.3'
+    def koordinatorVersion = '0.0.5'
     implementation "at.florianschuster.koordinator:core:${koordinatorVersion}"
     implementation "at.florianschuster.koordinator:android:${koordinatorVersion}"
     implementation "at.florianschuster.koordinator:androidkoin:${koordinatorVersion}"

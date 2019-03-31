@@ -53,7 +53,8 @@ object Utils {
             withLibraries(
                     "LeakCanary", "Timber", "gson", "rxjava", "rxAndroid",
                     "glide", "SupportLibrary", "rxpaparazzo", "transformations",
-                    "fastscroll", "rxbinding", "koin", "flick"
+                    "fastscroll", "rxbinding", "koin", "flick", "koordinator",
+                    "reaktor"
             )
         }.start(context)
     }
