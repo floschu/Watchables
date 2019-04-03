@@ -55,12 +55,6 @@ android {
     dataBinding {
         enabled = false
     }
-    packagingOptions {
-        exclude 'META-INF/proguard/androidx-annotations.pro'
-        exclude 'META-INF/core_release.kotlin_module'
-        exclude 'META-INF/androidkoin_release.kotlin_module'
-        exclude 'META-INF/android_release.kotlin_module'
-    }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
         test.java.srcDirs += 'src/test/kotlin'
@@ -82,124 +76,49 @@ dependencies {
     /**
      * Base
      */
-    def reaktorVersion = '1.0.3'
-    implementation "at.florianschuster.reaktor:core:${reaktorVersion}"
-    implementation "at.florianschuster.reaktor:android:${reaktorVersion}"
-    implementation "at.florianschuster.reaktor:androidkoin:${reaktorVersion}"
-
-    def koordinatorVersion = '0.0.5'
-    implementation "at.florianschuster.koordinator:core:${koordinatorVersion}"
-    implementation "at.florianschuster.koordinator:android:${koordinatorVersion}"
-    implementation "at.florianschuster.koordinator:androidkoin:${koordinatorVersion}"
-
-    def androidutilVersion = '3'
-    def androidutil = [
-            core       : "com.tailoredapps.androidutil:core:${androidutilVersion}",
-            async      : "com.tailoredapps.androidutil:async:${androidutilVersion}",
-            network    : "com.tailoredapps.androidutil:network:${androidutilVersion}",
-            optional   : "com.tailoredapps.androidutil:optional:${androidutilVersion}",
-            permissions: "com.tailoredapps.androidutil:permissions:${androidutilVersion}",
-            validation : "com.tailoredapps.androidutil:validation:${androidutilVersion}",
-            viewstate  : "com.tailoredapps.androidutil:viewstate:${androidutilVersion}"
-    ]
-    implementation androidutil.values()
+    implementation deps.reaktor.values()
+    implementation deps.koordinator.values()
+    implementation deps.androidutil.values()
 
     /**
      * UI
      */
-    def navVersion = '1.0.0'
-
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.fragment:fragment:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.google.android.material:material:1.0.0'
-    implementation "android.arch.lifecycle:extensions:2.1.0-rc01"
-    kapt "androidx.lifecycle:lifecycle-compiler:2.1.0-alpha03"
-    implementation "android.arch.navigation:navigation-fragment-ktx:$navVersion"
-    implementation "android.arch.navigation:navigation-ui-ktx:$navVersion"
-    implementation 'androidx.core:core-ktx:1.0.1'
-    implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.20'
+    implementation deps.ui.values()
+    implementation deps.lifecycle.arch
+    kapt deps.lifecycle.compiler
+    implementation deps.navigation.values()
 
     /**
      * Dependency Injection
      */
-    def koinVersion = '2.0.0-rc-1'
-
-    implementation "org.koin:koin-core:$koinVersion"
-    implementation "org.koin:koin-android:$koinVersion"
-    implementation "org.koin:koin-androidx-scope:$koinVersion"
-    implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
+    implementation deps.koin.values()
 
     /**
      * Networking
      */
-    def retrofitVersion = '2.5.0'
-    def okHttpVersion = '3.13.1'
-
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+    implementation deps.networking.values()
 
     /**
      * Firebase
      */
-    implementation 'com.google.firebase:firebase-core:16.0.6'
-    implementation 'com.google.firebase:firebase-auth:16.1.0'
-    implementation 'com.google.android.gms:play-services-auth:16.0.1'
-    implementation 'com.google.firebase:firebase-firestore:18.1.0'
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
-    implementation 'com.google.firebase:firebase-messaging:17.4.0'
-    implementation 'com.google.firebase:firebase-storage:16.1.0'
-    implementation 'com.google.firebase:firebase-perf:16.2.3'
-    implementation 'com.google.firebase:firebase-invites:16.1.0'
+    implementation deps.firebase.values()
 
     /**
      * Rx
      */
-    def rxBindingVersion = '3.0.0-alpha2'
-
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.7'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.3.0'
-    implementation 'com.jakewharton.rxrelay2:rxrelay:2.1.0'
-    implementation "com.jakewharton.rxbinding3:rxbinding:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-core:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-appcompat:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-drawerlayout:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-recyclerview:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-viewpager:$rxBindingVersion"
-    implementation "com.jakewharton.rxbinding3:rxbinding-material:$rxBindingVersion"
-
-    /**
-     * Images
-     */
-    def glideVersion = '4.9.0'
-
-    implementation "com.github.bumptech.glide:glide:$glideVersion"
-    kapt "com.github.bumptech.glide:compiler:$glideVersion"
-    implementation 'jp.wasabeef:glide-transformations:4.0.1'
-    implementation 'me.saket:flick:1.4.0'
-    implementation 'com.alexvasilkov:gesture-views:2.5.2'
+    implementation deps.rxjava.values()
+    implementation deps.rxbinding.values()
 
     /**
      * Utils
      */
-    def leakCanaryVersion = '1.6.3'
-    def workVersion = "1.0.0"
-
-    implementation 'com.jakewharton.timber:timber:4.7.1'
-    debugImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
-    releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakCanaryVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${versions.kotlin}"
-    implementation 'com.jakewharton.threetenabp:threetenabp:1.2.0'
-    implementation "android.arch.work:work-runtime:$workVersion"
-    implementation "android.arch.work:work-rxjava2:$workVersion"
-    implementation "com.mikepenz:aboutlibraries:6.2.1"
-    implementation 'com.android.support:customtabs:28.0.0'
+    implementation deps.coreutil.values()
+    debugImplementation deps.leakcanary.op
+    releaseImplementation deps.leakcanary.noop
+    implementation deps.glide.core
+    implementation deps.glide.transformation
+    kapt deps.glide.compiler
+    implementation deps.work.values()
 }
 
 

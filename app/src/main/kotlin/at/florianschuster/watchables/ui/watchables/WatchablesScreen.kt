@@ -22,7 +22,7 @@ import android.view.animation.AnimationUtils
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import at.florianschuster.android.koin.coordinator
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
 import at.florianschuster.reaktor.ReactorView
@@ -53,17 +53,17 @@ import com.google.firebase.auth.FirebaseUser
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
-import com.tailoredapps.androidutil.core.extensions.RxDialogAction
-import com.tailoredapps.androidutil.core.extensions.RxPopupAction
-import com.tailoredapps.androidutil.core.extensions.addScrolledPastItemListener
-import com.tailoredapps.androidutil.core.extensions.rxDialog
-import com.tailoredapps.androidutil.core.extensions.rxPopup
-import com.tailoredapps.androidutil.core.extensions.smoothScrollUp
-import com.tailoredapps.androidutil.core.extensions.snack
+import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
+import com.tailoredapps.androidutil.ui.extensions.RxPopupAction
+import com.tailoredapps.androidutil.ui.extensions.addScrolledPastItemListener
+import com.tailoredapps.androidutil.ui.extensions.rxDialog
+import com.tailoredapps.androidutil.ui.extensions.rxPopup
+import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
+import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
-import com.tailoredapps.reaktor.koin.reactor
+import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -75,13 +75,18 @@ import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
-class WatchablesCoordinator : BaseCoordinator<WatchablesReactor.Route, NavController>() {
-    override fun navigate(route: WatchablesReactor.Route, handler: NavController) {
+sealed class WatchablesRoute : CoordinatorRoute {
+    data class OnWatchableSelected(val id: String) : WatchablesRoute()
+    object SearchIsRequired : WatchablesRoute()
+}
+
+class WatchablesCoordinator : BaseCoordinator<WatchablesRoute, NavController>() {
+    override fun navigate(route: WatchablesRoute, handler: NavController) {
         when (route) {
-            is WatchablesReactor.Route.OnWatchableSelected -> {
+            is WatchablesRoute.OnWatchableSelected -> {
                 WatchablesFragmentDirections.actionWatchablesToDetail(route.id)
             }
-            is WatchablesReactor.Route.SearchIsRequired -> {
+            is WatchablesRoute.SearchIsRequired -> {
                 WatchablesFragmentDirections.actionWatchablesToSearch()
             }
         }.also(handler::navigate)
@@ -192,7 +197,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.EpisodeOptions>()
-                .flatMapCompletable { clickType ->
+                .flatMapMaybe { clickType ->
                     val seasonId = clickType.seasonId
                     rxDialog(R.style.DialogTheme) {
                         title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, clickType.seasonIndex, clickType.episodeIndex))
@@ -200,10 +205,8 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                         setItems(getString(R.string.menu_watchable_season_set_watched), getString(R.string.menu_watchable_season_set_not_watched))
                     }.ofType<RxDialogAction.Selected<*>>()
                             .map { WatchablesReactor.Action.SetSeasonWatched(seasonId, it.index == 0) }
-                            .doOnSuccess(reactor.action)
-                            .ignoreElement()
                 }
-                .subscribe()
+                .bind(to = reactor.action)
                 .addTo(disposables)
 
         flSearch.clicks()
@@ -261,11 +264,6 @@ class WatchablesReactor(
         private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
-    sealed class Route : CoordinatorRoute {
-        data class OnWatchableSelected(val id: String) : Route()
-        object SearchIsRequired : Route()
-    }
-
     sealed class Action {
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()
         data class SetEpisodeWatched(val watchableSeasonId: String, val episode: String, val watched: Boolean) : Action()
@@ -292,34 +290,34 @@ class WatchablesReactor(
             watchablesApi
                     .updateWatchable(action.watchableId, action.watched)
                     .doOnComplete { analyticsService.logWatchableWatched(action.watchableId, action.watched) }
-                    .andThen(Observable.empty())
+                    .toObservable()
         }
         is Action.SetEpisodeWatched -> {
             watchablesApi
                     .updateSeasonEpisode(action.watchableSeasonId, action.episode, action.watched)
-                    .andThen(Observable.empty())
+                    .toObservable()
         }
         is Action.SetSeasonWatched -> {
             watchablesApi
                     .updateSeason(action.watchableSeasonId, action.watched)
-                    .andThen(Observable.empty())
+                    .toObservable()
         }
         is Action.DeleteWatchable -> {
             watchablesApi
                     .setWatchableDeleted(action.watchableId)
-                    .andThen(Observable.empty())
+                    .toObservable()
         }
         is Action.Logout -> {
             sessionService.logout()
                     .doOnComplete { UpdateWatchablesWorker.stop() }
                     .doOnComplete { DeleteWatchablesWorker.stop() }
-                    .andThen(Observable.empty())
+                    .toObservable()
         }
         is Action.Search -> {
-            emptyMutation { Router follow Route.SearchIsRequired }
+            emptyMutation { Router follow WatchablesRoute.SearchIsRequired }
         }
         is Action.SetWatchablesSelected -> {
-            emptyMutation { Router follow Route.OnWatchableSelected(action.watchableId) }
+            emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.watchableId) }
         }
     }
 

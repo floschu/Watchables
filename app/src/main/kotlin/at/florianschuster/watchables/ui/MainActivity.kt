@@ -31,9 +31,9 @@ import at.florianschuster.watchables.util.extensions.RxTasks
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.tailoredapps.androidutil.core.IntentUtil
-import com.tailoredapps.androidutil.core.extensions.RxDialogAction
-import com.tailoredapps.androidutil.core.extensions.rxDialog
+import com.tailoredapps.androidutil.ui.IntentUtil
+import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
+import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import io.reactivex.rxkotlin.addTo
 import org.koin.android.ext.android.inject
 import org.threeten.bp.LocalDate

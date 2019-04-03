@@ -24,7 +24,7 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.WatchablesApp
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
-import com.tailoredapps.androidutil.core.IntentUtil
+import com.tailoredapps.androidutil.ui.IntentUtil
 
 object Utils {
     fun rateApp(context: Context): Intent {

@@ -29,7 +29,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
-import com.tailoredapps.androidutil.core.extensions.inflate
+import com.tailoredapps.androidutil.ui.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_detail_poster.*
 import kotlinx.android.synthetic.main.item_detail_video.*

@@ -22,7 +22,7 @@ import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import at.florianschuster.android.koin.coordinator
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
 import at.florianschuster.reaktor.ReactorView
@@ -48,18 +48,21 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
-import com.tailoredapps.androidutil.core.extensions.toObservableDefault
-import com.tailoredapps.reaktor.koin.reactor
+import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
 import org.koin.android.ext.android.inject
 
-class LoginCoordinator : BaseCoordinator<LoginReactor.Route, NavController>() {
-    override fun navigate(route: LoginReactor.Route, handler: NavController) {
+enum class LoginRoute : CoordinatorRoute {
+    OnLoggedIn
+}
+
+class LoginCoordinator : BaseCoordinator<LoginRoute, NavController>() {
+    override fun navigate(route: LoginRoute, handler: NavController) {
         when (route) {
-            LoginReactor.Route.OnLoggedIn -> {
+            LoginRoute.OnLoggedIn -> {
                 handler.navigate(LoginFragmentDirections.actionLoginToWatchables())
             }
         }
@@ -127,9 +130,6 @@ class LoginReactor(
         private val watchablesApi: WatchablesApi,
         private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
-    enum class Route : CoordinatorRoute {
-        OnLoggedIn
-    }
 
     sealed class Action {
         data class Login(val credential: AuthCredential) : Action()
@@ -162,8 +162,9 @@ class LoginReactor(
                     .flatMapCompletable(::createWatchableUserIfNeeded)
                     .doOnComplete { UpdateWatchablesWorker.start() }
                     .doOnComplete { DeleteWatchablesWorker.start() }
-                    .doOnComplete { router follow Route.OnLoggedIn }
-                    .toObservableDefault(Mutation.Login(Async.Success(true)))
+                    .doOnComplete { router follow LoginRoute.OnLoggedIn }
+                    .toSingleDefault(Mutation.Login(Async.Success(true)))
+                    .toObservable()
                     .onErrorReturn { Mutation.Login(Async.Error(it)) }
 
     private fun createWatchableUserIfNeeded(user: FirebaseUser): Completable =

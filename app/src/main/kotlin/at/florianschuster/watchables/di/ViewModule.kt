@@ -16,7 +16,7 @@
 
 package at.florianschuster.watchables.di
 
-import at.florianschuster.android.koin.coordinator
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.watchables.ui.detail.OptionsAdapter
 import at.florianschuster.watchables.ui.detail.DetailMediaAdapter
 import at.florianschuster.watchables.ui.detail.DetailReactor
@@ -27,7 +27,7 @@ import at.florianschuster.watchables.ui.search.SearchReactor
 import at.florianschuster.watchables.ui.watchables.WatchablesAdapter
 import at.florianschuster.watchables.ui.watchables.WatchablesCoordinator
 import at.florianschuster.watchables.ui.watchables.WatchablesReactor
-import com.tailoredapps.reaktor.koin.reactor
+import com.tailoredapps.reaktor.android.koin.reactor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 

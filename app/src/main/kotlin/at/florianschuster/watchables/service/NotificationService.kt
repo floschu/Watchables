@@ -37,9 +37,9 @@ import at.florianschuster.watchables.ui.watchables.WatchablesFragmentDirections
 import at.florianschuster.watchables.util.GlideApp
 import at.florianschuster.watchables.util.extensions.asFormattedString
 import com.google.firebase.messaging.RemoteMessage
-import com.tailoredapps.androidutil.core.extensions.observeOnMain
-import com.tailoredapps.androidutil.core.extensions.subscribeOnIO
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -136,10 +136,11 @@ class NotificationService(private val context: Context) {
             GlideApp.with(context).clear(futureTarget)
         }
 
+        @Suppress("UNUSED_VARIABLE")
         val ignore = Single.fromFuture(futureTarget)
                 .timeout(10, TimeUnit.SECONDS)
-                .subscribeOnIO()
-                .observeOnMain()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnSuccess(::showNotification)
                 .doOnError(Timber::e)
                 .doOnError { showNotification(null) }

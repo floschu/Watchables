@@ -22,7 +22,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import at.florianschuster.watchables.R
-import com.tailoredapps.androidutil.core.IntentUtil
+import com.tailoredapps.androidutil.ui.IntentUtil
 import timber.log.Timber
 
 fun FragmentActivity.openChromeTab(url: String) {

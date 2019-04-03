@@ -43,15 +43,14 @@ import at.florianschuster.watchables.util.srcBlurConsumer
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.tailoredapps.androidutil.async.Async
-import com.tailoredapps.androidutil.core.extensions.RxDialogAction
-import com.tailoredapps.androidutil.core.extensions.observeOnMain
-import com.tailoredapps.androidutil.core.extensions.rxDialog
-import com.tailoredapps.androidutil.core.extensions.toObservableDefault
+import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
+import com.tailoredapps.androidutil.ui.extensions.rxDialog
+import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.Optional
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
-import com.tailoredapps.reaktor.koin.reactor
+import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_detail.*
@@ -148,10 +147,9 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         reactor.state.map { DetailMediaItem.Poster(it.watchable?.thumbnail, it.watchable?.original) to it.videos }
                 .map { listOf(it.first, *it.second.toTypedArray()) }
                 .distinctUntilChanged()
-                .observeOnMain()
                 .doOnNext(detailMediaAdapter::submitList)
                 .switchMap { snapToFirstItemObservable }
-                .subscribe()
+                .bind()
                 .addTo(disposables)
     }
 

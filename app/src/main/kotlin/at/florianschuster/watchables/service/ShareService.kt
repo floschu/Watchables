@@ -27,8 +27,8 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.original
 import at.florianschuster.watchables.util.GlideApp
-import com.tailoredapps.androidutil.core.extensions.subscribeOnIO
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -65,7 +65,7 @@ class ShareService(
             }
             .flatMap(::cacheBitmapForShare)
             .flatMap(::contentUriFromFile)
-            .subscribeOnIO()
+            .subscribeOn(Schedulers.io())
 
     private fun cacheBitmapForShare(bitmap: Bitmap): Single<File> = Single.create { emitter ->
         FileOutputStream(tempFile).use {
