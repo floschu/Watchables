@@ -14,6 +14,7 @@
     <string name="analytics_watchable_add_event">watchable_add</string>
     <string name="analytics_watchable_delete_event">watchable_delete</string>
     <string name="analytics_watchable_watched_event">watchable_watched</string>
+    <string name="analytics_delete_worker">delete_worker</string>
     <string name="display_name_movie">Movie</string>
     <string name="display_name_show">TV Show</string>
     <string name="notification_add_channel_name">Watchables Add Notifications</string>
@@ -38,12 +39,13 @@
     <string name="watchable_not_watched">Not yet Watched</string>
     <string name="empty_watchable_title">Oh no :(</string>
     <string name="empty_watchable_text">You have not added any watchables yet. Add some by using the search on the upper left!</string>
-    <string name="settings_logout">Logout</string>
-    <string name="settings_analytics">Analytics</string>
-    <string name="settings_licenses">Open Source Licenses</string>
-    <string name="settings_privacy_policy">Privacy Policy</string>
-    <string name="settings_developer_info">Developer Info</string>
-    <string name="settings_share_app">Share App with Friends</string>
+    <string name="more_logout">Logout</string>
+    <string name="more_analytics">Analytics</string>
+    <string name="more_licenses">Open Source Licenses</string>
+    <string name="more_privacy_policy">Privacy Policy</string>
+    <string name="more_developer_info">Developer Info</string>
+    <string name="more_share_app">Share App with Friends</string>
+    <string name="more_hello_there">Hello there %s</string>
     <string name="privacy_policy_url">https://florianschuster.at/watchables/privacy.html</string>
     <string name="developer_url">https://florianschuster.at/</string>
     <string name="dialog_ok">OK</string>
@@ -80,6 +82,7 @@
     <string name="enjoying_dialog_message">If you do, you could rate it on the Play Store! If you do not… well maybe nest time! :D</string>
     <string name="enjoying_dialog_positive">Rate now</string>
     <string name="enjoying_dialog_negative">Not now</string>
+    <string name="watchables_dialog_sorting_title">How do you want to sort your Watchables?</string>
     <string name="watchables_sorting_watched_name">By watched then name</string>
     <string name="watchables_sorting_name_ascending">By name ascending</string>
     <string name="watchables_sorting_name_descending">By name descending</string>

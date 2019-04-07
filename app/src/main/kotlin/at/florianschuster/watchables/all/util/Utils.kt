@@ -47,7 +47,7 @@ object Utils {
             withAboutAppName(context.getString(R.string.app_name))
             withAboutIconShown(true)
             withAboutVersionShown(true)
-            withActivityTitle(context.getString(R.string.settings_licenses))
+            withActivityTitle(context.getString(R.string.more_licenses))
             withActivityStyle(Libs.ActivityStyle.DARK)
             withAboutDescription(context.getString(R.string.dev_info))
             withLibraries(

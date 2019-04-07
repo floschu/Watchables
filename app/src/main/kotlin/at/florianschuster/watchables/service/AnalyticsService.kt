@@ -50,6 +50,12 @@ class AnalyticsService(private val context: Context, private val prefRepo: PrefR
         analytics.logEvent(context.getString(R.string.analytics_watchable_watched_event), bundle)
     }
 
+    fun logDeleteWorker(result: Boolean) {
+        if (!analyticsEnabled) return
+        val bundle = bundleOf("result" to result)
+        analytics.logEvent(context.getString(R.string.analytics_delete_worker), bundle)
+    }
+
     private fun getWatchableBundle(watchable: Watchable): Bundle = bundleOf(
             FirebaseAnalytics.Param.ITEM_ID to watchable.id,
             FirebaseAnalytics.Param.ITEM_VARIANT to watchable.type.name

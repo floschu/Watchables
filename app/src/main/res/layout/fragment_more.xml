@@ -1,27 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
-        android:id="@+id/ivBackground"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:alpha="0.4"
-        android:scaleType="centerCrop"
-        android:src="@drawable/bg_more" />
+        android:layout_height="wrap_content">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvMoreOptions"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingTop="@dimen/margin"
-        android:paddingBottom="@dimen/margin"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:stackFromEnd="true"
-        tools:itemCount="7"
-        tools:listitem="@layout/item_option" />
-</FrameLayout>
+        <ImageView
+            android:id="@+id/ivBackground"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0.5"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bg_more"
+            app:layout_constraintDimensionRatio="1.5:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvHello"
+            style="@style/TextAppearance.MaterialComponents.Headline5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin"
+            android:gravity="center"
+            android:padding="@dimen/padding"
+            android:textColor="@color/textLightPrimary"
+            app:layout_constraintBottom_toBottomOf="@id/ivBackground"
+            app:layout_constraintEnd_toEndOf="@id/ivBackground"
+            app:layout_constraintStart_toStartOf="@id/ivBackground"
+            app:layout_constraintTop_toTopOf="@id/ivBackground"
+            tools:text="Hello there Flosch" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMoreOptions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/margin"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toBottomOf="@id/ivBackground"
+            app:stackFromEnd="true"
+            tools:itemCount="7"
+            tools:listitem="@layout/item_option" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

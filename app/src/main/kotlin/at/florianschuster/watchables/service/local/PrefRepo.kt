@@ -17,7 +17,7 @@
 package at.florianschuster.watchables.service.local
 
 import android.content.Context
-import at.florianschuster.watchables.model.WatchableContainerSortingType
+import at.florianschuster.watchables.ui.watchables.WatchableContainerSortingType
 import com.orhanobut.hawk.Hawk
 import org.threeten.bp.LocalDate
 

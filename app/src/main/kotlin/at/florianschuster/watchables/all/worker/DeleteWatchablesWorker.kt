@@ -24,6 +24,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import com.google.firebase.auth.AuthCredential
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit
 class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
     private val watchablesApi: WatchablesApi by inject()
+    private val analyticsService: AnalyticsService by inject()
 
     override fun doWork(): Result =
             if (sessionService.user.ignoreElement().blockingGet() != null) {
@@ -56,6 +58,7 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
                         .doOnError(Timber::e)
                         .blockingGet()
 
+                analyticsService.logDeleteWorker(errorWatchablesDelete != null && errorWatchableSeasonsDelete != null)
                 if (errorWatchablesDelete != null || errorWatchableSeasonsDelete != null) Result.failure()
                 else Result.success()
             }

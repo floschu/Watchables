@@ -44,11 +44,3 @@ data class WatchableSeason(
 ) : FirestoreObject()
 
 data class WatchableContainer(val watchable: Watchable, val seasons: List<WatchableSeason>?)
-
-enum class WatchableContainerSortingType(val comparator: Comparator<in WatchableContainer>) {
-    ByWatched(compareBy({ it.watchable.watched }, { it.watchable.name })),
-    ByNameAscending(compareBy({ it.watchable.name }, { it.watchable.watched })),
-    ByNameDescending(compareByDescending<WatchableContainer> { it.watchable.name }.thenByDescending { it.watchable.watched }),
-    ByTypeAscending(compareBy({ it.watchable.type.name }, { it.watchable.watched })),
-    ByTypeDescending(compareByDescending<WatchableContainer> { it.watchable.type.name }.thenByDescending { it.watchable.watched })
-}

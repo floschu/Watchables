@@ -42,7 +42,6 @@ import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
-import at.florianschuster.watchables.model.WatchableContainerSortingType
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -53,8 +52,6 @@ import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
-import com.tailoredapps.androidutil.ui.extensions.RxPopupAction
-import com.tailoredapps.androidutil.ui.extensions.rxPopup
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -189,10 +186,18 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         btnFilter.clicks()
-                .flatMapSingle { btnFilter.rxPopup(R.menu.menu_watchables_sorting) }
-                .ofType<RxPopupAction.Selected>()
-                .map { WatchableContainerSortingType.values()[it.index] }
-                .map { WatchablesReactor.Action.Sort(it) }
+                .flatMapSingle {
+                    rxDialog(R.style.DialogTheme) {
+                        titleResource = R.string.watchables_dialog_sorting_title
+                        setSingleChoiceItems(
+                                WatchableContainerSortingType.values().toList(),
+                                WatchableContainerSortingType.values().indexOf(reactor.currentState.sorting),
+                                { resources.getString(it.formatted) }
+                        )
+                    }
+                }
+                .ofType<RxDialogAction.Selected<WatchableContainerSortingType>>()
+                .map { WatchablesReactor.Action.SortWatchables(it.item) }
                 .bind(to = reactor.action)
                 .addTo(disposables)
     }
@@ -214,7 +219,9 @@ class WatchablesReactor(
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService,
         private val prefRepo: PrefRepo
-) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
+) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
+        State(sorting = prefRepo.watchableContainerSortingType)
+) {
 
     sealed class Action {
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()
@@ -222,7 +229,7 @@ class WatchablesReactor(
         data class SetSeasonWatched(val watchableSeasonId: String, val watched: Boolean) : Action()
         data class DeleteWatchable(val watchableId: String) : Action()
         data class SelectWatchable(val watchableId: String) : Action()
-        data class Sort(val sorting: WatchableContainerSortingType) : Action()
+        data class SortWatchables(val sorting: WatchableContainerSortingType) : Action()
     }
 
     sealed class Mutation {
@@ -231,7 +238,8 @@ class WatchablesReactor(
     }
 
     data class State(
-            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized
+            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
+            val sorting: WatchableContainerSortingType
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0
@@ -268,7 +276,7 @@ class WatchablesReactor(
         is Action.SelectWatchable -> {
             emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.watchableId) }
         }
-        is Action.Sort -> {
+        is Action.SortWatchables -> {
             Single.just(action.sorting)
                     .doOnSuccess { prefRepo.watchableContainerSortingType = it }
                     .map { Mutation.SortWatchables(it) }
@@ -285,7 +293,7 @@ class WatchablesReactor(
                 }
                 else -> previousState.watchables
             }
-            previousState.copy(watchables = sorted)
+            previousState.copy(watchables = sorted, sorting = mutation.sorting)
         }
     }
 
