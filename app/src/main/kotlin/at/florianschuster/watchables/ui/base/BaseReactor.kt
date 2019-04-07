@@ -23,8 +23,8 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 
 abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
-        initialState: State,
-        initialAction: Action? = null
+    initialState: State,
+    initialAction: Action? = null
 ) : ViewModelReactor<Action, Mutation, State>(initialState, initialAction), KoinComponent {
     private val refWatcher: RefWatcher by inject()
 

@@ -17,31 +17,39 @@
 package at.florianschuster.watchables.ui.detail
 
 import android.os.Bundle
+import android.view.View
 import androidx.core.view.isVisible
+import androidx.navigation.NavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import at.florianschuster.koordinator.CoordinatorRoute
+import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
+import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.Option
 import at.florianschuster.watchables.all.OptionsAdapter
 import at.florianschuster.watchables.all.util.extensions.asFormattedString
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.AnalyticsService
-import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
+import at.florianschuster.watchables.all.util.extensions.translate
 import at.florianschuster.watchables.all.util.srcBlurConsumer
+import at.florianschuster.watchables.model.Credits
 import at.florianschuster.watchables.model.Videos
 import at.florianschuster.watchables.model.originalPoster
 import at.florianschuster.watchables.model.thumbnailPoster
+import at.florianschuster.watchables.ui.base.BaseCoordinator
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.tailoredapps.androidutil.async.Async
@@ -66,20 +74,31 @@ import org.threeten.bp.LocalDate
 import org.threeten.bp.ZonedDateTime
 import java.util.concurrent.TimeUnit
 
+enum class DetailRoute : CoordinatorRoute {
+    Pop
+}
+
+class DetailCoordinator : BaseCoordinator<DetailRoute, NavController>() {
+    override fun navigate(route: DetailRoute, handler: NavController) {
+        when (route) {
+            DetailRoute.Pop -> handler.navigateUp()
+        }
+    }
+}
+
 class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<DetailReactor> {
     private val args: DetailFragmentArgs by navArgs()
-
     override val reactor: DetailReactor by reactor { parametersOf(args.itemId) }
-
-    private val errorTranslationService: ErrorTranslationService by inject()
+    private val coordinator: DetailCoordinator by coordinator()
     private val detailMediaAdapter: DetailMediaAdapter by inject()
     private val optionsAdapter: OptionsAdapter by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
 
     private val snapHelper = LinearSnapHelper()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        coordinator.provideNavigationHandler(navController)
 
         btnBack.clicks().subscribe { navController.navigateUp() }.addTo(disposables)
 
@@ -97,7 +116,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     override fun bind(reactor: DetailReactor) {
         reactor.state.changesFrom { it.watchable }
                 .bind { watchableAsync ->
-                    loading.isVisible = watchableAsync is Async.Loading
+                    loading.isVisible = watchableAsync.loading
                     when (watchableAsync) {
                         is Async.Success -> {
                             tvTitle.text = watchableAsync.element.name
@@ -105,18 +124,16 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                         }
                         is Async.Error -> {
                             toast(R.string.detail_error_watchable)
-                            navController.navigateUp()
+                            reactor.action.accept(DetailReactor.Action.Dismiss)
                         }
                     }
                 }
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.deleteResult }
-                .bind {
-                    when (it) {
-                        is Async.Success -> navController.navigateUp()
-                        is Async.Error -> errorTranslationService.toastConsumer.accept(it.error)
-                    }
+                .bind { deleteAsync ->
+                    loading.isVisible = deleteAsync.loading
+                    if (deleteAsync is Async.Error) toast(deleteAsync.error.translate(resources))
                 }
                 .addTo(disposables)
 
@@ -136,11 +153,13 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                             tvSummary.isVisible = summary != null
                             if (summary != null) tvSummary.text = summary
 
+                            val actors = additionalDataAsync.element.actors
+                            tvActors.isVisible = actors.isNotEmpty()
+                            tvActors.text = getString(R.string.detail_tv_actors, actors.joinToString(", "))
+
                             optionsAdapter.update()
                         }
-                        is Async.Error -> {
-                            toast(R.string.detail_error_additional_data)
-                        }
+                        is Async.Error -> toast(R.string.detail_error_additional_data)
                     }
                 }
                 .addTo(disposables)
@@ -171,31 +190,25 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     private fun OptionsAdapter.update() {
         listOfNotNull(
-                reactor.currentState.additionalData()?.website?.let { openWebOption },
-                reactor.currentState.additionalData()?.imdbId?.let { openImdbOption },
-                reactor.currentState.watchable()?.let { shareOption },
+                reactor.currentState.additionalData()?.website?.let(::createOpenWebOption),
+                reactor.currentState.additionalData()?.imdbId?.let(::createOopenImdbOption),
+                reactor.currentState.watchable()?.let(::createShareOption),
                 deleteOption
         ).also(::submitList)
     }
 
-    private val openWebOption: Option.Action
-        get() = Option.Action(R.string.menu_watchable_website, R.drawable.ic_open_in_browser) {
-            reactor.currentState.additionalData()?.website?.let(this::openChromeTab)
-        }
+    private fun createOpenWebOption(webSite: String): Option.Action =
+            Option.Action(R.string.menu_watchable_website, R.drawable.ic_open_in_browser) { openChromeTab(webSite) }
 
-    private val openImdbOption: Option.Action
-        get() = Option.Action(R.string.menu_watchable_imdb, R.drawable.ic_imdb) {
-            reactor.currentState.additionalData()?.imdbId?.let {
-                openChromeTab(getString(R.string.imdb_search, it))
+    private fun createOopenImdbOption(imdbId: String): Option.Action =
+            Option.Action(R.string.menu_watchable_imdb, R.drawable.ic_imdb) {
+                openChromeTab(getString(R.string.imdb_search, imdbId))
             }
-        }
 
-    private val shareOption: Option.Action
-        get() = Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
-            reactor.currentState.watchable()?.let {
-                shareService.share(it).subscribe().addTo(disposables)
+    private fun createShareOption(watchable: Watchable): Option.Action =
+            Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
+                shareService.share(watchable).subscribe().addTo(disposables)
             }
-        }
 
     private val deleteOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_delete, R.drawable.ic_delete_forever) {
@@ -230,6 +243,7 @@ class DetailReactor(
         data class LoadAdditionalData(val watchable: Watchable) : Action()
         object DeleteWatchable : Action()
         data class SetWatched(val watched: Boolean) : Action()
+        object Dismiss : Action()
     }
 
     sealed class Mutation {
@@ -248,7 +262,8 @@ class DetailReactor(
                 val imdbId: String? = null,
                 val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
                 val summary: String? = null,
-                val airing: LocalDate? = null
+                val airing: LocalDate? = null,
+                val actors: List<String> = emptyList()
         )
     }
 
@@ -275,9 +290,13 @@ class DetailReactor(
                     .doOnComplete { currentState.watchable()?.let(analyticsService::logWatchableDelete) }
                     .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
                     .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
+                    .doOnComplete { Router follow DetailRoute.Pop }
         }
         is Action.SetWatched -> {
             watchablesApi.updateWatchable(itemId, action.watched).toObservable()
+        }
+        is Action.Dismiss -> {
+            emptyMutation { Router follow DetailRoute.Pop }
         }
     }
 
@@ -316,7 +335,8 @@ class DetailReactor(
                             it.imdbId,
                             it.videos.results.mapToYoutubeVideos(),
                             it.summary,
-                            it.releaseDate
+                            it.releaseDate,
+                            it.credits.cast.sortedWith(compareBy(Credits.Cast::order)).map(Credits.Cast::name).take(5)
                     )
                 }
     }
@@ -330,7 +350,8 @@ class DetailReactor(
                             it.externalIds.imdbId,
                             it.videos.results.mapToYoutubeVideos(),
                             it.summary,
-                            it.nextEpisode?.airingDate
+                            it.nextEpisode?.airingDate,
+                            it.credits.cast.sortedWith(compareBy(Credits.Cast::order)).map(Credits.Cast::name).take(5)
                     )
                 }
     }

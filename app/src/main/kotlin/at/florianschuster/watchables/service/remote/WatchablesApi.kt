@@ -68,7 +68,7 @@ interface WatchablesApi {
 }
 
 class FirebaseWatchablesApi(
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+    private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : WatchablesApi {
     private val fireStore = FirebaseFirestore.getInstance()
 

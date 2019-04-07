@@ -42,7 +42,8 @@ data class Movie(
     @SerializedName("original_language") val language: String,
     @SerializedName("overview") val summary: String?,
     val status: Status,
-    val videos: Videos
+    val videos: Videos,
+    val credits: Credits
 ) {
     enum class Status {
         @SerializedName("Rumored")
@@ -72,8 +73,9 @@ data class Show(
     @SerializedName("overview") val summary: String?,
     val status: Status,
     val videos: Videos,
-    @SerializedName("next_episode_to_air") val nextEpisode: Episode?,
-    @SerializedName("last_episode_to_air") val lastEpisode: Episode?
+    @SerializedName("next_episode_to_air") val nextEpisode: Season.Episode?,
+    @SerializedName("last_episode_to_air") val lastEpisode: Season.Episode?,
+    val credits: Credits
 ) {
     enum class Status {
         @SerializedName("Returning Series")
@@ -99,15 +101,15 @@ data class Season(
     @SerializedName("poster_path") val image: String?,
     @SerializedName("air_date") val airingDate: LocalDate?,
     @SerializedName("episodes") val episodes: List<Episode>
-)
-
-data class Episode(
-    val id: Int,
-    val name: String,
-    @SerializedName("season_number") val seasonIndex: Int,
-    @SerializedName("episode_number") val episodeIndex: Int,
-    @SerializedName("air_date") val airingDate: LocalDate?
-)
+) {
+    data class Episode(
+        val id: Int,
+        val name: String,
+        @SerializedName("season_number") val seasonIndex: Int,
+        @SerializedName("episode_number") val episodeIndex: Int,
+        @SerializedName("air_date") val airingDate: LocalDate?
+    )
+}
 
 data class Videos(val results: List<Video>) {
     data class Video(
@@ -133,4 +135,13 @@ data class Videos(val results: List<Video>) {
         val isYoutube: Boolean
             get() = site == "YouTube"
     }
+}
+
+data class Credits(val id: Int, val cast: List<Cast>) {
+    data class Cast(
+        @SerializedName("cast_id")
+        val id: Int,
+        val name: String,
+        val order: Int
+    )
 }

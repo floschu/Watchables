@@ -39,7 +39,7 @@ interface ShareService {
 }
 
 class ActivityShareService(
-        private val activity: AppCompatActivity
+    private val activity: AppCompatActivity
 ) : ShareService {
     private val resources = activity.resources
 

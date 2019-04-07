@@ -30,7 +30,6 @@ import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.WatchableUser
-import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
@@ -38,6 +37,7 @@ import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.all.util.extensions.RxTasks
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
+import at.florianschuster.watchables.all.util.extensions.translate
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -48,12 +48,12 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
+import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
-import org.koin.android.ext.android.inject
 
 enum class LoginRoute : CoordinatorRoute {
     OnLoggedIn
@@ -72,7 +72,6 @@ class LoginCoordinator : BaseCoordinator<LoginRoute, NavController>() {
 class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginReactor> {
     override val reactor: LoginReactor by reactor()
     private val coordinator: LoginCoordinator by coordinator()
-    private val errorTranslationService: ErrorTranslationService by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -103,7 +102,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
                 .bind {
                     progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
                     if (it is Async.Error) {
-                        errorTranslationService.toastConsumer.accept(it.error)
+                        toast(it.error.translate(resources))
                     }
                 }
                 .addTo(disposables)
@@ -116,7 +115,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         RxTasks.single { GoogleSignIn.getSignedInAccountFromIntent(data) }
                 .map { GoogleAuthProvider.getCredential(it.idToken, null) }
                 .map { LoginReactor.Action.Login(it) }
-                .subscribe(reactor.action, errorTranslationService.toastConsumer)
+                .subscribe(reactor.action::accept) { toast(it.translate(resources)) }
                 .addTo(disposables)
     }
 

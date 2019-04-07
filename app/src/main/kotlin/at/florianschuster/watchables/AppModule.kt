@@ -17,11 +17,9 @@
 package at.florianschuster.watchables
 
 import androidx.appcompat.app.AppCompatActivity
-import at.florianschuster.koordinator.Router
 import at.florianschuster.watchables.all.OptionsAdapter
 import at.florianschuster.watchables.service.ActivityShareService
 import at.florianschuster.watchables.service.AnalyticsService
-import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.FirebaseSessionService
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
@@ -38,7 +36,6 @@ import org.koin.dsl.module
 val appModule = module {
     single { LeakCanary.install(androidApplication()) }
     single { FirebaseSessionService(androidContext()) as SessionService<FirebaseUser, AuthCredential> }
-    single { ErrorTranslationService(androidContext()) }
     single { AnalyticsService(androidContext(), get()) }
     single { NotificationService(androidContext()) }
 

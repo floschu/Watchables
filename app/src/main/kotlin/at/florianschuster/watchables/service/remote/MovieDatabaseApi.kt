@@ -33,12 +33,12 @@ interface MovieDatabaseApi {
     @GET("trending/movie,tv/day")
     fun trending(@Query("page") page: Int = 1): Single<Search>
 
-    @GET("movie/{movie_id}?append_to_response=videos")
+    @GET("movie/{movie_id}?append_to_response=videos,credits")
     fun movie(@Path("movie_id") id: Int): Single<Movie>
 
     @GET("tv/{tv_id}?append_to_response=external_ids,videos")
     fun show(@Path("tv_id") id: Int): Single<Show>
 
-    @GET("tv/{tv_id}/season/{season_number}")
+    @GET("tv/{tv_id}/season/{season_number}?append_to_response=credits")
     fun season(@Path("tv_id") tvId: Int, @Path("season_number") seasonNumber: Int): Single<Season>
 }

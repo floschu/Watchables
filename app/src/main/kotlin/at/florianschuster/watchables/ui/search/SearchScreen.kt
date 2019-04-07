@@ -29,10 +29,10 @@ import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.all.util.extensions.translate
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
@@ -51,6 +51,7 @@ import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
+import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
@@ -76,11 +77,9 @@ class SearchCoordinator : BaseCoordinator<SearchRoute, NavController>() {
     }
 }
 
-
 class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<SearchReactor> {
     override val reactor: SearchReactor by reactor()
     private val coordinator: SearchCoordinator by coordinator()
-    private val errorTranslationService: ErrorTranslationService by inject()
     private val adapter: SearchAdapter by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -160,7 +159,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
         reactor.state.map { it.loadingError.asOptional }
                 .distinctUntilChanged()
                 .filterSome()
-                .bind(errorTranslationService.toastConsumer)
+                .bind { toast(it.translate(resources)) }
                 .addTo(disposables)
     }
 }

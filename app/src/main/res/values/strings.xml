@@ -59,13 +59,12 @@
     <string name="video_type_openingCredits">Opening Credits</string>
     <string name="episode_name">S%1$sE%2$s</string>
     <string name="dialog_options_watchable">Actions for \"%s\"</string>
-    <string name="error_not_authenticated">User is not authenticated!</string>
-    <string name="error_network_unavailable">No internet connection.</string>
-    <string name="error_server_unavailable">The server cannot be reached.</string>
-    <string name="error_server_error">A server error (%d) occurred.</string>
-    <string name="error_server_error_no_code">A server error occurred.</string>
-    <string name="error_permission">Please give the permission to use this feature.</string>
-    <string name="error_other">An error occurred.</string>
+    <string name="error_not_authenticated">Your session has expired</string>
+    <string name="error_network_unavailable">No internet connection</string>
+    <string name="error_server_error">A server error (%d) occurred</string>
+    <string name="error_server_error_no_code">A server error occurred</string>
+    <string name="error_permission">Please give the permission to use this feature</string>
+    <string name="error_other">An error occurred</string>
     <string name="sign_in_google">Sign in with Google</string>
     <string name="menu_watchable_season_set_watched">Set season watched</string>
     <string name="menu_watchable_season_set_not_watched">Set season not watched</string>
@@ -90,4 +89,5 @@
     <string name="watchables_sorting_type_descending">By type descending</string>
     <string name="detail_error_watchable">Error loading Watchable</string>
     <string name="detail_error_additional_data">Error loading additional data</string>
+    <string name="detail_tv_actors">Starring %s…</string>
 </resources>

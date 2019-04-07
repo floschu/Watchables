@@ -23,7 +23,6 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
-import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -53,7 +52,7 @@ interface SessionService<User, Credential> {
 }
 
 class FirebaseSessionService(
-        private val context: Context
+    private val context: Context
 ) : SessionService<FirebaseUser, AuthCredential> {
     private val auth = FirebaseAuth.getInstance()
     private val authThrowable: FirebaseAuthException

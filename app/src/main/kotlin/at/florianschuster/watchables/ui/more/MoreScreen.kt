@@ -124,8 +124,8 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 }
 
 class MoreReactor(
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>,
-        private val analyticsService: AnalyticsService
+    private val sessionService: SessionService<FirebaseUser, AuthCredential>,
+    private val analyticsService: AnalyticsService
 ) : BaseReactor<MoreReactor.Action, MoreReactor.Mutation, MoreReactor.State>(
         State(analyticsService.analyticsEnabled)
 ) {
@@ -140,8 +140,8 @@ class MoreReactor(
     }
 
     data class State(
-            val analyticsEnabled: Boolean,
-            val userName: String? = null
+        val analyticsEnabled: Boolean,
+        val userName: String? = null
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =

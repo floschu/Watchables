@@ -39,7 +39,7 @@ sealed class ItemClickType {
 }
 
 class WatchablesAdapter(
-        private val resources: Resources
+    private val resources: Resources
 ) : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
     val itemClick = PublishRelay.create<ItemClickType>()
 

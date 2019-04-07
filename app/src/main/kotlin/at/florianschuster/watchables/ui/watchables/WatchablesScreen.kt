@@ -52,7 +52,6 @@ import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
-import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -128,7 +127,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         reactor.state.changesFrom { it.showOnboardingSnack }
                 .filter { it }
-                .take(1) //only show this once
+                .take(1) // only show this once
                 .bind {
                     rootLayout.snack(
                             R.string.onboarding_snack,
@@ -216,9 +215,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-        private val watchablesApi: WatchablesApi,
-        private val analyticsService: AnalyticsService,
-        private val prefRepo: PrefRepo
+    private val watchablesApi: WatchablesApi,
+    private val analyticsService: AnalyticsService,
+    private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = prefRepo.watchableContainerSortingType,
@@ -243,9 +242,9 @@ class WatchablesReactor(
     }
 
     data class State(
-            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-            val sorting: WatchableContainerSortingType,
-            private val onboardingSnackShown: Boolean
+        val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
+        val sorting: WatchableContainerSortingType,
+        private val onboardingSnackShown: Boolean
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0

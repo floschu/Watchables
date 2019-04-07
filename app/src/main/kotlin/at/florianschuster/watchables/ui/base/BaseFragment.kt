@@ -38,7 +38,6 @@ abstract class BaseFragment(@LayoutRes protected val layoutResource: Int? = null
             if (layoutResource != null) inflater.inflate(layoutResource, container, false)
             else throw RuntimeException("Please implement onCreateView().")
 
-
     @CallSuper
     override fun onDestroyView() {
         super.onDestroyView()
