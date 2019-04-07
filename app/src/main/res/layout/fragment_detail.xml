@@ -106,7 +106,7 @@
                 android:shadowDy="1"
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
-                app:layout_constraintBottom_toTopOf="@+id/rvOptions"
+                app:layout_constraintBottom_toTopOf="@+id/rvDetailOptions"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvAiring"
@@ -114,7 +114,7 @@
                 tools:text="Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond." />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvOptions"
+                android:id="@+id/rvDetailOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -129,7 +129,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/TopFadeToolbar"
+        style="@style/Toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

@@ -29,16 +29,11 @@
                 <data
                     android:host="watchables.page.link"
                     android:scheme="https" />
-
-                <data
-                    android:host="florianschuster.at"
-                    android:pathPrefix="/watchables"
-                    android:scheme="https" />
             </intent-filter>
         </activity>
 
         <activity
-            android:name="at.florianschuster.watchables.util.photodetail.PhotoDetailActivity"
+            android:name="at.florianschuster.watchables.all.util.photodetail.PhotoDetailActivity"
             android:theme="@style/AppTheme.TransparentFullscreen" />
 
         <service android:name=".service.remote.FbMessagingService">

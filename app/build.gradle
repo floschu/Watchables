@@ -99,6 +99,11 @@ dependencies {
     implementation deps.networking.values()
 
     /**
+     * Local
+     */
+    implementation deps.local.hawk
+
+    /**
      * Firebase
      */
     implementation deps.firebase.values()

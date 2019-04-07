@@ -20,19 +20,20 @@ import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableSeason
 import at.florianschuster.watchables.service.SessionService
-import at.florianschuster.watchables.util.extensions.RxTasks
-import at.florianschuster.watchables.util.extensions.createObject
-import at.florianschuster.watchables.util.extensions.localObject
-import at.florianschuster.watchables.util.extensions.localObjectList
-import at.florianschuster.watchables.util.extensions.localObjectListObservable
-import at.florianschuster.watchables.util.extensions.localObjectObservable
-import at.florianschuster.watchables.util.extensions.updateField
-import at.florianschuster.watchables.util.extensions.updateNestedField
-import at.florianschuster.watchables.util.extensions.updateObject
+import at.florianschuster.watchables.all.util.extensions.RxTasks
+import at.florianschuster.watchables.all.util.extensions.createObject
+import at.florianschuster.watchables.all.util.extensions.localObject
+import at.florianschuster.watchables.all.util.extensions.localObjectList
+import at.florianschuster.watchables.all.util.extensions.localObjectListObservable
+import at.florianschuster.watchables.all.util.extensions.localObjectObservable
+import at.florianschuster.watchables.all.util.extensions.updateField
+import at.florianschuster.watchables.all.util.extensions.updateNestedField
+import at.florianschuster.watchables.all.util.extensions.updateObject
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -47,6 +48,7 @@ interface WatchablesApi {
 
     val watchablesObservable: Flowable<List<Watchable>>
     fun watchable(id: String): Single<Watchable>
+    fun watchableObservable(id: String): Flowable<Watchable>
     fun createWatchable(watchable: Watchable): Single<Watchable>
     fun updateWatchable(watchableId: String, watched: Boolean): Completable
     fun setWatchableDeleted(watchableId: String): Completable
@@ -66,15 +68,22 @@ interface WatchablesApi {
 }
 
 class FirebaseWatchablesApi(
-    private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : WatchablesApi {
     private val fireStore = FirebaseFirestore.getInstance()
 
     private val dbVersion = "v2"
-    private fun FirebaseFirestore.users(): CollectionReference = collection("$dbVersion/database/users")
-    private fun FirebaseFirestore.user(userId: String): DocumentReference = document("$dbVersion/database/users/$userId")
-    private fun FirebaseFirestore.watchables(userId: String): CollectionReference = collection("$dbVersion/database/users/$userId/watchables")
-    private fun FirebaseFirestore.seasons(userId: String): CollectionReference = collection("$dbVersion/database/users/$userId/seasons")
+    private fun FirebaseFirestore.users(): CollectionReference =
+            collection("$dbVersion/database/users")
+
+    private fun FirebaseFirestore.user(userId: String): DocumentReference =
+            document("$dbVersion/database/users/$userId")
+
+    private fun FirebaseFirestore.watchables(userId: String): CollectionReference =
+            collection("$dbVersion/database/users/$userId/watchables")
+
+    private fun FirebaseFirestore.seasons(userId: String): CollectionReference =
+            collection("$dbVersion/database/users/$userId/seasons")
 
     override val watchableUser: Single<WatchableUser>
         get() = sessionService.user
@@ -103,6 +112,11 @@ class FirebaseWatchablesApi(
             .flatMap { it.localObject<Watchable>() }
             .subscribeOn(Schedulers.io())
 
+    override fun watchableObservable(id: String): Flowable<Watchable> = sessionService.user
+            .map { fireStore.watchables(it.uid).document(id) }
+            .flatMapPublisher { it.localObjectObservable<Watchable>() }
+            .subscribeOn(Schedulers.io())
+
     override fun createWatchable(watchable: Watchable): Single<Watchable> = sessionService.user
             .map { fireStore.watchables(it.uid) }
             .flatMapCompletable { it.createObject(watchable) }
@@ -123,8 +137,8 @@ class FirebaseWatchablesApi(
     private fun deleteSeasonsOf(watchableId: String): Completable = sessionService.user.map { it.uid }
             .flatMapCompletable { userId ->
                 RxTasks.single { fireStore.seasons(userId).whereEqualTo(WatchableSeason::watchableId.name, watchableId).get() }
-                        .map { it.documents.map { it.id } }
-                        .flatMapObservable { it.map { fireStore.seasons(userId).document(it) }.toObservable() }
+                        .map { it.documents.map(DocumentSnapshot::getId) }
+                        .flatMapObservable { it.map(fireStore.seasons(userId)::document).toObservable() }
                         .flatMapCompletable { it.updateField(WatchableSeason::deleted.name, true) }
             }
             .subscribeOn(Schedulers.io())

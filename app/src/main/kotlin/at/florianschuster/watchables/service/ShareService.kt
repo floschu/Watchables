@@ -25,23 +25,28 @@ import androidx.core.content.FileProvider
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.original
-import at.florianschuster.watchables.util.GlideApp
+import at.florianschuster.watchables.model.originalPoster
+import at.florianschuster.watchables.all.util.GlideApp
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class ShareService(
-    private val activity: AppCompatActivity
-) {
+interface ShareService {
+    fun share(watchable: Watchable): Completable
+    fun shareApp(): Completable
+}
+
+class ActivityShareService(
+        private val activity: AppCompatActivity
+) : ShareService {
     private val resources = activity.resources
 
     private val cachedName = "shareimage.jpg"
     private val tempFile: File by lazy { File(activity.cacheDir, cachedName) }
 
-    fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.original)
+    override fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.originalPoster)
             .flatMap {
                 val chooserText = when (watchable.type) {
                     Watchable.Type.show -> resources.getString(R.string.share_watchable_chooser_text_show, watchable.name)
@@ -52,7 +57,7 @@ class ShareService(
             .doOnSuccess(activity::startActivity)
             .ignoreElement()
 
-    fun shareApp(): Completable = chooserIntent(resources.getString(R.string.share_app_chooser_title), resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.app_link)), null)
+    override fun shareApp(): Completable = chooserIntent(resources.getString(R.string.share_app_chooser_title), resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.app_link)), null)
             .doOnSuccess(activity::startActivity)
             .ignoreElement()
 

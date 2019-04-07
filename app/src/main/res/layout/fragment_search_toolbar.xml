@@ -2,7 +2,7 @@
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
-    style="@style/TopFadeToolbar">
+    style="@style/Toolbar.Search">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -14,19 +14,19 @@
             android:layout_height="0dp"
             android:indeterminate="true"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/ivBack"
-            app:layout_constraintEnd_toEndOf="@id/ivBack"
-            app:layout_constraintStart_toStartOf="@id/ivBack"
-            app:layout_constraintTop_toTopOf="@id/ivBack" />
+            app:layout_constraintBottom_toBottomOf="@id/ivSearch"
+            app:layout_constraintEnd_toEndOf="@id/ivSearch"
+            app:layout_constraintStart_toStartOf="@id/ivSearch"
+            app:layout_constraintTop_toTopOf="@id/ivSearch" />
 
         <ImageView
-            android:id="@+id/ivBack"
+            android:id="@+id/ivSearch"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:paddingStart="@dimen/padding"
             android:paddingEnd="@dimen/padding"
-            android:src="@drawable/ic_arrow_back"
+            android:src="@drawable/ic_search"
             android:tint="#fff"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -48,7 +48,7 @@
             android:textColorHint="@color/textColorDisabled"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/ivClear"
-            app:layout_constraintStart_toEndOf="@+id/ivBack"
+            app:layout_constraintStart_toEndOf="@+id/ivSearch"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView

@@ -36,10 +36,10 @@ import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.util.extensions.RxTasks
-import at.florianschuster.watchables.util.extensions.openChromeTab
-import at.florianschuster.watchables.worker.DeleteWatchablesWorker
-import at.florianschuster.watchables.worker.UpdateWatchablesWorker
+import at.florianschuster.watchables.all.util.extensions.RxTasks
+import at.florianschuster.watchables.all.util.extensions.openChromeTab
+import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
+import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.AuthCredential
@@ -71,8 +71,8 @@ class LoginCoordinator : BaseCoordinator<LoginRoute, NavController>() {
 
 class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginReactor> {
     override val reactor: LoginReactor by reactor()
-    private val errorTranslationService: ErrorTranslationService by inject()
     private val coordinator: LoginCoordinator by coordinator()
+    private val errorTranslationService: ErrorTranslationService by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -126,7 +126,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 }
 
 class LoginReactor(
-        private val router: Router,
         private val watchablesApi: WatchablesApi,
         private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
@@ -146,26 +145,22 @@ class LoginReactor(
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.Login -> {
             val loading = Observable.just(Mutation.Login(Async.Loading))
-
-
-            Observable.concat(loading, loginMutation(action.credential))
+            val loginMutation = sessionService.login(action.credential)
+                    .andThen(sessionService.user)
+                    .flatMapCompletable(::createWatchableUserIfNeeded)
+                    .doOnComplete { UpdateWatchablesWorker.start() }
+                    .doOnComplete { DeleteWatchablesWorker.start() }
+                    .doOnComplete { Router follow LoginRoute.OnLoggedIn }
+                    .toSingleDefault(Mutation.Login(Async.Success(true)))
+                    .toObservable()
+                    .onErrorReturn { Mutation.Login(Async.Error(it)) }
+            Observable.concat(loading, loginMutation)
         }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.Login -> previousState.copy(result = mutation.result)
     }
-
-    private fun loginMutation(credential: AuthCredential): Observable<Mutation.Login> =
-            sessionService.login(credential)
-                    .andThen(sessionService.user)
-                    .flatMapCompletable(::createWatchableUserIfNeeded)
-                    .doOnComplete { UpdateWatchablesWorker.start() }
-                    .doOnComplete { DeleteWatchablesWorker.start() }
-                    .doOnComplete { router follow LoginRoute.OnLoggedIn }
-                    .toSingleDefault(Mutation.Login(Async.Success(true)))
-                    .toObservable()
-                    .onErrorReturn { Mutation.Login(Async.Error(it)) }
 
     private fun createWatchableUserIfNeeded(user: FirebaseUser): Completable =
             watchablesApi.watchableUser.ignoreElement().onErrorResumeNext {

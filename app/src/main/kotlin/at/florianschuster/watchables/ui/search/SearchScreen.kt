@@ -17,11 +17,17 @@
 package at.florianschuster.watchables.ui.search
 
 import android.os.Bundle
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
+import androidx.navigation.NavController
+import at.florianschuster.koordinator.CoordinatorRoute
+import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
+import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
@@ -30,18 +36,17 @@ import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
-import at.florianschuster.watchables.worker.AddWatchableWorker
+import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
+import at.florianschuster.watchables.all.worker.AddWatchableWorker
+import at.florianschuster.watchables.ui.base.BaseCoordinator
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.jakewharton.rxbinding3.widget.editorActions
 import com.jakewharton.rxbinding3.widget.textChanges
 import com.tailoredapps.androidutil.ui.extensions.addScrolledPastItemListener
-import com.tailoredapps.androidutil.ui.extensions.afterMeasured
 import com.tailoredapps.androidutil.ui.extensions.hideKeyboard
 import com.tailoredapps.androidutil.ui.extensions.shouldLoadMore
-import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
@@ -50,28 +55,43 @@ import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.fragment_search_toolbar.*
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
+sealed class SearchRoute : CoordinatorRoute {
+    data class OnAddedItemSelected(val id: Int) : SearchRoute()
+}
+
+class SearchCoordinator : BaseCoordinator<SearchRoute, NavController>() {
+    override fun navigate(route: SearchRoute, handler: NavController) {
+        when (route) {
+            is SearchRoute.OnAddedItemSelected -> {
+                SearchFragmentDirections.actionSearchToDetail("${route.id}")
+            }
+        }.also(handler::navigate)
+    }
+}
+
+
 class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<SearchReactor> {
     override val reactor: SearchReactor by reactor()
-
+    private val coordinator: SearchCoordinator by coordinator()
     private val errorTranslationService: ErrorTranslationService by inject()
     private val adapter: SearchAdapter by inject()
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        bind(reactor)
+    }
+
+    override fun bind(reactor: SearchReactor) {
+        coordinator.provideNavigationHandler(navController)
 
         rvSearch.adapter = adapter
-
-        ivBack.clicks()
-                .doOnNext { etSearch.hideKeyboard() }
-                .subscribe { navController.navigateUp() }
-                .addTo(disposables)
-
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
         rvSearch.addScrolledPastItemListener { fabScroll.isVisible = it }
 
@@ -89,14 +109,38 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
                 .subscribe { etSearch.hideKeyboard() }
                 .addTo(disposables)
 
-        etSearch.afterMeasured { showKeyBoard() }
+        adapter.interaction
+                .ofType<SearchAdapterInteraction.ImageClick>()
+                .map { it.imageUrl.asOptional }
+                .filterSome()
+                .bind(requireContext().photoDetailConsumer)
+                .addTo(disposables)
 
-        adapter.imageClick.subscribe(context.photoDetailConsumer).addTo(disposables)
+        etSearch.textChanges()
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .map { SearchReactor.Action.UpdateQuery(it.toString()) }
+                .bind(to = reactor.action)
+                .addTo(disposables)
 
-        bind(reactor)
-    }
+        rvSearch.scrollEvents()
+                .sample(500, TimeUnit.MILLISECONDS)
+                .filter { it.view.shouldLoadMore() }
+                .map { SearchReactor.Action.LoadNextPage }
+                .bind(to = reactor.action)
+                .addTo(disposables)
 
-    override fun bind(reactor: SearchReactor) {
+        adapter.interaction
+                .ofType<SearchAdapterInteraction.AddItemClick>()
+                .map { SearchReactor.Action.AddItemToWatchables(it.item) }
+                .bind(to = reactor.action)
+                .addTo(disposables)
+
+        adapter.interaction
+                .ofType<SearchAdapterInteraction.AddedItemClick>()
+                .map { SearchReactor.Action.SelectAddedItem(it.itemId) }
+                .bind(to = reactor.action)
+                .addTo(disposables)
+
         reactor.state.changesFrom { it.query }
                 .map { it.isNotEmpty() }
                 .bind(ivClear.visibility())
@@ -118,25 +162,6 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
                 .filterSome()
                 .bind(errorTranslationService.toastConsumer)
                 .addTo(disposables)
-
-        etSearch.textChanges()
-                .debounce(300, TimeUnit.MILLISECONDS)
-                .map { SearchReactor.Action.UpdateQuery(it.toString()) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
-
-        rvSearch.scrollEvents()
-                .sample(500, TimeUnit.MILLISECONDS)
-                .filter { it.view.shouldLoadMore() }
-                .map { SearchReactor.Action.LoadNextPage }
-                .bind(to = reactor.action)
-                .addTo(disposables)
-
-        adapter.addClick
-                .filter { !it.added }
-                .map { SearchReactor.Action.AddItemToWatchables(it) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
     }
 }
 
@@ -149,6 +174,7 @@ class SearchReactor(
         data class UpdateQuery(val query: String) : Action()
         object LoadNextPage : Action()
         data class AddItemToWatchables(val item: Search.SearchItem) : Action()
+        data class SelectAddedItem(val itemId: Int) : Action()
     }
 
     sealed class Mutation {
@@ -198,6 +224,9 @@ class SearchReactor(
             Completable.fromAction { AddWatchableWorker.start(action.item) }
                     .toObservableDefault("${action.item.id}")
                     .map(Mutation::AddCurrentlyAddingWatchableId)
+        }
+        is Action.SelectAddedItem -> {
+            emptyMutation { Router follow SearchRoute.OnAddedItemSelected(action.itemId) }
         }
     }
 

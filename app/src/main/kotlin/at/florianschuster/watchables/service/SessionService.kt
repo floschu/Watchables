@@ -18,7 +18,7 @@ package at.florianschuster.watchables.service
 
 import android.content.Context
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.util.extensions.RxTasks
+import at.florianschuster.watchables.all.util.extensions.RxTasks
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
@@ -38,6 +38,9 @@ sealed class Session<out UserType> {
     data class Exists<out UserType>(val user: UserType) : Session<UserType>() {
         override operator fun invoke(): UserType = user
     }
+
+    val loggedIn: Boolean
+        get() = this is Exists
 }
 
 interface SessionService<User, Credential> {
@@ -50,13 +53,11 @@ interface SessionService<User, Credential> {
 }
 
 class FirebaseSessionService(
-    private val context: Context
+        private val context: Context
 ) : SessionService<FirebaseUser, AuthCredential> {
     private val auth = FirebaseAuth.getInstance()
     private val authThrowable: FirebaseAuthException
         get() = FirebaseAuthException("69", context.getString(R.string.error_not_authenticated))
-
-    private val sessionRefreshTrigger = PublishRelay.create<Unit>()
 
     override val loggedIn: Boolean
         get() = try {
@@ -81,15 +82,14 @@ class FirebaseSessionService(
 
             val authListener = FirebaseAuth.AuthStateListener { emitSessionConsumer.accept(it.currentUser) }
             auth.addAuthStateListener(authListener)
-            val trigger = sessionRefreshTrigger.subscribe { emitSessionConsumer.accept(auth.currentUser) }
-
-            emitter.setCancellable {
-                auth.removeAuthStateListener(authListener)
-                trigger.dispose()
-            }
+            emitter.setCancellable { auth.removeAuthStateListener(authListener) }
         }
 
-    override fun login(credential: AuthCredential): Completable = RxTasks.completable { auth.signInWithCredential(credential) }
+    override fun login(credential: AuthCredential): Completable = RxTasks.completable {
+        auth.signInWithCredential(credential)
+    }
 
-    override fun logout(): Completable = Completable.fromAction { auth.signOut() }
+    override fun logout(): Completable = Completable.fromAction {
+        auth.signOut()
+    }
 }

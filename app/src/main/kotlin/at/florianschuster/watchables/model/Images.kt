@@ -25,14 +25,14 @@ enum class Images(private val url: String?) {
     fun from(posterPath: String?): String? = posterPath?.let { "$url$posterPath" }
 }
 
-val Watchable.thumbnail: String?
+val Watchable.thumbnailPoster: String?
     get() = Images.thumbnail.from(this.posterPath)
 
-val Watchable.original: String?
+val Watchable.originalPoster: String?
     get() = Images.original.from(this.posterPath)
 
-val Search.SearchItem.thumbnail: String?
+val Search.SearchItem.thumbnailPoster: String?
     get() = Images.thumbnail.from(this.posterPath)
 
-val Search.SearchItem.original: String?
+val Search.SearchItem.originalPoster: String?
     get() = Images.original.from(this.posterPath)

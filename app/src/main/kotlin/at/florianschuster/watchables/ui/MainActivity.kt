@@ -17,48 +17,59 @@
 package at.florianschuster.watchables.ui
 
 import android.os.Bundle
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
+import androidx.navigation.ui.setupWithNavController
+import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.bind
+import at.florianschuster.reaktor.changesFrom
+import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.AppDirections
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.service.Session
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseActivity
-import at.florianschuster.watchables.util.Utils
-import at.florianschuster.watchables.util.extensions.RxTasks
+import at.florianschuster.watchables.all.util.Utils
+import at.florianschuster.watchables.all.util.extensions.main
+import at.florianschuster.watchables.ui.base.BaseReactor
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
-import com.tailoredapps.androidutil.ui.IntentUtil
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
+import com.tailoredapps.reaktor.android.koin.reactor
+import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
-import org.koin.android.ext.android.inject
+import io.reactivex.rxkotlin.ofType
+import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
-import timber.log.Timber
 
-class MainActivity : BaseActivity(R.layout.activity_main) {
+class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReactor> {
     private val navController: NavController by lazy { findNavController(R.id.navHost) }
-
-    private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
-    private val prefRepo: PrefRepo by inject()
-
     private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
+
+    override val reactor: MainReactor by reactor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
-                .subscribe({ Timber.d("Deeplink: ${it.link}") }, Timber::e) // todo
-                .addTo(disposables)
+        bnv.setupWithNavController(navController)
 
-        sessionService.session
-                .distinctUntilChanged()
-                .filter { it is Session.None }
+        navController.addOnDestinationChangedListener { _, dest, _ ->
+            val bnvShouldBeVisible = dest.id !in noSessionNeededDestinations
+            if (bnv.isVisible != bnvShouldBeVisible) main { bnv.isVisible = bnvShouldBeVisible }
+        }
+
+        bind(reactor)
+    }
+
+    override fun bind(reactor: MainReactor) {
+        reactor.state.changesFrom { it.loggedIn }
+                .skip(1)
+                .filter { it.not() }
                 .filter { navController.currentDestination?.id !in noSessionNeededDestinations }
-                .subscribe {
+                .bind {
                     val options = navController.currentDestination?.id?.let {
                         navOptions { popUpTo(it) { inclusive = true } }
                     }
@@ -66,24 +77,68 @@ class MainActivity : BaseActivity(R.layout.activity_main) {
                 }
                 .addTo(disposables)
 
-        if (sessionService.loggedIn && prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))) {
-            rxDialog(R.style.DialogTheme) {
-                titleResource = R.string.enjoying_dialog_title
-                messageResource = R.string.enjoying_dialog_message
-                positiveButtonResource = R.string.enjoying_dialog_positive
-                negativeButtonResource = R.string.enjoying_dialog_negative
-                neutralButtonResource = R.string.enjoying_dialog_neutral
-            }.doOnSuccess {
-                prefRepo.enjoyingAppDialogShownDate = LocalDate.now()
-                val intent = when (it) {
-                    is RxDialogAction.Positive -> Utils.rateApp(this)
-                    is RxDialogAction.Negative -> IntentUtil.mail(getString(R.string.dev_mail))
-                    else -> null
+        reactor.state.changesFrom { it.dialogShownDate }
+                .filter { it.isBefore(LocalDate.now().minusMonths(1)) }
+                .filter { reactor.currentState.loggedIn }
+                .flatMapSingle {
+                    rxDialog(R.style.DialogTheme) {
+                        titleResource = R.string.enjoying_dialog_title
+                        messageResource = R.string.enjoying_dialog_message
+                        positiveButtonResource = R.string.enjoying_dialog_positive
+                        negativeButtonResource = R.string.enjoying_dialog_negative
+                    }
                 }
-                intent?.let(::startActivity)
-            }.subscribe().addTo(disposables)
-        }
+                .ofType<RxDialogAction.Positive>()
+                .map { Utils.rateApp(this) }
+                .doOnNext { reactor.action.accept(MainReactor.Action.UpdateDialogShownDate) }
+                .bind(::startActivity)
+                .addTo(disposables)
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()
+}
+
+class MainReactor(
+        private val prefRepo: PrefRepo,
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
+        initialState = State(),
+        initialAction = Action.LoadDialogShownDate
+) {
+    sealed class Action {
+        object LoadDialogShownDate : Action()
+        object UpdateDialogShownDate : Action()
+    }
+
+    sealed class Mutation {
+        data class SetLoggedIn(val loggedIn: Boolean) : Mutation()
+        data class SetDialogShownDate(val dialogShownDate: LocalDate) : Mutation()
+    }
+
+    data class State(
+            val loggedIn: Boolean = false,
+            val dialogShownDate: LocalDate = LocalDate.now()
+    )
+
+    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
+            Observable.merge(mutation, sessionMutation)
+
+    override fun mutate(action: Action): Observable<out Mutation> = when (action) {
+        is Action.LoadDialogShownDate -> {
+            Observable.just(Mutation.SetDialogShownDate(prefRepo.enjoyingAppDialogShownDate))
+        }
+        is Action.UpdateDialogShownDate -> {
+            emptyMutation { prefRepo.enjoyingAppDialogShownDate = LocalDate.now() }
+        }
+    }
+
+    override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
+        is Mutation.SetLoggedIn -> previousState.copy(loggedIn = mutation.loggedIn)
+        is Mutation.SetDialogShownDate -> previousState.copy(dialogShownDate = mutation.dialogShownDate)
+    }
+
+    private val sessionMutation: Observable<out Mutation>
+        get() = sessionService.session
+                .map { Mutation.SetLoggedIn(it.loggedIn) }
+                .toObservable()
 }

@@ -31,11 +31,11 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Season
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.thumbnail
 import at.florianschuster.watchables.ui.MainActivity
 import at.florianschuster.watchables.ui.watchables.WatchablesFragmentDirections
-import at.florianschuster.watchables.util.GlideApp
-import at.florianschuster.watchables.util.extensions.asFormattedString
+import at.florianschuster.watchables.all.util.GlideApp
+import at.florianschuster.watchables.all.util.extensions.asFormattedString
+import at.florianschuster.watchables.model.thumbnailPoster
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -118,7 +118,7 @@ class NotificationService(private val context: Context) {
             setGroup(UPDATE_NOTIFICATION_GROUP)
         }
 
-        val image = watchable.thumbnail
+        val image = watchable.thumbnailPoster
 
         if (image != null) {
             showNotificationWithImage(notificationId, pushNotificationBuilder, image)

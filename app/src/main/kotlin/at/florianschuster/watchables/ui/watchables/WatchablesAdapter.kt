@@ -39,7 +39,7 @@ sealed class ItemClickType {
 }
 
 class WatchablesAdapter(
-    private val resources: Resources
+        private val resources: Resources
 ) : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
     val itemClick = PublishRelay.create<ItemClickType>()
 
@@ -86,24 +86,25 @@ class WatchablesAdapter(
 private const val DIFF_WATCHABLE = "watchable"
 private const val DIFF_SEASONS = "seasons"
 
-val Pair<List<WatchableContainer>, List<WatchableContainer>>.diff: DiffUtil.DiffResult
-    get() = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+infix fun List<WatchableContainer>.containerDiff(new: List<WatchableContainer>): DiffUtil.DiffResult {
+    return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                first[oldItemPosition].watchable.id == second[newItemPosition].watchable.id
+                this@containerDiff[oldItemPosition].watchable.id == new[newItemPosition].watchable.id
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                first[oldItemPosition] == second[newItemPosition]
+                this@containerDiff[oldItemPosition] == new[newItemPosition]
 
-        override fun getOldListSize(): Int = first.size
+        override fun getOldListSize(): Int = this@containerDiff.size
 
-        override fun getNewListSize(): Int = second.size
+        override fun getNewListSize(): Int = new.size
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            val oldItem = first[oldItemPosition]
-            val newItem = second[newItemPosition]
+            val oldItem = this@containerDiff[oldItemPosition]
+            val newItem = new[newItemPosition]
             val watchableDiff = oldItem.watchable != newItem.watchable
             val episodesDiff = oldItem.seasons != newItem.seasons
             return if (watchableDiff && episodesDiff) null
             else bundleOf(DIFF_WATCHABLE to watchableDiff, DIFF_SEASONS to episodesDiff)
         }
     })
+}

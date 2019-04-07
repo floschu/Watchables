@@ -16,17 +16,17 @@
 
 package at.florianschuster.watchables.model
 
-import at.florianschuster.watchables.util.extensions.FirestoreObject
+import at.florianschuster.watchables.all.util.extensions.FirestoreObject
 
 data class WatchableUser(val watchableCounter: Long = 0) : FirestoreObject()
 
 data class Watchable(
-    var watched: Boolean = false,
-    val name: String = "",
-    val type: Type = Type.movie,
-    val posterPath: String? = null,
-    val runtimeInMinutes: Long? = null,
-    val status: Status = Status.finished
+        var watched: Boolean = false,
+        val name: String = "",
+        val type: Type = Type.movie,
+        val posterPath: String? = null,
+        val runtimeInMinutes: Long? = null,
+        val status: Status = Status.finished
 ) : FirestoreObject() {
     enum class Type { movie, show }
     enum class Status {
@@ -37,10 +37,18 @@ data class Watchable(
 }
 
 data class WatchableSeason(
-    val watchableId: String = "",
-    val index: Int = 0,
-    val posterPath: String? = null,
-    val episodes: Map<String, Boolean> = emptyMap()
+        val watchableId: String = "",
+        val index: Int = 0,
+        val posterPath: String? = null,
+        val episodes: Map<String, Boolean> = emptyMap()
 ) : FirestoreObject()
 
 data class WatchableContainer(val watchable: Watchable, val seasons: List<WatchableSeason>?)
+
+enum class WatchableContainerSortingType(val comparator: Comparator<in WatchableContainer>) {
+    ByWatched(compareBy({ it.watchable.watched }, { it.watchable.name })),
+    ByNameAscending(compareBy({ it.watchable.name }, { it.watchable.watched })),
+    ByNameDescending(compareByDescending<WatchableContainer> { it.watchable.name }.thenByDescending { it.watchable.watched }),
+    ByTypeAscending(compareBy({ it.watchable.type.name }, { it.watchable.watched })),
+    ByTypeDescending(compareByDescending<WatchableContainer> { it.watchable.type.name }.thenByDescending { it.watchable.watched })
+}

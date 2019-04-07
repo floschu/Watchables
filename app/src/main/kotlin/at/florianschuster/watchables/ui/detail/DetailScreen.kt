@@ -26,10 +26,10 @@ import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.model.Videos
+import at.florianschuster.watchables.all.Option
+import at.florianschuster.watchables.all.OptionsAdapter
+import at.florianschuster.watchables.all.util.extensions.asFormattedString
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.original
-import at.florianschuster.watchables.model.thumbnail
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ErrorTranslationService
 import at.florianschuster.watchables.service.ShareService
@@ -37,28 +37,33 @@ import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.util.extensions.asFormattedString
-import at.florianschuster.watchables.util.extensions.openChromeTab
-import at.florianschuster.watchables.util.srcBlurConsumer
+import at.florianschuster.watchables.all.util.extensions.openChromeTab
+import at.florianschuster.watchables.all.util.srcBlurConsumer
+import at.florianschuster.watchables.model.Videos
+import at.florianschuster.watchables.model.originalPoster
+import at.florianschuster.watchables.model.thumbnailPoster
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
-import com.tailoredapps.androidutil.optional.Optional
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
+import com.tailoredapps.androidutil.ui.extensions.observable
+import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_detail.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import org.threeten.bp.LocalDate
 import org.threeten.bp.ZonedDateTime
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<DetailReactor> {
@@ -83,19 +88,26 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             adapter = detailMediaAdapter
         }
 
-        rvOptions.adapter = optionsAdapter
+        rvDetailOptions.adapter = optionsAdapter
         optionsAdapter.update()
 
         bind(reactor)
     }
 
     override fun bind(reactor: DetailReactor) {
-        reactor.state.map { it.watchable.asOptional }
-                .filterSome()
-                .bind {
-                    loading.isVisible = false
-                    tvTitle.text = it.name
-                    ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(it.thumbnail)
+        reactor.state.changesFrom { it.watchable }
+                .bind { watchableAsync ->
+                    loading.isVisible = watchableAsync is Async.Loading
+                    when (watchableAsync) {
+                        is Async.Success -> {
+                            tvTitle.text = watchableAsync.element.name
+                            ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(watchableAsync.element.thumbnailPoster)
+                        }
+                        is Async.Error -> {
+                            toast(R.string.detail_error_watchable)
+                            navController.navigateUp()
+                        }
+                    }
                 }
                 .addTo(disposables)
 
@@ -108,32 +120,27 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 }
                 .addTo(disposables)
 
-        reactor.state.map { it.imdbId.asOptional }
-                .filterSome()
-                .bind { optionsAdapter.update() }
-                .addTo(disposables)
+        reactor.state.changesFrom { it.additionalData }
+                .bind { additionalDataAsync ->
+                    when (additionalDataAsync) {
+                        is Async.Success -> {
+                            additionalDataAsync.element.airing?.let { airingDate ->
+                                tvAiring.text = if (airingDate.isBefore(ZonedDateTime.now().toLocalDate())) {
+                                    getString(R.string.release_date_past, airingDate.asFormattedString)
+                                } else {
+                                    getString(R.string.release_date_future, airingDate.asFormattedString)
+                                }
+                            }
 
-        reactor.state.map { it.website.asOptional }
-                .filterSome()
-                .bind { optionsAdapter.update() }
-                .addTo(disposables)
+                            val summary = additionalDataAsync.element.summary
+                            tvSummary.isVisible = summary == null
+                            if (summary != null) tvSummary.text = summary
 
-        reactor.state.map { it.airing.asOptional }
-                .filterSome()
-                .bind {
-                    tvAiring.text = if (it.isBefore(ZonedDateTime.now().toLocalDate())) {
-                        getString(R.string.release_date_past, it.asFormattedString)
-                    } else {
-                        getString(R.string.release_date_future, it.asFormattedString)
-                    }
-                }
-                .addTo(disposables)
-
-        reactor.state.map { it.summary.asOptional }
-                .bind {
-                    tvSummary.isVisible = it is Optional.Some
-                    if (it is Optional.Some) {
-                        tvSummary.text = it.value
+                            optionsAdapter.update()
+                        }
+                        is Async.Error -> {
+                            toast(R.string.detail_error_additional_data)
+                        }
                     }
                 }
                 .addTo(disposables)
@@ -144,9 +151,18 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .takeUntil { it.first == 0 && it.second == 0 }
 
-        reactor.state.map { DetailMediaItem.Poster(it.watchable?.thumbnail, it.watchable?.original) to it.videos }
-                .map { listOf(it.first, *it.second.toTypedArray()) }
+        val watchablePoster = reactor.state.changesFrom { it.watchable().asOptional }
+                .filterSome()
+                .map { DetailMediaItem.Poster(it.thumbnailPoster, it.originalPoster) }
+
+        val videos = reactor.state.changesFrom { it.additionalData().asOptional }
+                .filterSome()
+                .map { it.videos }
+
+        Observables.combineLatest(watchablePoster, videos)
+                .map { listOf(it.first) + it.second }
                 .distinctUntilChanged()
+                .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(detailMediaAdapter::submitList)
                 .switchMap { snapToFirstItemObservable }
                 .bind()
@@ -155,27 +171,28 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     private fun OptionsAdapter.update() {
         listOfNotNull(
-                reactor.currentState.website?.let { openWebOption },
-                reactor.currentState.imdbId?.let { openImdbOption },
-                reactor.currentState.watchable?.let { shareOption },
+                reactor.currentState.additionalData()?.website?.let { openWebOption },
+                reactor.currentState.additionalData()?.imdbId?.let { openImdbOption },
+                reactor.currentState.watchable()?.let { shareOption },
                 deleteOption
         ).also(::submitList)
     }
 
     private val openWebOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_website, R.drawable.ic_open_in_browser) {
-            reactor.currentState.website?.let(this::openChromeTab)
+            reactor.currentState.additionalData()?.website?.let(this::openChromeTab)
         }
 
     private val openImdbOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_imdb, R.drawable.ic_imdb) {
-            val imdbId = reactor.currentState.imdbId
-            openChromeTab(getString(R.string.imdb_search, imdbId))
+            reactor.currentState.additionalData()?.imdbId?.let {
+                openChromeTab(getString(R.string.imdb_search, it))
+            }
         }
 
     private val shareOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
-            reactor.currentState.watchable?.let {
+            reactor.currentState.watchable()?.let {
                 shareService.share(it).subscribe().addTo(disposables)
             }
         }
@@ -207,93 +224,122 @@ class DetailReactor(
         private val movieDatabaseApi: MovieDatabaseApi,
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService
-) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
-        initialState = State(),
-        initialAction = Action.LoadData
-) {
+) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(State()) {
 
     sealed class Action {
-        object LoadData : Action()
+        data class LoadAdditionalData(val watchable: Watchable) : Action()
         object DeleteWatchable : Action()
+        data class SetWatched(val watched: Boolean) : Action()
     }
 
     sealed class Mutation {
         data class DeleteWatchableResult(val deleteResult: Async<Unit>) : Mutation()
-        data class SetWatchable(val watchable: Watchable?) : Mutation()
-        data class SetData(
-                val website: String? = null,
-                val imdbId: String? = null,
-                val videos: List<Videos.Video> = emptyList(),
-                val summary: String? = null,
-                val airing: LocalDate? = null
-        ) : Mutation()
-    }
-
-    override fun transformAction(action: Observable<Action>): Observable<out Action> {
-        return super.transformAction(action).doOnNext { Timber.d("Action: $it") }
+        data class SetWatchable(val watchable: Async<Watchable>) : Mutation()
+        data class SetAdditionalData(val additionalData: Async<State.AdditionalData>) : Mutation()
     }
 
     data class State(
-            val watchable: Watchable? = null,
-            val deleteResult: Async<Unit> = Async.Uninitialized,
-            val website: String? = null,
-            val imdbId: String? = null,
-            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
-            val summary: String? = null,
-            val airing: LocalDate? = null
-    )
+            val watchable: Async<Watchable> = Async.Uninitialized,
+            val additionalData: Async<AdditionalData> = Async.Uninitialized,
+            val deleteResult: Async<Unit> = Async.Uninitialized
+    ) {
+        data class AdditionalData(
+                val website: String? = null,
+                val imdbId: String? = null,
+                val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
+                val summary: String? = null,
+                val airing: LocalDate? = null
+        )
+    }
+
+    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
+            Observable.merge(mutation, loadDataMutation)
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
-        is Action.LoadData -> {
-            // todo if change this to id + type for watchable sharing?
-            watchablesApi.watchable(itemId)
-                    .flatMapObservable {
-                        val watchableMutation = Observable.just(Mutation.SetWatchable(it))
-                        val loadMutation = when (it.type) {
-                            Watchable.Type.movie -> loadMovieInfoMutation
-                            Watchable.Type.show -> loadShowInfoMutation
-                        }
-                        Observable.concat(watchableMutation, loadMutation)
-                    }
+        is Action.LoadAdditionalData -> {
+            val loading = Mutation.SetAdditionalData(Async.Loading).observable
+
+            val additionalInfoLoad = when {
+                action.watchable.type == Watchable.Type.movie -> loadAdditionalInfoFromMovie()
+                else -> loadAdditionalInfoFromShow()
+            }
+            val load = additionalInfoLoad
+                    .map { Mutation.SetAdditionalData(Async.Success(it)) }
+                    .onErrorReturn { Mutation.SetAdditionalData(Async.Error(it)) }
+                    .toObservable()
+
+            Observable.concat(loading, load)
         }
         is Action.DeleteWatchable -> {
             watchablesApi.setWatchableDeleted(itemId)
-                    .doOnComplete { currentState.watchable?.let(analyticsService::logWatchableDelete) }
+                    .doOnComplete { currentState.watchable()?.let(analyticsService::logWatchableDelete) }
                     .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
                     .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
+        }
+        is Action.SetWatched -> {
+            watchablesApi.updateWatchable(itemId, action.watched).toObservable()
         }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.DeleteWatchableResult -> previousState.copy(deleteResult = mutation.deleteResult)
         is Mutation.SetWatchable -> previousState.copy(watchable = mutation.watchable)
-        is Mutation.SetData -> {
-            val youtubeVideos = mutation.videos.asSequence()
-                    .filter { it.isYoutube }
-                    .sortedBy { it.type }
-                    .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
-                    .toList()
-            previousState.copy(
-                    website = mutation.website,
-                    imdbId = mutation.imdbId,
-                    videos = youtubeVideos,
-                    summary = mutation.summary,
-                    airing = mutation.airing
-            )
-        }
+        is Mutation.SetAdditionalData -> previousState.copy(additionalData = mutation.additionalData)
     }
 
-    private val loadMovieInfoMutation: Observable<out Mutation>
-        get() = movieDatabaseApi
-                .movie(itemId.toInt())
-                .map { Mutation.SetData(it.website, it.imdbId, it.videos.results, it.summary, it.releaseDate) }
-                .onErrorReturnItem(Mutation.SetData())
-                .toObservable()
+    private val loadDataMutation: Observable<out Mutation>
+        get() {
+            val loading = Mutation.SetWatchable(Async.Loading).observable
+            val watchable = watchablesApi.watchable(itemId)
+                    .map { Mutation.SetWatchable(Async.Success(it)) }
+                    .onErrorReturn { Mutation.SetWatchable(Async.Error(it)) }
+                    .toObservable()
+                    .switchMap { watchableMutation ->
+                        if (watchableMutation.watchable is Async.Success) {
+                            Observable.concat(
+                                    watchableMutation.observable,
+                                    mutate(Action.LoadAdditionalData(watchableMutation.watchable.element))
+                            )
+                        } else {
+                            watchableMutation.observable
+                        }
+                    }
+            return Observable.concat(loading, watchable)
+        }
 
-    private val loadShowInfoMutation: Observable<out Mutation>
-        get() = movieDatabaseApi
+    private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {
+        return movieDatabaseApi
+                .movie(itemId.toInt())
+                .map {
+                    State.AdditionalData(
+                            it.website,
+                            it.imdbId,
+                            it.videos.results.mapToYoutubeVideos(),
+                            it.summary,
+                            it.releaseDate
+                    )
+                }
+    }
+
+    private fun loadAdditionalInfoFromShow(): Single<State.AdditionalData> {
+        return movieDatabaseApi
                 .show(itemId.toInt())
-                .map { Mutation.SetData(it.website, it.externalIds.imdbId, it.videos.results, it.summary, it.nextEpisode?.airingDate) }
-                .onErrorReturnItem(Mutation.SetData())
-                .toObservable()
+                .map {
+                    State.AdditionalData(
+                            it.website,
+                            it.externalIds.imdbId,
+                            it.videos.results.mapToYoutubeVideos(),
+                            it.summary,
+                            it.nextEpisode?.airingDate
+                    )
+                }
+    }
+
+    private fun List<Videos.Video>.mapToYoutubeVideos(): List<DetailMediaItem.YoutubeVideo> {
+        return asSequence()
+                .filter { it.isYoutube }
+                .sortedBy { it.type }
+                .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
+                .toList()
+    }
 }

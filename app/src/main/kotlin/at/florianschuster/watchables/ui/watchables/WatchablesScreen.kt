@@ -37,36 +37,29 @@ import at.florianschuster.watchables.model.convertToWatchableContainer
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ShareService
-import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
-import at.florianschuster.watchables.util.Utils
-import at.florianschuster.watchables.util.extensions.openChromeTab
-import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
-import at.florianschuster.watchables.worker.DeleteWatchablesWorker
-import at.florianschuster.watchables.worker.UpdateWatchablesWorker
+import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
+import at.florianschuster.watchables.model.WatchableContainerSortingType
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.AuthCredential
-import com.google.firebase.auth.FirebaseUser
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
-import com.tailoredapps.androidutil.ui.extensions.RxPopupAction
 import com.tailoredapps.androidutil.ui.extensions.addScrolledPastItemListener
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
-import com.tailoredapps.androidutil.ui.extensions.rxPopup
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
-import com.tailoredapps.androidutil.optional.asOptional
-import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
+import com.tailoredapps.androidutil.ui.extensions.RxPopupAction
+import com.tailoredapps.androidutil.ui.extensions.rxPopup
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.rxkotlin.Flowables
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
@@ -77,7 +70,6 @@ import org.koin.core.parameter.parametersOf
 
 sealed class WatchablesRoute : CoordinatorRoute {
     data class OnWatchableSelected(val id: String) : WatchablesRoute()
-    object SearchIsRequired : WatchablesRoute()
 }
 
 class WatchablesCoordinator : BaseCoordinator<WatchablesRoute, NavController>() {
@@ -86,21 +78,15 @@ class WatchablesCoordinator : BaseCoordinator<WatchablesRoute, NavController>() 
             is WatchablesRoute.OnWatchableSelected -> {
                 WatchablesFragmentDirections.actionWatchablesToDetail(route.id)
             }
-            is WatchablesRoute.SearchIsRequired -> {
-                WatchablesFragmentDirections.actionWatchablesToSearch()
-            }
         }.also(handler::navigate)
     }
 }
 
 class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorView<WatchablesReactor> {
     override val reactor: WatchablesReactor by reactor()
-
     private val adapter: WatchablesAdapter by inject()
     private val prefRepo: PrefRepo by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
-    private val analyticsService: AnalyticsService by inject()
-
     private val coordinator: WatchablesCoordinator by coordinator()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -108,54 +94,43 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         coordinator.provideNavigationHandler(findNavController())
 
-        AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
+        AnimationUtils.loadAnimation(requireContext(), R.anim.pulse).also(ivLogo::startAnimation)
 
         with(rvWatchables) {
             adapter = this@WatchablesFragment.adapter
             addScrolledPastItemListener { fabScroll.isVisible = it }
         }
 
-        fabScroll.clicks()
-                .subscribe { rvWatchables.smoothScrollUp() }
-                .addTo(disposables)
+        fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
                 .map { it.url }
-                .subscribe(context.photoDetailConsumer)
-                .addTo(disposables)
-
-        btnOptions.clicks()
-                .flatMapSingle {
-                    btnOptions.rxPopup(R.menu.menu_settings) {
-                        if (it.itemId == R.id.analytics) {
-                            it.isChecked = analyticsService.analyticsEnabled
-                        }
-                    }
-                }
-                .ofType<RxPopupAction.Selected>()
-                .subscribe(::openMenuItem)
+                .subscribe(requireContext().photoDetailConsumer)
                 .addTo(disposables)
 
         bind(reactor)
     }
 
     override fun bind(reactor: WatchablesReactor) {
-
         // state
         reactor.state.changesFrom { it.watchables }
                 .ofType<Async.Success<List<WatchableContainer>>>()
-                .map { it.element to (adapter.data to it.element).diff }
+                .map { it.element to (adapter.data containerDiff it.element) }
                 .bind(adapter::setData)
                 .addTo(disposables)
 
+        reactor.state.changesFrom { it.numberOfWatchables }
+                .map { it > 5 }
+                .bind(rvWatchables::setFastScrollEnabled)
+                .addTo(disposables)
+
+        reactor.state.changesFrom { it.watchablesEmpty }
+                .bind(emptyLayout.visibility())
+                .addTo(disposables)
+
         var snack: Snackbar? = null
-        reactor.state.changesFrom { it.watchables }
-                .filter { it.complete }
-                .map { it().asOptional }
-                .filterSome()
-                .doOnNext { rvWatchables.setFastScrollEnabled(it.count() > 5) }
-                .map { it.isEmpty() }
-                .doOnNext {
+        reactor.state.changesFrom { it.watchablesEmpty }
+                .bind {
                     if (!it && !prefRepo.onboardingSnackShown && snack == null) {
                         snack = rootLayout.snack(
                                 R.string.onboarding_snack,
@@ -164,7 +139,6 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                         ) { prefRepo.onboardingSnackShown = true }
                     }
                 }
-                .bind(emptyLayout.visibility())
                 .addTo(disposables)
 
         // action
@@ -209,27 +183,18 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .bind(to = reactor.action)
                 .addTo(disposables)
 
-        flSearch.clicks()
-                .map { WatchablesReactor.Action.Search }
-                .bind(to = reactor.action)
-                .addTo(disposables)
-
         adapter.itemClick.ofType<ItemClickType.ItemDetail>()
-                .map { WatchablesReactor.Action.SetWatchablesSelected(it.watchable.id) }
+                .map { WatchablesReactor.Action.SelectWatchable(it.watchable.id) }
                 .bind(to = reactor.action)
                 .addTo(disposables)
-    }
 
-    private fun openMenuItem(item: RxPopupAction.Selected) {
-        when (item.itemId) {
-            R.id.devInfo -> openChromeTab(getString(R.string.developer_url))
-            R.id.shareApp -> shareService.shareApp().subscribe().addTo(disposables)
-            R.id.rateApp -> startActivity(Utils.rateApp(requireContext()))
-            R.id.privacyPolicy -> openChromeTab(getString(R.string.privacy_policy_url))
-            R.id.licenses -> Utils.showLibraries(requireContext())
-            R.id.analytics -> analyticsService.analyticsEnabled = !analyticsService.analyticsEnabled
-            R.id.logout -> showLogoutDialog()
-        }
+        btnFilter.clicks()
+                .flatMapSingle { btnFilter.rxPopup(R.menu.menu_watchables_sorting) }
+                .ofType<RxPopupAction.Selected>()
+                .map { WatchableContainerSortingType.values()[it.index] }
+                .map { WatchablesReactor.Action.Sort(it) }
+                .bind(to = reactor.action)
+                .addTo(disposables)
     }
 
     private fun deleteWatchableDialog(watchable: Watchable): Completable {
@@ -243,25 +208,12 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .doOnSuccess(reactor.action)
                 .ignoreElement()
     }
-
-    private fun showLogoutDialog() {
-        rxDialog(R.style.DialogTheme) {
-            titleResource = R.string.dialog_logout_title
-            messageResource = R.string.dialog_logout_message
-            positiveButtonResource = R.string.dialog_ok
-            negativeButtonResource = R.string.dialog_cancel
-        }.ofType<RxDialogAction.Positive>()
-                .map { WatchablesReactor.Action.Logout }
-                .subscribe(reactor.action)
-                .addTo(disposables)
-    }
 }
-
 
 class WatchablesReactor(
         private val watchablesApi: WatchablesApi,
         private val analyticsService: AnalyticsService,
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(State()) {
 
     sealed class Action {
@@ -269,18 +221,24 @@ class WatchablesReactor(
         data class SetEpisodeWatched(val watchableSeasonId: String, val episode: String, val watched: Boolean) : Action()
         data class SetSeasonWatched(val watchableSeasonId: String, val watched: Boolean) : Action()
         data class DeleteWatchable(val watchableId: String) : Action()
-        object Logout : Action()
-        object Search : Action()
-        data class SetWatchablesSelected(val watchableId: String) : Action()
+        data class SelectWatchable(val watchableId: String) : Action()
+        data class Sort(val sorting: WatchableContainerSortingType) : Action()
     }
 
     sealed class Mutation {
         data class SetWatchables(val watchables: Async<List<WatchableContainer>>) : Mutation()
+        data class SortWatchables(val sorting: WatchableContainerSortingType) : Mutation()
     }
 
     data class State(
             val watchables: Async<List<WatchableContainer>> = Async.Uninitialized
-    )
+    ) {
+        val numberOfWatchables: Int
+            get() = if (watchables is Async.Success) watchables.element.count() else 0
+
+        val watchablesEmpty: Boolean
+            get() = watchables is Async.Success && watchables.element.isEmpty()
+    }
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
             Observable.merge(mutation, watchablesMutation)
@@ -307,22 +265,28 @@ class WatchablesReactor(
                     .setWatchableDeleted(action.watchableId)
                     .toObservable()
         }
-        is Action.Logout -> {
-            sessionService.logout()
-                    .doOnComplete { UpdateWatchablesWorker.stop() }
-                    .doOnComplete { DeleteWatchablesWorker.stop() }
-                    .toObservable()
-        }
-        is Action.Search -> {
-            emptyMutation { Router follow WatchablesRoute.SearchIsRequired }
-        }
-        is Action.SetWatchablesSelected -> {
+        is Action.SelectWatchable -> {
             emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.watchableId) }
+        }
+        is Action.Sort -> {
+            Single.just(action.sorting)
+                    .doOnSuccess { prefRepo.watchableContainerSortingType = it }
+                    .map { Mutation.SortWatchables(it) }
+                    .toObservable()
         }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.SetWatchables -> previousState.copy(watchables = mutation.watchables)
+        is Mutation.SortWatchables -> {
+            val sorted = when {
+                previousState.watchables is Async.Success -> {
+                    Async.Success(previousState.watchables.element.sortedWith(mutation.sorting.comparator))
+                }
+                else -> previousState.watchables
+            }
+            previousState.copy(watchables = sorted)
+        }
     }
 
     private val watchablesMutation: Observable<out Mutation>
@@ -348,7 +312,7 @@ class WatchablesReactor(
                                             .toList()
                                     watchable.convertToWatchableContainer(watchableSeasons)
                                 }
-                                .sortedWith(compareBy({ it.watchable.watched }, { it.watchable.name }))
+                                .sortedWith(prefRepo.watchableContainerSortingType.comparator)
                                 .toList()
                     }
                     .skip(1) // skips initial startWith emptyLists that are needed when seasons are still empty

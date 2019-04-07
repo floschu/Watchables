@@ -24,10 +24,10 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableContainer
 import at.florianschuster.watchables.model.WatchableSeason
-import at.florianschuster.watchables.model.original
-import at.florianschuster.watchables.model.thumbnail
-import at.florianschuster.watchables.util.srcBlurConsumer
-import at.florianschuster.watchables.util.srcConsumer
+import at.florianschuster.watchables.model.originalPoster
+import at.florianschuster.watchables.all.util.srcBlurConsumer
+import at.florianschuster.watchables.all.util.srcConsumer
+import at.florianschuster.watchables.model.thumbnailPoster
 import io.reactivex.functions.Consumer
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable.*
@@ -49,8 +49,8 @@ sealed class WatchableViewHolder(override val containerView: View, protected val
         tvTitle.text = watchable.name
         tvType.setText(if (watchable.type == Watchable.Type.movie) R.string.display_name_movie else R.string.display_name_show)
         ivImage.clipToOutline = true
-        ivImage.srcConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
-        ivImage.setOnClickListener { clickConsumer.accept(ItemClickType.PhotoDetail(watchable.original)) }
+        ivImage.srcConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
+        ivImage.setOnClickListener { clickConsumer.accept(ItemClickType.PhotoDetail(watchable.originalPoster)) }
     }
 
     open fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {}
@@ -62,7 +62,7 @@ sealed class WatchableViewHolder(override val containerView: View, protected val
 
         override fun bindWatchablePayload(watchable: Watchable) {
             super.bindWatchablePayload(watchable)
-            ivBackgroundMovie.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
+            ivBackgroundMovie.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
             tvWatched.setText(if (watchable.watched) R.string.watchable_watched else R.string.watchable_not_watched)
             ivWatched.isVisible = watchable.watched
             tvWatched.setOnClickListener { clickConsumer.accept(ItemClickType.Watched(watchable.id, !watchable.watched)) }
@@ -87,7 +87,7 @@ sealed class WatchableViewHolder(override val containerView: View, protected val
 
         override fun bindWatchablePayload(watchable: Watchable) {
             super.bindWatchablePayload(watchable)
-            ivBackgroundShow.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnail)
+            ivBackgroundShow.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
         }
 
         override fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {

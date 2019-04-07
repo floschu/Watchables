@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/white"
         android:text="@string/sign_in_google"
-        android:textColor="@color/dark_primary_text"
+        android:textColor="@color/textDarkPrimary"
         app:icon="@drawable/googleg_standard_color_18"
         app:iconTint="@color/transparent"
         app:iconTintMode="src_over"

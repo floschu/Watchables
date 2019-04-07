@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/sortingWatchedName"
+        android:icon="@drawable/ic_logo"
+        android:title="@string/watchables_sorting_watched_name" />
+    <group android:id="@+id/sortingName">
+        <item
+            android:id="@+id/sortingNameAscending"
+            android:icon="@drawable/ic_logo"
+            android:title="@string/watchables_sorting_name_ascending" />
+        <item
+            android:id="@+id/sortingNameDescending"
+            android:icon="@drawable/ic_logo"
+            android:title="@string/watchables_sorting_name_descending" />
+    </group>
+    <group android:id="@+id/sortingType">
+        <item
+            android:id="@+id/sortingTypeAscending"
+            android:icon="@drawable/ic_logo"
+            android:title="@string/watchables_sorting_type_ascending" />
+        <item
+            android:id="@+id/sortingTypeDescending"
+            android:icon="@drawable/ic_logo"
+            android:title="@string/watchables_sorting_type_descending" />
+    </group>
+</menu>

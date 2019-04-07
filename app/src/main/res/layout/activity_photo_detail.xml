@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <at.florianschuster.watchables.util.photodetail.ZoomableGestureImageView
+        <at.florianschuster.watchables.all.util.photodetail.ZoomableGestureImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

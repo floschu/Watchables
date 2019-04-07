@@ -20,7 +20,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.util.srcConsumer
+import at.florianschuster.watchables.all.util.srcConsumer
 import android.content.Intent
 import android.net.Uri
 import androidx.annotation.LayoutRes
@@ -28,7 +28,7 @@ import androidx.annotation.StringRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import at.florianschuster.watchables.model.Videos
-import at.florianschuster.watchables.util.photodetail.photoDetailConsumer
+import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_detail_poster.*
@@ -37,15 +37,15 @@ import kotlinx.android.synthetic.main.item_detail_video.*
 sealed class DetailMediaItem(open val id: String, @LayoutRes val layout: Int) {
     data class Poster(val thumbnail: String?, val original: String?) : DetailMediaItem("$thumbnail$original", R.layout.item_detail_poster)
 
-    data class YoutubeVideo(override val id: String, val name: String, val key: String, val type: Videos.Video.Type) : DetailMediaItem(id, R.layout.item_detail_video) {
+    data class YoutubeVideo(override val id: String, val name: String, val key: String, val type: Videos.Video.Type?) : DetailMediaItem(id, R.layout.item_detail_video) {
         @get:StringRes
         val typeResource: Int
             get() = when (type) {
-                Videos.Video.Type.trailer -> R.string.video_type_trailer
                 Videos.Video.Type.teaser -> R.string.video_type_teaser
                 Videos.Video.Type.clip -> R.string.video_type_clip
                 Videos.Video.Type.featurette -> R.string.video_type_featurette
                 Videos.Video.Type.openingCredits -> R.string.video_type_openingCredits
+                else -> R.string.video_type_trailer
             }
     }
 }

@@ -114,7 +114,7 @@ data class Videos(val results: List<Video>) {
         val id: String,
         val name: String,
         val key: String,
-        val type: Type,
+        val type: Type?,
         val site: String
     ) {
         enum class Type {
