@@ -41,7 +41,6 @@ object Utils {
     fun showLibraries(context: Context) {
         LibsBuilder().apply {
             withFields(*Libs.toStringArray(R.string::class.java.fields))
-            withVersionShown(true)
             withLicenseShown(true)
             withAutoDetect(true)
             withAboutAppName(context.getString(R.string.app_name))
@@ -49,13 +48,8 @@ object Utils {
             withAboutVersionShown(true)
             withActivityTitle(context.getString(R.string.more_licenses))
             withActivityStyle(Libs.ActivityStyle.DARK)
+            withCheckCachedDetection(false)
             withAboutDescription(context.getString(R.string.dev_info))
-            withLibraries(
-                    "LeakCanary", "Timber", "gson", "rxjava", "rxAndroid",
-                    "glide", "SupportLibrary", "rxpaparazzo", "transformations",
-                    "fastscroll", "rxbinding", "koin", "flick", "koordinator",
-                    "reaktor"
-            )
         }.start(context)
     }
 }

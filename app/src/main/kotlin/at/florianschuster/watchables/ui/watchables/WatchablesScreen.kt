@@ -52,6 +52,7 @@ import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
+import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -62,6 +63,7 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
+import kotlinx.android.synthetic.main.item_option.view.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
@@ -82,7 +84,6 @@ class WatchablesCoordinator : BaseCoordinator<WatchablesRoute, NavController>() 
 class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorView<WatchablesReactor> {
     override val reactor: WatchablesReactor by reactor()
     private val adapter: WatchablesAdapter by inject()
-    private val prefRepo: PrefRepo by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
     private val coordinator: WatchablesCoordinator by coordinator()
 
@@ -125,16 +126,15 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .bind(emptyLayout.visibility())
                 .addTo(disposables)
 
-        var snack: Snackbar? = null
-        reactor.state.changesFrom { it.watchablesEmpty }
+        reactor.state.changesFrom { it.showOnboardingSnack }
+                .filter { it }
+                .take(1) //only show this once
                 .bind {
-                    if (!it && !prefRepo.onboardingSnackShown && snack == null) {
-                        snack = rootLayout.snack(
-                                R.string.onboarding_snack,
-                                Snackbar.LENGTH_INDEFINITE,
-                                R.string.dialog_ok
-                        ) { prefRepo.onboardingSnackShown = true }
-                    }
+                    rootLayout.snack(
+                            R.string.onboarding_snack,
+                            Snackbar.LENGTH_INDEFINITE,
+                            R.string.dialog_ok
+                    ) { reactor.action.accept(WatchablesReactor.Action.SetOnboardingSnackShown) }
                 }
                 .addTo(disposables)
 
@@ -220,7 +220,10 @@ class WatchablesReactor(
         private val analyticsService: AnalyticsService,
         private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
-        State(sorting = prefRepo.watchableContainerSortingType)
+        State(
+                sorting = prefRepo.watchableContainerSortingType,
+                onboardingSnackShown = prefRepo.onboardingSnackShown
+        )
 ) {
 
     sealed class Action {
@@ -230,22 +233,28 @@ class WatchablesReactor(
         data class DeleteWatchable(val watchableId: String) : Action()
         data class SelectWatchable(val watchableId: String) : Action()
         data class SortWatchables(val sorting: WatchableContainerSortingType) : Action()
+        object SetOnboardingSnackShown : Action()
     }
 
     sealed class Mutation {
         data class SetWatchables(val watchables: Async<List<WatchableContainer>>) : Mutation()
         data class SortWatchables(val sorting: WatchableContainerSortingType) : Mutation()
+        data class SetOnboardingSnackShown(val shown: Boolean) : Mutation()
     }
 
     data class State(
             val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-            val sorting: WatchableContainerSortingType
+            val sorting: WatchableContainerSortingType,
+            private val onboardingSnackShown: Boolean
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0
 
         val watchablesEmpty: Boolean
             get() = watchables is Async.Success && watchables.element.isEmpty()
+
+        val showOnboardingSnack: Boolean
+            get() = !onboardingSnackShown && watchablesEmpty
     }
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
@@ -282,6 +291,12 @@ class WatchablesReactor(
                     .map { Mutation.SortWatchables(it) }
                     .toObservable()
         }
+        is Action.SetOnboardingSnackShown -> {
+            Single.just(true)
+                    .doOnSuccess { prefRepo.onboardingSnackShown = it }
+                    .map { Mutation.SetOnboardingSnackShown(it) }
+                    .toObservable()
+        }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
@@ -295,6 +310,7 @@ class WatchablesReactor(
             }
             previousState.copy(watchables = sorted, sorting = mutation.sorting)
         }
+        is Mutation.SetOnboardingSnackShown -> previousState.copy(onboardingSnackShown = mutation.shown)
     }
 
     private val watchablesMutation: Observable<out Mutation>

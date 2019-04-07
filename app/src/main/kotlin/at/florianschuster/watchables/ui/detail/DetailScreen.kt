@@ -133,7 +133,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                             }
 
                             val summary = additionalDataAsync.element.summary
-                            tvSummary.isVisible = summary == null
+                            tvSummary.isVisible = summary != null
                             if (summary != null) tvSummary.text = summary
 
                             optionsAdapter.update()
