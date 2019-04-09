@@ -22,6 +22,7 @@
         android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:paddingTop="200dp"
+        android:paddingBottom="@dimen/bnv_height"
         app:fastScrollAutoHide="true"
         app:fastScrollAutoHideDelay="300"
         app:fastScrollPopupBgColor="@color/blackTransparentDark"
@@ -42,18 +43,4 @@
         android:id="@+id/emptyLayout"
         layout="@layout/fragment_watchables_empty"
         android:visibility="gone" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabScroll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/margin"
-        android:src="@drawable/ic_keyboard_arrow_up"
-        android:tint="#fff"
-        android:alpha="0.9"
-        android:visibility="gone"
-        app:backgroundTint="@color/colorPrimary"
-        app:fabSize="mini"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

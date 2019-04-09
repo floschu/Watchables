@@ -12,25 +12,13 @@
         android:clipToPadding="false"
         android:overScrollMode="never"
         android:paddingTop="?actionBarSize"
+        android:paddingBottom="@dimen/bnv_height"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_search" />
 
     <include
         android:id="@+id/layoutToolbar"
         layout="@layout/fragment_search_toolbar" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabScroll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/margin"
-        android:alpha="0.9"
-        android:src="@drawable/ic_keyboard_arrow_up"
-        android:tint="#fff"
-        android:visibility="gone"
-        app:backgroundTint="@color/colorPrimary"
-        app:fabSize="mini" />
 
     <include
         android:id="@+id/emptyLayout"

@@ -36,10 +36,6 @@
         <item name="contentInsetStart">0dp</item>
     </style>
 
-    <style name="Toolbar.Search">
-        <item name="android:background">@drawable/bg_search_toolbar</item>
-    </style>
-
 
     <!-- Dialog -->
     <style name="DialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">

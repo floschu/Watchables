@@ -42,6 +42,8 @@ import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
+import at.florianschuster.watchables.ui.main.mainScreenFabClicks
+import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -95,10 +97,10 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         with(rvWatchables) {
             adapter = this@WatchablesFragment.adapter
-            addScrolledPastItemListener { fabScroll.isVisible = it }
+            addScrolledPastItemListener { setMainScreenFabVisibility(it) }
         }
 
-        fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
+        mainScreenFabClicks()?.subscribe { rvWatchables.smoothScrollUp() }?.addTo(disposables)
 
         adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
                 .map { it.url }
@@ -215,9 +217,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-    private val watchablesApi: WatchablesApi,
-    private val analyticsService: AnalyticsService,
-    private val prefRepo: PrefRepo
+        private val watchablesApi: WatchablesApi,
+        private val analyticsService: AnalyticsService,
+        private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = prefRepo.watchableContainerSortingType,
@@ -242,9 +244,9 @@ class WatchablesReactor(
     }
 
     data class State(
-        val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-        val sorting: WatchableContainerSortingType,
-        private val onboardingSnackShown: Boolean
+            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
+            val sorting: WatchableContainerSortingType,
+            private val onboardingSnackShown: Boolean
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0

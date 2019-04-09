@@ -29,7 +29,7 @@ import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.all.util.extensions.translate
+import at.florianschuster.watchables.all.util.extensions.asCauseTranslation
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
@@ -39,6 +39,8 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
 import at.florianschuster.watchables.ui.base.BaseCoordinator
+import at.florianschuster.watchables.ui.main.mainScreenFabClicks
+import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -92,9 +94,9 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         rvSearch.adapter = adapter
         rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
-        rvSearch.addScrolledPastItemListener { fabScroll.isVisible = it }
+        rvSearch.addScrolledPastItemListener { setMainScreenFabVisibility(it) }
 
-        fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
+        mainScreenFabClicks()?.subscribe { rvSearch.smoothScrollUp() }?.addTo(disposables)
 
         ivClear.clicks()
                 .subscribe {
@@ -159,7 +161,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
         reactor.state.map { it.loadingError.asOptional }
                 .distinctUntilChanged()
                 .filterSome()
-                .bind { toast(it.translate(resources)) }
+                .bind { toast(it.asCauseTranslation(resources)) }
                 .addTo(disposables)
     }
 }

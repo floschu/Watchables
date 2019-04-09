@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.ui
+package at.florianschuster.watchables.ui.main
 
 import android.os.Bundle
+import android.view.View
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -34,8 +35,10 @@ import at.florianschuster.watchables.ui.base.BaseActivity
 import at.florianschuster.watchables.all.util.Utils
 import at.florianschuster.watchables.all.util.extensions.main
 import at.florianschuster.watchables.ui.base.BaseReactor
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
+import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.reaktor.android.koin.reactor
@@ -45,11 +48,14 @@ import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
 
-class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReactor> {
+class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReactor>, MainScreenFab {
     private val navController: NavController by lazy { findNavController(R.id.navHost) }
     private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
 
     override val reactor: MainReactor by reactor()
+
+    override val mainScreenFab: FloatingActionButton by lazy { fabScrollDown }
+    override val fabClickedRelay: PublishRelay<View> = PublishRelay.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,9 +63,12 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
         bnv.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
+            main { mainScreenFab.isVisible = false }
             val bnvShouldBeVisible = dest.id !in noSessionNeededDestinations
             if (bnv.isVisible != bnvShouldBeVisible) main { bnv.isVisible = bnvShouldBeVisible }
         }
+
+        attachMainScreenFabClicks()
 
         bind(reactor)
     }
@@ -99,8 +108,8 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 }
 
 class MainReactor(
-    private val prefRepo: PrefRepo,
-    private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val prefRepo: PrefRepo,
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
         initialState = State(),
         initialAction = Action.LoadDialogShownDate
@@ -116,8 +125,8 @@ class MainReactor(
     }
 
     data class State(
-        val loggedIn: Boolean = false,
-        val dialogShownDate: LocalDate = LocalDate.now()
+            val loggedIn: Boolean = false,
+            val dialogShownDate: LocalDate = LocalDate.now()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =

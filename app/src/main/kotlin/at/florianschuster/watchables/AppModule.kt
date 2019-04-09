@@ -24,7 +24,7 @@ import at.florianschuster.watchables.service.FirebaseSessionService
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
-import at.florianschuster.watchables.ui.MainReactor
+import at.florianschuster.watchables.ui.main.MainReactor
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.squareup.leakcanary.LeakCanary

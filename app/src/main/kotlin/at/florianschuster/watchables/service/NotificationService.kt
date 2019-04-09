@@ -31,7 +31,7 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Season
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.ui.MainActivity
+import at.florianschuster.watchables.ui.main.MainActivity
 import at.florianschuster.watchables.ui.watchables.WatchablesFragmentDirections
 import at.florianschuster.watchables.all.util.GlideApp
 import at.florianschuster.watchables.all.util.extensions.asFormattedString

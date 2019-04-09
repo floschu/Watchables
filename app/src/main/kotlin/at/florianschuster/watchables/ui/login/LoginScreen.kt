@@ -36,8 +36,8 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.all.util.extensions.RxTasks
+import at.florianschuster.watchables.all.util.extensions.asCauseTranslation
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
-import at.florianschuster.watchables.all.util.extensions.translate
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -102,7 +102,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
                 .bind {
                     progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
                     if (it is Async.Error) {
-                        toast(it.error.translate(resources))
+                        toast(it.error.asCauseTranslation(resources))
                     }
                 }
                 .addTo(disposables)
@@ -115,7 +115,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         RxTasks.single { GoogleSignIn.getSignedInAccountFromIntent(data) }
                 .map { GoogleAuthProvider.getCredential(it.idToken, null) }
                 .map { LoginReactor.Action.Login(it) }
-                .subscribe(reactor.action::accept) { toast(it.translate(resources)) }
+                .subscribe(reactor.action::accept) { toast(it.asCauseTranslation(resources)) }
                 .addTo(disposables)
     }
 
@@ -134,11 +134,11 @@ class LoginReactor(
     }
 
     sealed class Mutation {
-        data class Login(val result: Async<Boolean>) : Mutation()
+        data class Login(val result: Async<Unit>) : Mutation()
     }
 
     data class State(
-            val result: Async<Boolean> = Async.Uninitialized
+            val result: Async<Unit> = Async.Uninitialized
     )
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
@@ -149,10 +149,10 @@ class LoginReactor(
                     .flatMapCompletable(::createWatchableUserIfNeeded)
                     .doOnComplete { UpdateWatchablesWorker.start() }
                     .doOnComplete { DeleteWatchablesWorker.start() }
-                    .doOnComplete { Router follow LoginRoute.OnLoggedIn }
-                    .toSingleDefault(Mutation.Login(Async.Success(true)))
+                    .toSingleDefault(Mutation.Login(Async.Success(Unit)))
                     .toObservable()
                     .onErrorReturn { Mutation.Login(Async.Error(it)) }
+                    .doOnComplete { Router follow LoginRoute.OnLoggedIn }
             Observable.concat(loading, loginMutation)
         }
     }

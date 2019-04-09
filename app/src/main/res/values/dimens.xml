@@ -8,6 +8,7 @@
 
     <dimen name="detail_media_height">232dp</dimen>
     <dimen name="episode_height">52dp</dimen>
+    <dimen name="bnv_height">56dp</dimen>
 
     <!-- Text -->
     <dimen name="text_size_small">12sp</dimen>

@@ -22,14 +22,17 @@ import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.R
 import com.tailoredapps.androidutil.network.networkresponse.NetworkUnavailableException
 import retrofit2.HttpException
-import timber.log.Timber
 
-fun Throwable.translate(resources: Resources, @StringRes otherRes: Int? = null): String {
-    Timber.e(this)
-    val translation = Cause.fromThrowable(this, otherRes).translation(resources)
-    return when {
-        BuildConfig.DEBUG -> "$translation - ${this::class.java.simpleName}"
-        else -> translation
+fun Throwable.asCause(@StringRes customOnOtherStringResource: Int? = null): Cause {
+    return Cause.fromThrowable(this, customOnOtherStringResource)
+}
+
+fun Throwable.asCauseTranslation(resources: Resources, @StringRes customOnOtherStringResource: Int? = null): String {
+    return asCause(customOnOtherStringResource).translation(resources).let { translation ->
+        when {
+            BuildConfig.DEBUG -> "$translation - ${this::class.java.simpleName}"
+            else -> translation
+        }
     }
 }
 

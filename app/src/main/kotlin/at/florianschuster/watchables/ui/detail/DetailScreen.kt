@@ -34,6 +34,7 @@ import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.Option
 import at.florianschuster.watchables.all.OptionsAdapter
+import at.florianschuster.watchables.all.util.extensions.asCauseTranslation
 import at.florianschuster.watchables.all.util.extensions.asFormattedString
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.AnalyticsService
@@ -43,7 +44,6 @@ import at.florianschuster.watchables.service.remote.WatchablesApi
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
-import at.florianschuster.watchables.all.util.extensions.translate
 import at.florianschuster.watchables.all.util.srcBlurConsumer
 import at.florianschuster.watchables.model.Credits
 import at.florianschuster.watchables.model.Videos
@@ -133,7 +133,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         reactor.state.changesFrom { it.deleteResult }
                 .bind { deleteAsync ->
                     loading.isVisible = deleteAsync.loading
-                    if (deleteAsync is Async.Error) toast(deleteAsync.error.translate(resources))
+                    if (deleteAsync is Async.Error) toast(deleteAsync.error.asCauseTranslation(resources))
                 }
                 .addTo(disposables)
 

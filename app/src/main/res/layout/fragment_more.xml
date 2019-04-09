@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:paddingBottom="@dimen/bnv_height">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -25,7 +27,6 @@
             android:id="@+id/tvHello"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="wrap_content"
-            app:layout_constraintVertical_bias="0.8"
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/margin"
             android:gravity="center"
@@ -35,6 +36,7 @@
             app:layout_constraintEnd_toEndOf="@id/ivBackground"
             app:layout_constraintStart_toStartOf="@id/ivBackground"
             app:layout_constraintTop_toTopOf="@id/ivBackground"
+            app:layout_constraintVertical_bias="0.95"
             tools:text="Hello there Flosch" />
 
         <androidx.recyclerview.widget.RecyclerView
