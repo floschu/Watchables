@@ -27,7 +27,7 @@ import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.emptyMutation
-import at.florianschuster.watchables.AppDirections
+import at.florianschuster.watchables.MainDirections
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
@@ -82,7 +82,7 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
                     val options = navController.currentDestination?.id?.let {
                         navOptions { popUpTo(it) { inclusive = true } }
                     }
-                    navController.navigate(AppDirections.toLogin(), options)
+                    navController.navigate(MainDirections.toLogin(), options)
                 }
                 .addTo(disposables)
 

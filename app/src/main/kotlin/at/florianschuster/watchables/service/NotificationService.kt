@@ -102,7 +102,7 @@ class NotificationService(private val context: Context) {
 
     private fun update(notificationId: Int, name: String, date: LocalDate, watchable: Watchable) {
         val pendingIntent = NavDeepLinkBuilder(context).apply {
-            setGraph(R.navigation.app_nav_graph)
+            setGraph(R.navigation.main)
             setDestination(R.id.detail)
             setArguments(WatchablesFragmentDirections.actionWatchablesToDetail(watchable.id).arguments)
         }.createPendingIntent()
