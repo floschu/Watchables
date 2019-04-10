@@ -72,6 +72,7 @@ import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import org.threeten.bp.LocalDate
 import org.threeten.bp.ZonedDateTime
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 enum class DetailRoute : CoordinatorRoute {
@@ -280,6 +281,7 @@ class DetailReactor(
             }
             val load = additionalInfoLoad
                     .map { Mutation.SetAdditionalData(Async.Success(it)) }
+                    .doOnError(Timber::e)
                     .onErrorReturn { Mutation.SetAdditionalData(Async.Error(it)) }
                     .toObservable()
 
@@ -336,7 +338,11 @@ class DetailReactor(
                             it.videos.results.mapToYoutubeVideos(),
                             it.summary,
                             it.releaseDate,
-                            it.credits.cast.sortedWith(compareBy(Credits.Cast::order)).map(Credits.Cast::name).take(5)
+                            it.credits?.cast
+                                    ?.sortedWith(compareBy(Credits.Cast::order))
+                                    ?.map(Credits.Cast::name)
+                                    ?.take(5)
+                                    ?: emptyList()
                     )
                 }
     }
@@ -351,7 +357,11 @@ class DetailReactor(
                             it.videos.results.mapToYoutubeVideos(),
                             it.summary,
                             it.nextEpisode?.airingDate,
-                            it.credits.cast.sortedWith(compareBy(Credits.Cast::order)).map(Credits.Cast::name).take(5)
+                            it.credits?.cast
+                                    ?.sortedWith(compareBy(Credits.Cast::order))
+                                    ?.map(Credits.Cast::name)
+                                    ?.take(5)
+                                    ?: emptyList()
                     )
                 }
     }

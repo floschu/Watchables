@@ -43,7 +43,7 @@ data class Movie(
     @SerializedName("overview") val summary: String?,
     val status: Status,
     val videos: Videos,
-    val credits: Credits
+    val credits: Credits?
 ) {
     enum class Status {
         @SerializedName("Rumored")
@@ -75,7 +75,7 @@ data class Show(
     val videos: Videos,
     @SerializedName("next_episode_to_air") val nextEpisode: Season.Episode?,
     @SerializedName("last_episode_to_air") val lastEpisode: Season.Episode?,
-    val credits: Credits
+    val credits: Credits?
 ) {
     enum class Status {
         @SerializedName("Returning Series")
