@@ -19,7 +19,6 @@ package at.florianschuster.watchables.ui.search
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
@@ -167,8 +166,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 }
 
 class SearchReactor(
-        private val movieDatabaseApi: MovieDatabaseApi,
-        watchablesApi: WatchablesApi
+    private val movieDatabaseApi: MovieDatabaseApi,
+    watchablesApi: WatchablesApi
 ) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
@@ -189,12 +188,12 @@ class SearchReactor(
     }
 
     data class State(
-            val query: String = "",
-            val page: Int = 1,
-            val allItems: List<Search.SearchItem> = emptyList(),
-            val loading: Boolean = false,
-            val loadingError: Throwable? = null,
-            val addedWatchableIds: List<String> = emptyList()
+        val query: String = "",
+        val page: Int = 1,
+        val allItems: List<Search.SearchItem> = emptyList(),
+        val loading: Boolean = false,
+        val loadingError: Throwable? = null,
+        val addedWatchableIds: List<String> = emptyList()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =

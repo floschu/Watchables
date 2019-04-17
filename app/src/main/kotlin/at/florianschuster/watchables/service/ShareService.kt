@@ -43,8 +43,7 @@ class ActivityShareService(
 ) : ShareService {
     private val resources = activity.resources
 
-    private val cachedName = "shareimage.jpg"
-    private val tempFile: File by lazy { File(activity.cacheDir, cachedName) }
+    private val tempFile: File by lazy { File(activity.cacheDir, "shareimage.jpg") }
 
     override fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.originalPoster)
             .flatMap {
@@ -89,7 +88,7 @@ class ActivityShareService(
                 Intent(Intent.ACTION_SEND).apply {
                     putExtra(Intent.EXTRA_TEXT, intentText)
                     if (imageUri != null) {
-                        setDataAndType(imageUri, activity.contentResolver.getType(imageUri))
+                        type = activity.contentResolver.getType(imageUri)
                         putExtra(Intent.EXTRA_STREAM, imageUri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     } else {

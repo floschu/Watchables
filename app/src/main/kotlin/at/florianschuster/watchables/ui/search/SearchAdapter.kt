@@ -67,7 +67,7 @@ class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHold
         ivImage.srcConsumer(R.drawable.ic_logo).accept(item.thumbnailPoster)
         ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(item.thumbnailPoster)
 
-        ivImage.setOnClickListener { interaction((SearchAdapterInteraction.ImageClick(item.originalPoster))) }
+        ivImage.setOnClickListener { interaction(SearchAdapterInteraction.ImageClick(item.originalPoster)) }
 
         ivAdd.setImageResource(if (item.added) R.drawable.ic_check else R.drawable.ic_add)
         val color = ContextCompat.getColor(containerView.context, if (item.added) R.color.colorAccent else android.R.color.white)

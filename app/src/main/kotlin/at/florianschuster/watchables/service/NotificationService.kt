@@ -44,7 +44,16 @@ import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class NotificationService(private val context: Context) {
+interface NotificationService {
+    fun addWatchableError(id: Int, name: String?)
+    fun push(remote: RemoteMessage.Notification)
+    fun movieUpdate(watchable: Watchable, movie: Movie)
+    fun showUpdate(watchable: Watchable, showName: String, season: Season)
+}
+
+class AndroidNotificationService(
+    private val context: Context
+) : NotificationService {
 
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) generateChannels()
@@ -58,7 +67,7 @@ class NotificationService(private val context: Context) {
 
     // add watchable
 
-    fun addWatchableError(id: Int, name: String?) {
+    override fun addWatchableError(id: Int, name: String?) {
         val notification = NotificationCompat.Builder(context, ADD_CHANNEL_ID).apply {
             setSmallIcon(R.drawable.ic_notification)
             setContentIntent(contentPendingIntent)
@@ -74,7 +83,7 @@ class NotificationService(private val context: Context) {
 
     // push
 
-    fun push(remote: RemoteMessage.Notification) {
+    override fun push(remote: RemoteMessage.Notification) {
         val pushNotification = NotificationCompat.Builder(context, MESSAGE_CHANNEL_ID).apply {
             setSmallIcon(R.drawable.ic_notification)
             setContentTitle(remote.title)
@@ -90,12 +99,12 @@ class NotificationService(private val context: Context) {
 
     // update
 
-    fun movieUpdate(watchable: Watchable, movie: Movie) {
+    override fun movieUpdate(watchable: Watchable, movie: Movie) {
         val date = movie.releaseDate ?: return
         update(movie.id, movie.name, date, watchable)
     }
 
-    fun showUpdate(watchable: Watchable, showName: String, season: Season) {
+    override fun showUpdate(watchable: Watchable, showName: String, season: Season) {
         val date = season.airingDate ?: return
         update(season.id, context.getString(R.string.notification_update_title_show_name, showName, season.index), date, watchable)
     }

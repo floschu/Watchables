@@ -125,8 +125,8 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 }
 
 class LoginReactor(
-        private val watchablesApi: WatchablesApi,
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+    private val watchablesApi: WatchablesApi,
+    private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
 
     sealed class Action {
@@ -138,7 +138,7 @@ class LoginReactor(
     }
 
     data class State(
-            val result: Async<Unit> = Async.Uninitialized
+        val result: Async<Unit> = Async.Uninitialized
     )
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {

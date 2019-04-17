@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.ui.watchables
+package at.florianschuster.watchables.ui.watchables.recyclerview
 
 import android.view.View
 import androidx.annotation.CallSuper

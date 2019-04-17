@@ -28,6 +28,7 @@ import at.florianschuster.watchables.ui.watchables.watchablesModule
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.squareup.leakcanary.LeakCanary
 import at.florianschuster.watchables.all.util.CrashlyticsTree
+import at.florianschuster.watchables.ui.main.mainModule
 import com.google.firebase.analytics.FirebaseAnalytics
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
@@ -55,7 +56,7 @@ class WatchablesApp : Application() {
             androidLogger(Level.INFO)
             modules(
                     appModule, localModule, remoteModule,
-                    loginModule, watchablesModule, searchModule, detailModule, moreModule
+                    mainModule, loginModule, watchablesModule, searchModule, detailModule, moreModule
             )
         }
     }

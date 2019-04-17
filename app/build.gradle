@@ -84,7 +84,7 @@ dependencies {
      * UI
      */
     implementation deps.ui.values()
-    implementation deps.lifecycle.arch
+    implementation deps.lifecycle.extensions
     kapt deps.lifecycle.compiler
     implementation deps.navigation.values()
 

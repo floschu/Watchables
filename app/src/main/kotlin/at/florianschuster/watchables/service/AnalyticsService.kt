@@ -24,33 +24,45 @@ import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.local.PrefRepo
 import com.google.firebase.analytics.FirebaseAnalytics
 
-class AnalyticsService(private val context: Context, private val prefRepo: PrefRepo) {
+interface AnalyticsService {
+    var analyticsEnabled: Boolean
+
+    fun logWatchableAdd(watchable: Watchable)
+    fun logWatchableDelete(watchable: Watchable)
+    fun logWatchableWatched(watchableId: String, watched: Boolean)
+    fun logDeleteWorker(result: Boolean)
+}
+
+class FirebaseAnalyticsService(
+    private val context: Context,
+    private val prefRepo: PrefRepo
+) : AnalyticsService {
     private val analytics = FirebaseAnalytics.getInstance(context)
 
-    var analyticsEnabled: Boolean
+    override var analyticsEnabled: Boolean
         get() = prefRepo.analyticsEnabled
         set(value) {
             analytics.setAnalyticsCollectionEnabled(value)
             prefRepo.analyticsEnabled = value
         }
 
-    fun logWatchableAdd(watchable: Watchable) {
+    override fun logWatchableAdd(watchable: Watchable) {
         if (!analyticsEnabled) return
         analytics.logEvent(context.getString(R.string.analytics_watchable_add_event), getWatchableBundle(watchable))
     }
 
-    fun logWatchableDelete(watchable: Watchable) {
+    override fun logWatchableDelete(watchable: Watchable) {
         if (!analyticsEnabled) return
         analytics.logEvent(context.getString(R.string.analytics_watchable_delete_event), getWatchableBundle(watchable))
     }
 
-    fun logWatchableWatched(watchableId: String, watched: Boolean) {
+    override fun logWatchableWatched(watchableId: String, watched: Boolean) {
         if (!analyticsEnabled) return
         val bundle = bundleOf(FirebaseAnalytics.Param.ITEM_ID to watchableId, "watched" to watched)
         analytics.logEvent(context.getString(R.string.analytics_watchable_watched_event), bundle)
     }
 
-    fun logDeleteWorker(result: Boolean) {
+    override fun logDeleteWorker(result: Boolean) {
         if (!analyticsEnabled) return
         val bundle = bundleOf("result" to result)
         analytics.logEvent(context.getString(R.string.analytics_delete_worker), bundle)

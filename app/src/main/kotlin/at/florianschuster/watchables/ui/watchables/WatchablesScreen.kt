@@ -19,7 +19,6 @@ package at.florianschuster.watchables.ui.watchables
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
-import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.android.koin.coordinator
@@ -44,6 +43,9 @@ import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.ui.main.mainScreenFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
+import at.florianschuster.watchables.ui.watchables.recyclerview.ItemClickType
+import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
+import at.florianschuster.watchables.ui.watchables.recyclerview.containerDiff
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -64,7 +66,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
-import kotlinx.android.synthetic.main.item_option.view.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
@@ -217,9 +218,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-        private val watchablesApi: WatchablesApi,
-        private val analyticsService: AnalyticsService,
-        private val prefRepo: PrefRepo
+    private val watchablesApi: WatchablesApi,
+    private val analyticsService: AnalyticsService,
+    private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = prefRepo.watchableContainerSortingType,
@@ -244,9 +245,9 @@ class WatchablesReactor(
     }
 
     data class State(
-            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-            val sorting: WatchableContainerSortingType,
-            private val onboardingSnackShown: Boolean
+        val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
+        val sorting: WatchableContainerSortingType,
+        private val onboardingSnackShown: Boolean
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0
