@@ -78,3 +78,6 @@ lint/tmp/
 secret.properties
 keystore.jks
 app/google-services.json
+
+## fastlane
+fastlane/*.json

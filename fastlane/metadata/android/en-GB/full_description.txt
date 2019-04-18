@@ -1,0 +1,1 @@
+This app lets you create a watchlist of Movies and TV Shows that you would like to watch.
