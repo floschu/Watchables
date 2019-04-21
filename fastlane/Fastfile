@@ -1,16 +1,11 @@
 default_platform(:android)
 
 platform :android do
-  desc "Runs all the tests"
-  lane :test do
-    gradle(task: "test")
-  end
-
   desc "Builds a new version and pushes it to repository"
   lane :build do
     gradle(task: "test ktlintFormat clean")
-    increment_version_code_and_commit lane:self.runner.current_lane
-    gradle(task: "assembleRelease")
+    ##increment_version_code_and_commit lane:self.runner.current_lane
+    gradle(task: ":app:bundleRelease")
   end
 end
 
