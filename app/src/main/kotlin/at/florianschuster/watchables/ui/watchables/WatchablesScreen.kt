@@ -41,7 +41,7 @@ import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.ui.main.mainScreenFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
-import at.florianschuster.watchables.ui.watchables.recyclerview.ItemClickType
+import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
 import at.florianschuster.watchables.ui.watchables.recyclerview.containerDiff
 import com.google.android.material.snackbar.Snackbar
@@ -103,7 +103,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         mainScreenFabClicks()?.subscribe { rvWatchables.smoothScrollUp() }?.addTo(disposables)
 
-        adapter.itemClick.ofType<ItemClickType.PhotoDetail>()
+        adapter.interaction.ofType<WatchablesAdapterInteraction.PhotoDetail>()
                 .map { it.url.asOptional }
                 .filterSome()
                 .bind(to = requireContext().photoDetailConsumer)
@@ -142,17 +142,17 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         // action
-        adapter.itemClick.ofType<ItemClickType.Watched>()
+        adapter.interaction.ofType<WatchablesAdapterInteraction.Watched>()
                 .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
                 .bind(to = reactor.action)
                 .addTo(disposables)
 
-        adapter.itemClick.ofType<ItemClickType.WatchedEpisode>()
+        adapter.interaction.ofType<WatchablesAdapterInteraction.WatchedEpisode>()
                 .map { WatchablesReactor.Action.SetEpisodeWatched(it.seasonId, it.episode, it.watched) }
                 .bind(to = reactor.action)
                 .addTo(disposables)
 
-        adapter.itemClick.ofType<ItemClickType.Options>()
+        adapter.interaction.ofType<WatchablesAdapterInteraction.Options>()
                 .map { it.watchable }
                 .flatMapCompletable { watchable ->
                     rxDialog(R.style.DialogTheme) {
@@ -170,7 +170,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .subscribe()
                 .addTo(disposables)
 
-        adapter.itemClick.ofType<ItemClickType.EpisodeOptions>()
+        adapter.interaction.ofType<WatchablesAdapterInteraction.EpisodeOptions>()
                 .flatMapMaybe { clickType ->
                     val seasonId = clickType.seasonId
                     rxDialog(R.style.DialogTheme) {
@@ -183,7 +183,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .bind(to = reactor.action)
                 .addTo(disposables)
 
-        adapter.itemClick.ofType<ItemClickType.ItemDetail>()
+        adapter.interaction.ofType<WatchablesAdapterInteraction.ItemDetail>()
                 .map { WatchablesReactor.Action.SelectWatchable(it.watchable.id) }
                 .bind(to = reactor.action)
                 .addTo(disposables)

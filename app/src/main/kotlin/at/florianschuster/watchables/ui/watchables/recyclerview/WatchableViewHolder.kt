@@ -28,53 +28,52 @@ import at.florianschuster.watchables.all.util.srcBlurConsumer
 import at.florianschuster.watchables.all.util.srcConsumer
 import at.florianschuster.watchables.model.thumbnailPoster
 import at.florianschuster.watchables.ui.watchables.WatchableContainer
-import io.reactivex.functions.Consumer
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable.*
 import kotlinx.android.synthetic.main.item_watchable_movie.*
 import kotlinx.android.synthetic.main.item_watchable_show.*
+import androidx.recyclerview.widget.SimpleItemAnimator
 
-sealed class WatchableViewHolder(override val containerView: View, protected val clickConsumer: Consumer<ItemClickType>) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+sealed class WatchableViewHolder(
+        override val containerView: View
+) : RecyclerView.ViewHolder(containerView), LayoutContainer {
 
-    @CallSuper
-    open fun bind(watchableContainer: WatchableContainer) {
-        bindWatchablePayload(watchableContainer.watchable)
-        bindSeasonsPayload(watchableContainer.seasons)
+    fun bind(watchableContainer: WatchableContainer, interaction: (WatchablesAdapterInteraction) -> Unit) {
+        bindWatchablePayload(watchableContainer.watchable, interaction)
+        bindSeasonsPayload(watchableContainer.seasons, interaction)
     }
 
     @CallSuper
-    open fun bindWatchablePayload(watchable: Watchable) {
-        containerView.setOnClickListener { clickConsumer.accept(ItemClickType.ItemDetail(watchable)) }
-        containerView.setOnLongClickListener { clickConsumer.accept(ItemClickType.Options(watchable)); true }
+    open fun bindWatchablePayload(watchable: Watchable, interaction: (WatchablesAdapterInteraction) -> Unit) {
+        containerView.setOnClickListener { interaction(WatchablesAdapterInteraction.ItemDetail(watchable)) }
+        containerView.setOnLongClickListener { interaction(WatchablesAdapterInteraction.Options(watchable)); true }
         tvTitle.text = watchable.name
         tvType.setText(if (watchable.type == Watchable.Type.movie) R.string.display_name_movie else R.string.display_name_show)
         ivImage.clipToOutline = true
         ivImage.srcConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
-        ivImage.setOnClickListener { clickConsumer.accept(ItemClickType.PhotoDetail(watchable.originalPoster)) }
+        ivImage.setOnClickListener { interaction(WatchablesAdapterInteraction.PhotoDetail(watchable.originalPoster)) }
     }
 
-    open fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {}
+    open fun bindSeasonsPayload(seasons: List<WatchableSeason>?, interaction: (WatchablesAdapterInteraction) -> Unit) {}
 
     class Movie(
-        containerView: View,
-        clickConsumer: Consumer<ItemClickType>
-    ) : WatchableViewHolder(containerView, clickConsumer) {
+            containerView: View
+    ) : WatchableViewHolder(containerView) {
 
-        override fun bindWatchablePayload(watchable: Watchable) {
-            super.bindWatchablePayload(watchable)
+        override fun bindWatchablePayload(watchable: Watchable, interaction: (WatchablesAdapterInteraction) -> Unit) {
+            super.bindWatchablePayload(watchable, interaction)
             ivBackgroundMovie.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
             tvWatched.setText(if (watchable.watched) R.string.watchable_watched else R.string.watchable_not_watched)
             ivWatched.isVisible = watchable.watched
-            tvWatched.setOnClickListener { clickConsumer.accept(ItemClickType.Watched(watchable.id, !watchable.watched)) }
+            tvWatched.setOnClickListener { interaction(WatchablesAdapterInteraction.Watched(watchable.id, !watchable.watched)) }
         }
     }
 
     class Show(
-        containerView: View,
-        clickConsumer: Consumer<ItemClickType>,
-        private val viewPool: RecyclerView.RecycledViewPool
-    ) : WatchableViewHolder(containerView, clickConsumer) {
-        private val episodesAdapter = WatchableEpisodeAdapter(clickConsumer::accept)
+            containerView: View,
+            private val viewPool: RecyclerView.RecycledViewPool
+    ) : WatchableViewHolder(containerView) {
+        private val episodesAdapter = WatchableEpisodeAdapter()
 
         private var initialScroll = false
 
@@ -82,15 +81,18 @@ sealed class WatchableViewHolder(override val containerView: View, protected val
             rvEpisodes.apply {
                 adapter = episodesAdapter
                 setRecycledViewPool(viewPool)
+                itemAnimator = null
             }
         }
 
-        override fun bindWatchablePayload(watchable: Watchable) {
-            super.bindWatchablePayload(watchable)
+        override fun bindWatchablePayload(watchable: Watchable, interaction: (WatchablesAdapterInteraction) -> Unit) {
+            super.bindWatchablePayload(watchable, interaction)
             ivBackgroundShow.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
         }
 
-        override fun bindSeasonsPayload(seasons: List<WatchableSeason>?) {
+        override fun bindSeasonsPayload(seasons: List<WatchableSeason>?, interaction: (WatchablesAdapterInteraction) -> Unit) {
+            episodesAdapter.interaction = interaction
+
             val episodes = seasons
                     ?.flatMap { season ->
                         season.episodes.map { WatchableEpisode(season.id, season.index.toString(), it.key, it.value) }

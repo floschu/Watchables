@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
-import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable_show_episode.*
@@ -31,29 +30,44 @@ data class WatchableEpisode(val seasonId: String, val seasonIndex: String, val e
     val id = "${seasonId}S${seasonIndex}E$episode"
 }
 
-class WatchableEpisodeAdapter(
-    private val itemClick: (ItemClickType) -> Unit
-) : ListAdapter<WatchableEpisode, WatchableEpisodeAdapter.WatchableEpisodeViewHolder>(episodesDiff) {
+class WatchableEpisodeAdapter : ListAdapter<WatchableEpisode, WatchableEpisodeViewHolder>(episodesDiff) {
+    var interaction: ((WatchablesAdapterInteraction) -> Unit)? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchableEpisodeViewHolder = WatchableEpisodeViewHolder(parent.inflate(R.layout.item_watchable_show_episode))
-    override fun onBindViewHolder(holder: WatchableEpisodeViewHolder, position: Int) = holder.bind(getItem(position))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchableEpisodeViewHolder =
+            WatchableEpisodeViewHolder(parent.inflate(R.layout.item_watchable_show_episode))
 
-    inner class WatchableEpisodeViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-        fun bind(watchableEpisode: WatchableEpisode) {
-            tvEpisode.text = containerView.resources.getString(R.string.episode_name, watchableEpisode.seasonIndex, watchableEpisode.episode)
-            tvEpisode.setOnClickListener {
-                itemClick.invoke(ItemClickType.WatchedEpisode(watchableEpisode.seasonId, watchableEpisode.episode, !watchableEpisode.watched))
-            }
-            tvEpisode.setOnLongClickListener {
-                itemClick.invoke(ItemClickType.EpisodeOptions(watchableEpisode.seasonId, watchableEpisode.seasonIndex, watchableEpisode.episode))
-                true
-            }
-            ivWatched.visibility(View.INVISIBLE).accept(watchableEpisode.watched)
-        }
-    }
+    override fun onBindViewHolder(holder: WatchableEpisodeViewHolder, position: Int) =
+            holder.bind(getItem(position), interaction)
 }
 
 private val episodesDiff = object : DiffUtil.ItemCallback<WatchableEpisode>() {
     override fun areItemsTheSame(oldItem: WatchableEpisode, newItem: WatchableEpisode): Boolean = oldItem.id == newItem.id
     override fun areContentsTheSame(oldItem: WatchableEpisode, newItem: WatchableEpisode): Boolean = oldItem == newItem
+}
+
+class WatchableEpisodeViewHolder(
+        override val containerView: View
+) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+    fun bind(watchableEpisode: WatchableEpisode, clicks: ((WatchablesAdapterInteraction) -> Unit)? = null) {
+        tvEpisode.text = containerView.resources.getString(R.string.episode_name, watchableEpisode.seasonIndex, watchableEpisode.episode)
+        tvEpisode.setOnClickListener {
+            clicks?.invoke(
+                    WatchablesAdapterInteraction.WatchedEpisode(
+                            watchableEpisode.seasonId,
+                            watchableEpisode.episode,
+                            !watchableEpisode.watched
+                    )
+            )
+        }
+        tvEpisode.setOnLongClickListener {
+            clicks?.invoke(
+                    WatchablesAdapterInteraction.EpisodeOptions(
+                            watchableEpisode.seasonId,
+                            watchableEpisode.seasonIndex,
+                            watchableEpisode.episode)
+            )
+            true
+        }
+        ivWatched.visibility = if (watchableEpisode.watched) View.VISIBLE else View.INVISIBLE
+    }
 }

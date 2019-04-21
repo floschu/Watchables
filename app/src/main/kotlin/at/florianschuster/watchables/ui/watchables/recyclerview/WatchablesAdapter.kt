@@ -29,19 +29,19 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tailoredapps.androidutil.ui.extensions.inflate
 
-sealed class ItemClickType {
-    data class Options(val watchable: Watchable) : ItemClickType()
-    data class PhotoDetail(val url: String?) : ItemClickType()
-    data class ItemDetail(val watchable: Watchable) : ItemClickType()
-    data class Watched(val watchableId: String, val watched: Boolean) : ItemClickType()
-    data class WatchedEpisode(val seasonId: String, val episode: String, val watched: Boolean) : ItemClickType()
-    data class EpisodeOptions(val seasonId: String, val seasonIndex: String, val episodeIndex: String) : ItemClickType()
+sealed class WatchablesAdapterInteraction {
+    data class Options(val watchable: Watchable) : WatchablesAdapterInteraction()
+    data class PhotoDetail(val url: String?) : WatchablesAdapterInteraction()
+    data class ItemDetail(val watchable: Watchable) : WatchablesAdapterInteraction()
+    data class Watched(val watchableId: String, val watched: Boolean) : WatchablesAdapterInteraction()
+    data class WatchedEpisode(val seasonId: String, val episode: String, val watched: Boolean) : WatchablesAdapterInteraction()
+    data class EpisodeOptions(val seasonId: String, val seasonIndex: String, val episodeIndex: String) : WatchablesAdapterInteraction()
 }
 
 class WatchablesAdapter(
     private val resources: Resources
 ) : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
-    val itemClick = PublishRelay.create<ItemClickType>()
+    val interaction = PublishRelay.create<WatchablesAdapterInteraction>()
 
     var data: List<WatchableContainer> = emptyList()
         private set
@@ -58,19 +58,23 @@ class WatchablesAdapter(
     override fun getItemViewType(position: Int): Int = data[position].watchable.type.ordinal
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WatchableViewHolder = when (viewType) {
-        Watchable.Type.movie.ordinal -> WatchableViewHolder.Movie(parent.inflate(R.layout.item_watchable_movie), itemClick)
-        else -> WatchableViewHolder.Show(parent.inflate(R.layout.item_watchable_show), itemClick, viewPool)
+        Watchable.Type.movie.ordinal -> WatchableViewHolder.Movie(parent.inflate(R.layout.item_watchable_movie))
+        else -> WatchableViewHolder.Show(parent.inflate(R.layout.item_watchable_show), viewPool)
     }
 
-    override fun onBindViewHolder(holder: WatchableViewHolder, position: Int) = holder.bind(data[position])
+    override fun onBindViewHolder(holder: WatchableViewHolder, position: Int) = holder.bind(data[position], interaction::accept)
 
     override fun onBindViewHolder(holder: WatchableViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) return onBindViewHolder(holder, position)
         (payloads[0] as? Bundle)?.let { bundle ->
             bundle.keySet()?.forEach {
                 when {
-                    it == DIFF_WATCHABLE && bundle.getBoolean(it) -> holder.bindWatchablePayload(data[position].watchable)
-                    it == DIFF_SEASONS && bundle.getBoolean(it) -> holder.bindSeasonsPayload(data[position].seasons)
+                    it == DIFF_WATCHABLE && bundle.getBoolean(it) -> {
+                        holder.bindWatchablePayload(data[position].watchable, interaction::accept)
+                    }
+                    it == DIFF_SEASONS && bundle.getBoolean(it) -> {
+                        holder.bindSeasonsPayload(data[position].seasons, interaction::accept)
+                    }
                 }
             }
         }
