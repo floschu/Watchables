@@ -46,7 +46,7 @@ private val episodesDiff = object : DiffUtil.ItemCallback<WatchableEpisode>() {
 }
 
 class WatchableEpisodeViewHolder(
-        override val containerView: View
+    override val containerView: View
 ) : RecyclerView.ViewHolder(containerView), LayoutContainer {
     fun bind(watchableEpisode: WatchableEpisode, clicks: ((WatchablesAdapterInteraction) -> Unit)? = null) {
         tvEpisode.text = containerView.resources.getString(R.string.episode_name, watchableEpisode.seasonIndex, watchableEpisode.episode)

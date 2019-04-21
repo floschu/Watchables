@@ -108,8 +108,8 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 }
 
 class MainReactor(
-        private val prefRepo: PrefRepo,
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+    private val prefRepo: PrefRepo,
+    private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
         initialState = State(),
         initialAction = Action.LoadDialogShownDate
@@ -125,8 +125,8 @@ class MainReactor(
     }
 
     data class State(
-            val loggedIn: Boolean = false,
-            val dialogShownDate: LocalDate = LocalDate.now()
+        val loggedIn: Boolean = false,
+        val dialogShownDate: LocalDate = LocalDate.now()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {

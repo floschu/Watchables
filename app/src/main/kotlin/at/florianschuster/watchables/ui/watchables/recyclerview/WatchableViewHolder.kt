@@ -32,10 +32,9 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable.*
 import kotlinx.android.synthetic.main.item_watchable_movie.*
 import kotlinx.android.synthetic.main.item_watchable_show.*
-import androidx.recyclerview.widget.SimpleItemAnimator
 
 sealed class WatchableViewHolder(
-        override val containerView: View
+    override val containerView: View
 ) : RecyclerView.ViewHolder(containerView), LayoutContainer {
 
     fun bind(watchableContainer: WatchableContainer, interaction: (WatchablesAdapterInteraction) -> Unit) {
@@ -57,7 +56,7 @@ sealed class WatchableViewHolder(
     open fun bindSeasonsPayload(seasons: List<WatchableSeason>?, interaction: (WatchablesAdapterInteraction) -> Unit) {}
 
     class Movie(
-            containerView: View
+        containerView: View
     ) : WatchableViewHolder(containerView) {
 
         override fun bindWatchablePayload(watchable: Watchable, interaction: (WatchablesAdapterInteraction) -> Unit) {
@@ -70,8 +69,8 @@ sealed class WatchableViewHolder(
     }
 
     class Show(
-            containerView: View,
-            private val viewPool: RecyclerView.RecycledViewPool
+        containerView: View,
+        private val viewPool: RecyclerView.RecycledViewPool
     ) : WatchableViewHolder(containerView) {
         private val episodesAdapter = WatchableEpisodeAdapter()
 

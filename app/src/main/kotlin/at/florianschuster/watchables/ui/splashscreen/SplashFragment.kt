@@ -18,7 +18,6 @@ package at.florianschuster.watchables.ui.splashscreen
 
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import at.florianschuster.watchables.R
@@ -26,12 +25,8 @@ import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.ui.base.BaseFragment
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
-import io.reactivex.Observable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.fragment_splash.*
 import org.koin.android.ext.android.inject
-import java.util.concurrent.TimeUnit
 
 class SplashFragment : BaseFragment(R.layout.fragment_splash) {
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()

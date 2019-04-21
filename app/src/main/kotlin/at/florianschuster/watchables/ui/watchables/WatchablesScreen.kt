@@ -218,9 +218,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-        private val watchablesDataSource: WatchablesDataSource,
-        private val analyticsService: AnalyticsService,
-        private val prefRepo: PrefRepo
+    private val watchablesDataSource: WatchablesDataSource,
+    private val analyticsService: AnalyticsService,
+    private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = prefRepo.watchableContainerSortingType,
@@ -245,9 +245,9 @@ class WatchablesReactor(
     }
 
     data class State(
-            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-            val sorting: WatchableContainerSortingType,
-            private val onboardingSnackShown: Boolean
+        val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
+        val sorting: WatchableContainerSortingType,
+        private val onboardingSnackShown: Boolean
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0

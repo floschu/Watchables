@@ -226,10 +226,10 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 }
 
 class DetailReactor(
-        private val itemId: String,
-        private val movieDatabaseApi: MovieDatabaseApi,
-        private val watchablesDataSource: WatchablesDataSource,
-        private val analyticsService: AnalyticsService
+    private val itemId: String,
+    private val movieDatabaseApi: MovieDatabaseApi,
+    private val watchablesDataSource: WatchablesDataSource,
+    private val analyticsService: AnalyticsService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
         State()) {
 
@@ -247,17 +247,17 @@ class DetailReactor(
     }
 
     data class State(
-            val watchable: Watchable? = null,
-            val additionalData: Async<AdditionalData> = Async.Uninitialized,
-            val deleteResult: Async<Unit> = Async.Uninitialized
+        val watchable: Watchable? = null,
+        val additionalData: Async<AdditionalData> = Async.Uninitialized,
+        val deleteResult: Async<Unit> = Async.Uninitialized
     ) {
         data class AdditionalData(
-                val website: String? = null,
-                val imdbId: String? = null,
-                val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
-                val summary: String? = null,
-                val airing: LocalDate? = null,
-                val actors: List<String> = emptyList()
+            val website: String? = null,
+            val imdbId: String? = null,
+            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
+            val summary: String? = null,
+            val airing: LocalDate? = null,
+            val actors: List<String> = emptyList()
         )
     }
 
