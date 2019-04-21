@@ -6,12 +6,11 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Deploy a new version to the Google Play"
-  lane :deploy do
+  desc "Builds a new version and pushes it to repository"
+  lane :build do
     gradle(task: "test ktlintFormat clean")
     increment_version_code_and_commit lane:self.runner.current_lane
     gradle(task: "assembleRelease")
-    upload_to_play_store
   end
 end
 
