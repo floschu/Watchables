@@ -42,5 +42,3 @@ data class WatchableSeason(
     val posterPath: String? = null,
     val episodes: Map<String, Boolean> = emptyMap()
 ) : FirestoreObject()
-
-data class WatchableContainer(val watchable: Watchable, val seasons: List<WatchableSeason>?)

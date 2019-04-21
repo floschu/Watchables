@@ -40,7 +40,7 @@ import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.service.remote.WatchablesApi
+import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
@@ -115,19 +115,11 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     }
 
     override fun bind(reactor: DetailReactor) {
-        reactor.state.changesFrom { it.watchable }
-                .bind { watchableAsync ->
-                    loading.isVisible = watchableAsync.loading
-                    when (watchableAsync) {
-                        is Async.Success -> {
-                            tvTitle.text = watchableAsync.element.name
-                            ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(watchableAsync.element.thumbnailPoster)
-                        }
-                        is Async.Error -> {
-                            toast(R.string.detail_error_watchable)
-                            reactor.action.accept(DetailReactor.Action.Dismiss)
-                        }
-                    }
+        reactor.state.changesFrom { it.watchable.asOptional }
+                .filterSome()
+                .bind { watchable ->
+                    tvTitle.text = watchable.name
+                    ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
                 }
                 .addTo(disposables)
 
@@ -171,7 +163,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .takeUntil { it.first == 0 && it.second == 0 }
 
-        val watchablePoster = reactor.state.changesFrom { it.watchable().asOptional }
+        val watchablePoster = reactor.state.changesFrom { it.watchable.asOptional }
                 .filterSome()
                 .map { DetailMediaItem.Poster(it.thumbnailPoster, it.originalPoster) }
 
@@ -193,7 +185,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         listOfNotNull(
                 reactor.currentState.additionalData()?.website?.let(::createOpenWebOption),
                 reactor.currentState.additionalData()?.imdbId?.let(::createOopenImdbOption),
-                reactor.currentState.watchable()?.let(::createShareOption),
+                reactor.currentState.watchable?.let(::createShareOption),
                 deleteOption
         ).also(::submitList)
     }
@@ -234,11 +226,12 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 }
 
 class DetailReactor(
-    private val itemId: String,
-    private val movieDatabaseApi: MovieDatabaseApi,
-    private val watchablesApi: WatchablesApi,
-    private val analyticsService: AnalyticsService
-) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(State()) {
+        private val itemId: String,
+        private val movieDatabaseApi: MovieDatabaseApi,
+        private val watchablesDataSource: WatchablesDataSource,
+        private val analyticsService: AnalyticsService
+) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
+        State()) {
 
     sealed class Action {
         data class LoadAdditionalData(val watchable: Watchable) : Action()
@@ -249,27 +242,41 @@ class DetailReactor(
 
     sealed class Mutation {
         data class DeleteWatchableResult(val deleteResult: Async<Unit>) : Mutation()
-        data class SetWatchable(val watchable: Async<Watchable>) : Mutation()
+        data class SetWatchable(val watchable: Watchable) : Mutation()
         data class SetAdditionalData(val additionalData: Async<State.AdditionalData>) : Mutation()
     }
 
     data class State(
-        val watchable: Async<Watchable> = Async.Uninitialized,
-        val additionalData: Async<AdditionalData> = Async.Uninitialized,
-        val deleteResult: Async<Unit> = Async.Uninitialized
+            val watchable: Watchable? = null,
+            val additionalData: Async<AdditionalData> = Async.Uninitialized,
+            val deleteResult: Async<Unit> = Async.Uninitialized
     ) {
         data class AdditionalData(
-            val website: String? = null,
-            val imdbId: String? = null,
-            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
-            val summary: String? = null,
-            val airing: LocalDate? = null,
-            val actors: List<String> = emptyList()
+                val website: String? = null,
+                val imdbId: String? = null,
+                val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
+                val summary: String? = null,
+                val airing: LocalDate? = null,
+                val actors: List<String> = emptyList()
         )
     }
 
-    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
-            Observable.merge(mutation, loadDataMutation)
+    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
+        val watchableMutation = watchablesDataSource.watchableObservable(itemId)
+                .toObservable()
+                .onErrorResumeNext { t: Throwable ->
+                    Timber.e(t)
+                    Observable.empty<Watchable>()
+                }
+                .map { Mutation.SetWatchable(it) }
+                .switchMap { watchableMutation ->
+                    Observable.concat(
+                            watchableMutation.observable,
+                            mutate(Action.LoadAdditionalData(watchableMutation.watchable))
+                    )
+                }
+        return Observable.merge(mutation, watchableMutation)
+    }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.LoadAdditionalData -> {
@@ -288,14 +295,14 @@ class DetailReactor(
             Observable.concat(loading, load)
         }
         is Action.DeleteWatchable -> {
-            watchablesApi.setWatchableDeleted(itemId)
-                    .doOnComplete { currentState.watchable()?.let(analyticsService::logWatchableDelete) }
+            watchablesDataSource.setWatchableDeleted(itemId)
+                    .doOnComplete { currentState.watchable?.let(analyticsService::logWatchableDelete) }
                     .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
                     .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
                     .doOnComplete { Router follow DetailRoute.Pop }
         }
         is Action.SetWatched -> {
-            watchablesApi.updateWatchable(itemId, action.watched).toObservable()
+            watchablesDataSource.updateWatchable(itemId, action.watched).toObservable()
         }
         is Action.Dismiss -> {
             emptyMutation { Router follow DetailRoute.Pop }
@@ -307,26 +314,6 @@ class DetailReactor(
         is Mutation.SetWatchable -> previousState.copy(watchable = mutation.watchable)
         is Mutation.SetAdditionalData -> previousState.copy(additionalData = mutation.additionalData)
     }
-
-    private val loadDataMutation: Observable<out Mutation>
-        get() {
-            val loading = Mutation.SetWatchable(Async.Loading).observable
-            val watchable = watchablesApi.watchable(itemId)
-                    .map { Mutation.SetWatchable(Async.Success(it)) }
-                    .onErrorReturn { Mutation.SetWatchable(Async.Error(it)) }
-                    .toObservable()
-                    .switchMap { watchableMutation ->
-                        if (watchableMutation.watchable is Async.Success) {
-                            Observable.concat(
-                                    watchableMutation.observable,
-                                    mutate(Action.LoadAdditionalData(watchableMutation.watchable.element))
-                            )
-                        } else {
-                            watchableMutation.observable
-                        }
-                    }
-            return Observable.concat(loading, watchable)
-        }
 
     private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {
         return movieDatabaseApi

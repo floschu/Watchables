@@ -32,7 +32,7 @@ import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.service.remote.WatchablesApi
+import at.florianschuster.watchables.service.WatchablesDataSource
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.Completable
@@ -47,13 +47,13 @@ class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) :
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
     private val notificationService: NotificationService by inject()
     private val movieDatabaseApi: MovieDatabaseApi by inject()
-    private val watchablesApi: WatchablesApi by inject()
+    private val watchablesDataSource: WatchablesDataSource by inject()
 
     override fun doWork(): Result =
             if (sessionService.user.ignoreElement().blockingGet() != null) {
                 Result.failure()
             } else {
-                val error = watchablesApi.watchablesToUpdate
+                val error = watchablesDataSource.watchablesToUpdate
                         .toFlowable()
                         .flatMapIterable { it }
                         .flatMapCompletable {
@@ -71,19 +71,19 @@ class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             .doOnSuccess { notificationService.movieUpdate(watchable, it) }
             .map(Movie::convertToWatchable)
             .map { it.apply { watched = watchable.watched } }
-            .flatMap(watchablesApi::createWatchable)
+            .flatMap(watchablesDataSource::createWatchable)
             .ignoreElement()
 
     private fun updateShowSeasons(watchable: Watchable): Completable = movieDatabaseApi
             .show(watchable.id.toInt())
             .map { it to it.convertToWatchable() }
             .flatMapCompletable { (show, updatedWatchable) ->
-                watchablesApi.createWatchable(updatedWatchable)
+                watchablesDataSource.createWatchable(updatedWatchable)
                         .ignoreElement()
                         .andThen((1..show.seasons).reversed().toFlowable())
                         .flatMapSingle { movieDatabaseApi.season(show.id, it) }
                         .flatMapCompletable { season ->
-                            watchablesApi.season("${season.id}")
+                            watchablesDataSource.season("${season.id}")
                                     .ignoreElement()
                                     .onErrorResumeNext {
                                         if (it is NoSuchElementException) addSeason(updatedWatchable.id, season)
@@ -95,7 +95,7 @@ class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) :
 
     private fun addSeason(watchableId: String, season: Season): Completable =
             Single.just(season.convertToWatchableSeason(watchableId))
-                    .flatMap(watchablesApi::createSeason)
+                    .flatMap(watchablesDataSource::createSeason)
                     .ignoreElement()
 
     companion object {

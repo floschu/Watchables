@@ -33,7 +33,7 @@ import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.service.remote.WatchablesApi
+import at.florianschuster.watchables.service.WatchablesDataSource
 import io.reactivex.Completable
 import io.reactivex.rxkotlin.toFlowable
 import org.koin.core.KoinComponent
@@ -42,7 +42,7 @@ import timber.log.Timber
 
 class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
     private val movieDatabaseApi: MovieDatabaseApi by inject()
-    private val watchablesApi: WatchablesApi by inject()
+    private val watchablesDataSource: WatchablesDataSource by inject()
     private val analyticsService: AnalyticsService by inject()
     private val notificationService: NotificationService by inject()
 
@@ -56,7 +56,7 @@ class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Wor
             Result.failure()
         } else {
             val searchType = Search.SearchItem.Type.values()[type]
-            val error = watchablesApi.watchable("$id")
+            val error = watchablesDataSource.watchable("$id")
                     .flatMapCompletable {
                         if (it.deleted || it.status.needToUpdate) create(searchType, id)
                         else Completable.complete()
@@ -80,23 +80,23 @@ class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Wor
 
     private fun addMovie(id: Int): Completable = movieDatabaseApi.movie(id)
             .map(Movie::convertToWatchable)
-            .flatMap(watchablesApi::createWatchable)
+            .flatMap(watchablesDataSource::createWatchable)
             .doOnSuccess(analyticsService::logWatchableAdd)
             .ignoreElement()
 
     private fun addShow(id: Int): Completable = movieDatabaseApi.show(id)
             .map { it to it.convertToWatchable() }
             .flatMapCompletable { (show, watchable) ->
-                watchablesApi.createWatchable(watchable)
+                watchablesDataSource.createWatchable(watchable)
                         .doOnSuccess(analyticsService::logWatchableAdd)
                         .ignoreElement()
                         .andThen((1..show.seasons).toFlowable())
                         .flatMapSingle { movieDatabaseApi.season(show.id, it) }
                         .map { it.convertToWatchableSeason(watchable.id) }
-                        .flatMapSingle(watchablesApi::createSeason)
+                        .flatMapSingle(watchablesDataSource::createSeason)
                         .ignoreElements()
                         .onErrorResumeNext {
-                            watchablesApi.setWatchableDeleted(watchable.id)
+                            watchablesDataSource.setWatchableDeleted(watchable.id)
                                     .onErrorComplete()
                                     .andThen(Completable.error(it))
                         }

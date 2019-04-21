@@ -8,7 +8,25 @@ platform :android do
 
   desc "Deploy a new version to the Google Play"
   lane :deploy do
-    gradle(task: "clean assembleRelease")
+    gradle(task: "test clean")
+    increment_version_code_and_commit lane:self.runner.current_lane
+    gradle(task: "assembleRelease")
     upload_to_play_store
   end
+end
+
+desc "Tags the current commit with the tag name"
+private_lane :tagCurrentVersion do |options|
+  add_git_tag(tag: get_tag_name(options))
+end
+
+def increment_version_code_and_commit(options)
+  android_set_version_code
+  git_commit(path: ".", message: "New Version: " + get_tag_name(options))
+  tagCurrentVersion options
+  push_to_git_remote(remote_branch: git_branch)
+end
+
+def get_tag_name(options)
+  return "v" + android_get_version_name + "-b" + android_get_version_code + "-#{options[:lane]}"
 end

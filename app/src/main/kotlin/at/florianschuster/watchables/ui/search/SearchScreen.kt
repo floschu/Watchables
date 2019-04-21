@@ -33,7 +33,7 @@ import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.service.remote.WatchablesApi
+import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
@@ -113,7 +113,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
                 .ofType<SearchAdapterInteraction.ImageClick>()
                 .map { it.imageUrl.asOptional }
                 .filterSome()
-                .bind(requireContext().photoDetailConsumer)
+                .bind(to = requireContext().photoDetailConsumer)
                 .addTo(disposables)
 
         etSearch.textChanges()
@@ -143,18 +143,18 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         reactor.state.changesFrom { it.query }
                 .map { it.isNotEmpty() }
-                .bind(ivClear.visibility())
+                .bind(to = ivClear.visibility())
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.allItems }
                 .doOnNext(adapter::submitList)
                 .skip(1) // initial state always empty
                 .map { it.isEmpty() }
-                .bind(emptyLayout.visibility())
+                .bind(to = emptyLayout.visibility())
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.loading }
-                .bind(progressSearch.visibility())
+                .bind(to = progressSearch.visibility())
                 .addTo(disposables)
 
         reactor.state.map { it.loadingError.asOptional }
@@ -166,8 +166,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 }
 
 class SearchReactor(
-    private val movieDatabaseApi: MovieDatabaseApi,
-    watchablesApi: WatchablesApi
+        private val movieDatabaseApi: MovieDatabaseApi,
+        private val watchablesDataSource: WatchablesDataSource
 ) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
@@ -188,16 +188,22 @@ class SearchReactor(
     }
 
     data class State(
-        val query: String = "",
-        val page: Int = 1,
-        val allItems: List<Search.SearchItem> = emptyList(),
-        val loading: Boolean = false,
-        val loadingError: Throwable? = null,
-        val addedWatchableIds: List<String> = emptyList()
+            val query: String = "",
+            val page: Int = 1,
+            val allItems: List<Search.SearchItem> = emptyList(),
+            val loading: Boolean = false,
+            val loadingError: Throwable? = null,
+            val addedWatchableIds: List<String> = emptyList()
     )
 
-    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
-            Observable.merge(watchablesMutation, mutation)
+    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
+        val watchablesMutation = watchablesDataSource.watchablesObservable
+                .doOnError(Timber::e).onErrorReturn { emptyList() }
+                .map { it.map(Watchable::id) }
+                .map(Mutation::SetAddedWatchableIds)
+                .toObservable()
+        return Observable.merge(watchablesMutation, mutation)
+    }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.UpdateQuery -> {
@@ -263,12 +269,6 @@ class SearchReactor(
                 .toObservable()
                 .takeUntil(this.action.filter { it is Action.UpdateQuery })
     }
-
-    private val watchablesMutation = watchablesApi.watchablesObservable
-            .doOnError(Timber::e).onErrorReturn { emptyList() }
-            .map { it.map(Watchable::id) }
-            .map(Mutation::SetAddedWatchableIds)
-            .toObservable()
 
     private fun List<Search.SearchItem>.mapAdded(addedIds: List<String>): List<Search.SearchItem> = map { item ->
         val added = addedIds.any { it == "${item.id}" }

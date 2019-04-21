@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.service.remote
+package at.florianschuster.watchables.service
 
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableSeason
-import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.all.util.extensions.RxTasks
 import at.florianschuster.watchables.all.util.extensions.createObject
 import at.florianschuster.watchables.all.util.extensions.localObject
@@ -41,7 +40,7 @@ import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
 
-interface WatchablesApi {
+interface WatchablesDataSource {
     val watchableUser: Single<WatchableUser>
     val watchableUserObservable: Flowable<WatchableUser>
     fun createUser(user: WatchableUser): Completable
@@ -67,9 +66,9 @@ interface WatchablesApi {
     fun deleteWatchableSeason(seasonId: String): Completable
 }
 
-class FirebaseWatchablesApi(
+class FirebaseWatchablesDataSource(
     private val sessionService: SessionService<FirebaseUser, AuthCredential>
-) : WatchablesApi {
+) : WatchablesDataSource {
     private val fireStore = FirebaseFirestore.getInstance()
 
     private val dbVersion = "v2"

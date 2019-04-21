@@ -108,8 +108,8 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 }
 
 class MainReactor(
-    private val prefRepo: PrefRepo,
-    private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val prefRepo: PrefRepo,
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
         initialState = State(),
         initialAction = Action.LoadDialogShownDate
@@ -125,12 +125,16 @@ class MainReactor(
     }
 
     data class State(
-        val loggedIn: Boolean = false,
-        val dialogShownDate: LocalDate = LocalDate.now()
+            val loggedIn: Boolean = false,
+            val dialogShownDate: LocalDate = LocalDate.now()
     )
 
-    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> =
-            Observable.merge(mutation, sessionMutation)
+    override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
+        val sessionMutation = sessionService.session
+                .map { Mutation.SetLoggedIn(it.loggedIn) }
+                .toObservable()
+        return Observable.merge(mutation, sessionMutation)
+    }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.LoadDialogShownDate -> {
@@ -145,9 +149,4 @@ class MainReactor(
         is Mutation.SetLoggedIn -> previousState.copy(loggedIn = mutation.loggedIn)
         is Mutation.SetDialogShownDate -> previousState.copy(dialogShownDate = mutation.dialogShownDate)
     }
-
-    private val sessionMutation: Observable<out Mutation>
-        get() = sessionService.session
-                .map { Mutation.SetLoggedIn(it.loggedIn) }
-                .toObservable()
 }

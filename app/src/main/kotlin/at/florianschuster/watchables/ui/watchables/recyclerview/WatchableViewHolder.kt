@@ -22,12 +22,12 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.WatchableContainer
 import at.florianschuster.watchables.model.WatchableSeason
 import at.florianschuster.watchables.model.originalPoster
 import at.florianschuster.watchables.all.util.srcBlurConsumer
 import at.florianschuster.watchables.all.util.srcConsumer
 import at.florianschuster.watchables.model.thumbnailPoster
+import at.florianschuster.watchables.ui.watchables.WatchableContainer
 import io.reactivex.functions.Consumer
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_watchable.*

@@ -26,7 +26,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.SessionService
-import at.florianschuster.watchables.service.remote.WatchablesApi
+import at.florianschuster.watchables.service.WatchablesDataSource
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.rxkotlin.toFlowable
@@ -37,24 +37,24 @@ import java.util.concurrent.TimeUnit
 
 class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
-    private val watchablesApi: WatchablesApi by inject()
+    private val watchablesDataSource: WatchablesDataSource by inject()
     private val analyticsService: AnalyticsService by inject()
 
     override fun doWork(): Result =
             if (sessionService.user.ignoreElement().blockingGet() != null) {
                 Result.failure()
             } else {
-                val errorWatchablesDelete = watchablesApi.watchablesToDelete
+                val errorWatchablesDelete = watchablesDataSource.watchablesToDelete
                         .flatMapPublisher { it.toFlowable() }
                         .map { it.id }
-                        .flatMapCompletable(watchablesApi::deleteWatchable)
+                        .flatMapCompletable(watchablesDataSource::deleteWatchable)
                         .doOnError(Timber::e)
                         .blockingGet()
 
-                val errorWatchableSeasonsDelete = watchablesApi.watchableSeasonsToDelete
+                val errorWatchableSeasonsDelete = watchablesDataSource.watchableSeasonsToDelete
                         .flatMapPublisher { it.toFlowable() }
                         .map { it.id }
-                        .flatMapCompletable(watchablesApi::deleteWatchableSeason)
+                        .flatMapCompletable(watchablesDataSource::deleteWatchableSeason)
                         .doOnError(Timber::e)
                         .blockingGet()
 

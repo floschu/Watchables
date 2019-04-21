@@ -18,7 +18,6 @@ package at.florianschuster.watchables.ui.watchables
 
 import androidx.annotation.StringRes
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.model.WatchableContainer
 
 enum class WatchableContainerSortingType(val comparator: Comparator<in WatchableContainer>) {
     ByWatched(compareBy({ it.watchable.watched }, { it.watchable.name })),

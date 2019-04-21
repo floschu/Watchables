@@ -31,7 +31,7 @@ import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.SessionService
-import at.florianschuster.watchables.service.remote.WatchablesApi
+import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseReactor
@@ -125,8 +125,8 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 }
 
 class LoginReactor(
-    private val watchablesApi: WatchablesApi,
-    private val sessionService: SessionService<FirebaseUser, AuthCredential>
+        private val watchablesDataSource: WatchablesDataSource,
+        private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
 
     sealed class Action {
@@ -162,9 +162,9 @@ class LoginReactor(
     }
 
     private fun createWatchableUserIfNeeded(user: FirebaseUser): Completable =
-            watchablesApi.watchableUser.ignoreElement().onErrorResumeNext {
+            watchablesDataSource.watchableUser.ignoreElement().onErrorResumeNext {
                 if (it is NoSuchElementException) {
-                    watchablesApi.createUser(WatchableUser(0).apply { id = user.uid })
+                    watchablesDataSource.createUser(WatchableUser(0).apply { id = user.uid })
                 } else {
                     Completable.error(it)
                 }

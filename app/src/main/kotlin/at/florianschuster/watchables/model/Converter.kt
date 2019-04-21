@@ -58,12 +58,3 @@ fun Season.convertToWatchableSeason(watchableId: String): WatchableSeason = Watc
         image,
         episodes.sortedBy { it.episodeIndex }.associate { "${it.episodeIndex}" to false }
 ).apply { id = "${this@convertToWatchableSeason.id}" }
-
-fun Watchable.convertToWatchableContainer(seasons: List<WatchableSeason>): WatchableContainer = when {
-    type == Watchable.Type.movie || seasons.isEmpty() -> WatchableContainer(this, null)
-    else -> {
-        val seasonsWatched = seasons.all { it.episodes.all { it.value } }
-        if (watched == seasonsWatched) WatchableContainer(this, seasons)
-        else WatchableContainer(this.apply { watched = seasonsWatched }, seasons)
-    }
-}

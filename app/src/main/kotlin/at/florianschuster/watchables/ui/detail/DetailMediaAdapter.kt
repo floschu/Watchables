@@ -69,7 +69,9 @@ class DetailMediaAdapter : ListAdapter<DetailMediaItem, DetailMediaAdapter.Detai
             fun bind(poster: DetailMediaItem.Poster) {
                 ivImage.clipToOutline = true
                 ivImage.srcConsumer(R.drawable.ic_logo).accept(poster.thumbnail)
-                ivImage.setOnClickListener { containerView.context.photoDetailConsumer.accept(poster.original) }
+                poster.original?.let { originalPoster ->
+                    ivImage.setOnClickListener { containerView.context.photoDetailConsumer.accept(originalPoster) }
+                }
             }
         }
 

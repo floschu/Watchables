@@ -21,6 +21,8 @@ import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.all.util.gson.LocalDateTypeAdapter
 import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
+import at.florianschuster.watchables.service.FirebaseWatchablesDataSource
+import at.florianschuster.watchables.service.WatchablesDataSource
 import com.google.gson.GsonBuilder
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
@@ -35,7 +37,6 @@ val remoteModule = module {
     single { provideGson() }
     single { provideOkHttpClient() }
     single { provideMovieDatabaseApi(get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
-    single { FirebaseWatchablesApi(get()) as WatchablesApi }
 }
 
 private fun provideGson(): Gson = GsonBuilder().apply {

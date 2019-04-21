@@ -38,11 +38,11 @@ import java.security.MessageDigest
 
 private const val ARG_PHOTO_URL = "photo.url"
 
-val Context.photoDetailConsumer: Consumer<String?>
+val Context.photoDetailConsumer: Consumer<String>
     get() = Consumer {
-        if (this != null && it != null) {
-            startActivity(Intent(this, PhotoDetailActivity::class.java).extras(ARG_PHOTO_URL to it))
-        }
+        Intent(this, PhotoDetailActivity::class.java)
+                .extras(ARG_PHOTO_URL to it)
+                .let(::startActivity)
     }
 
 // https://github.com/saket/Flick/
