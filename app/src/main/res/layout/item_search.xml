@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary"
+    android:clipChildren="false"
     android:foreground="?attr/selectableItemBackground">
 
     <ImageView
@@ -81,10 +82,9 @@
         android:id="@+id/ivAdd"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:layout_margin="@dimen/padding"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:paddingStart="@dimen/padding"
-        android:paddingEnd="@dimen/padding"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:paddingStart="@dimen/padding_button"
+        android:paddingEnd="@dimen/padding_button"
         android:src="@drawable/ic_add"
         android:tint="#fff"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -42,7 +42,6 @@ import io.reactivex.schedulers.Schedulers
 
 interface WatchablesDataSource {
     val watchableUser: Single<WatchableUser>
-    val watchableUserObservable: Flowable<WatchableUser>
     fun createUser(user: WatchableUser): Completable
 
     val watchablesObservable: Flowable<List<Watchable>>
@@ -89,12 +88,6 @@ class FirebaseWatchablesDataSource(
         get() = sessionService.user
                 .map { fireStore.user(it.uid) }
                 .flatMap { it.localObject<WatchableUser>() }
-                .subscribeOn(Schedulers.io())
-
-    override val watchableUserObservable: Flowable<WatchableUser>
-        get() = sessionService.user
-                .map { fireStore.user(it.uid) }
-                .flatMapPublisher { it.localObjectObservable<WatchableUser>() }
                 .subscribeOn(Schedulers.io())
 
     override fun createUser(user: WatchableUser): Completable = sessionService.user

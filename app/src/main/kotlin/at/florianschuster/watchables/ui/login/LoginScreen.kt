@@ -148,7 +148,7 @@ class LoginReactor(
                     .andThen(sessionService.user)
                     .flatMapCompletable(::createWatchableUserIfNeeded)
                     .doOnComplete { UpdateWatchablesWorker.start() }
-                    .doOnComplete { DeleteWatchablesWorker.start() }
+                    .doOnComplete { DeleteWatchablesWorker.enqueue() }
                     .toSingleDefault(Mutation.Login(Async.Success(Unit)))
                     .toObservable()
                     .onErrorReturn { Mutation.Login(Async.Error(it)) }

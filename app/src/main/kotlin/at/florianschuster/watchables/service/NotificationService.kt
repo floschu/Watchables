@@ -52,7 +52,7 @@ interface NotificationService {
 }
 
 class AndroidNotificationService(
-    private val context: Context
+        private val context: Context
 ) : NotificationService {
 
     init {
@@ -113,7 +113,7 @@ class AndroidNotificationService(
         val pendingIntent = NavDeepLinkBuilder(context).apply {
             setGraph(R.navigation.main)
             setDestination(R.id.detail)
-            setArguments(WatchablesFragmentDirections.actionWatchablesToDetail(watchable.id).arguments)
+            setArguments(WatchablesFragmentDirections.actionWatchablesToDetail(watchable.id, watchable.type).arguments)
         }.createPendingIntent()
 
         val pushNotificationBuilder = NotificationCompat.Builder(context, UPDATE_CHANNEL_ID).apply {

@@ -29,8 +29,8 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_option.*
 import kotlinx.android.synthetic.main.item_option_toggle.*
 
-sealed class Option(val title: Int, val icon: Int, val layout: Int) {
-    class Action(@StringRes title: Int, @DrawableRes icon: Int, val action: () -> Unit) :
+sealed class Option(val title: Int, val icon: Int?, val layout: Int) {
+    class Action(@StringRes title: Int, @DrawableRes icon: Int?, val action: () -> Unit) :
             Option(title, icon, R.layout.item_option)
 
     class Toggle(@StringRes title: Int, @DrawableRes icon: Int, val isToggled: Boolean, val toggled: (Boolean) -> Unit) :
@@ -62,7 +62,12 @@ private val optionDiff = object : DiffUtil.ItemCallback<Option>() {
 sealed class OptionViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
     class Action(containerView: View) : OptionViewHolder(containerView) {
         fun bind(option: Option.Action) {
-            ivIcon.setImageResource(option.icon)
+            ivIcon.visibility = if (option.icon != null) {
+                ivIcon.setImageResource(option.icon)
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
             tvTitle.setText(option.title)
             containerView.setOnClickListener { option.action() }
         }
@@ -70,7 +75,12 @@ sealed class OptionViewHolder(override val containerView: View) : RecyclerView.V
 
     class Toggle(containerView: View) : OptionViewHolder(containerView) {
         fun bind(option: Option.Toggle) {
-            ivIconToggle.setImageResource(option.icon)
+            ivIconToggle.visibility = if (option.icon != null) {
+                ivIcon.setImageResource(option.icon)
+                View.VISIBLE
+            } else {
+                View.INVISIBLE
+            }
             sw.setText(option.title)
             sw.isChecked = option.isToggled
             sw.setOnCheckedChangeListener { _, checked -> option.toggled(checked) }

@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.Worker
@@ -64,7 +65,19 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             }
 
     companion object {
-        fun start() = PeriodicWorkRequest.Builder(DeleteWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {
+        fun startSingle() {
+            OneTimeWorkRequest.Builder(DeleteWatchablesWorker::class.java).apply {
+                val constraints = Constraints.Builder().apply {
+                    setRequiresCharging(true)
+                    setRequiredNetworkType(NetworkType.CONNECTED)
+                    setRequiresStorageNotLow(false)
+                    setRequiresBatteryNotLow(false)
+                }.build()
+                setConstraints(constraints)
+            }.build().let(WorkManager.getInstance()::enqueue)
+        }
+
+        fun enqueue() = PeriodicWorkRequest.Builder(DeleteWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {
             val constraints = Constraints.Builder().apply {
                 setRequiresCharging(true)
                 setRequiredNetworkType(NetworkType.CONNECTED)
@@ -76,7 +89,7 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             WorkManager.getInstance().enqueueUniquePeriodicWork(WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, it)
         }
 
-        fun stop() = WorkManager.getInstance().cancelUniqueWork(WORKER_NAME)
+        fun cancel() = WorkManager.getInstance().cancelUniqueWork(WORKER_NAME)
 
         private const val WORKER_NAME = "at.florianschuster.watchables.all.worker.DeleteWatchablesWorker"
     }

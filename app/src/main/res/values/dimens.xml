@@ -10,6 +10,8 @@
     <dimen name="episode_height">52dp</dimen>
     <dimen name="bnv_height">56dp</dimen>
 
+    <dimen name="padding_button">20dp</dimen>
+
     <!-- Text -->
     <dimen name="text_size_small">12sp</dimen>
     <dimen name="text_size_regular">14sp</dimen>

@@ -17,11 +17,12 @@
 package at.florianschuster.watchables.ui.detail
 
 import at.florianschuster.koordinator.android.koin.coordinator
+import at.florianschuster.watchables.model.Watchable
 import com.tailoredapps.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 internal val detailModule = module {
     coordinator { DetailCoordinator() }
-    reactor { (itemId: String) -> DetailReactor(itemId, get(), get(), get()) }
+    reactor { (itemId: String, type: Watchable.Type) -> DetailReactor(itemId, type, get(), get(), get()) }
     factory { DetailMediaAdapter() }
 }

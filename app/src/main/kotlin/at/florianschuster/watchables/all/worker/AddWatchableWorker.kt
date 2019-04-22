@@ -28,6 +28,7 @@ import androidx.work.WorkerParameters
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.model.convertToSearchType
 import at.florianschuster.watchables.model.convertToWatchable
 import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.AnalyticsService
@@ -105,13 +106,7 @@ class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Wor
     companion object {
         fun start(item: Search.SearchItem): Operation = start(item.id, item.type, item.title)
 
-        fun start(watchable: Watchable): Operation = start(
-                watchable.id.toInt(),
-                if (watchable.type == Watchable.Type.movie) Search.SearchItem.Type.movie else Search.SearchItem.Type.tv,
-                watchable.name
-        )
-
-        private fun start(id: Int, type: Search.SearchItem.Type, title: String): Operation =
+        fun start(id: Int, type: Search.SearchItem.Type, title: String? = null): Operation =
                 OneTimeWorkRequest.Builder(AddWatchableWorker::class.java).apply {
                     val constraints = Constraints.Builder().apply {
                         setRequiresCharging(false)

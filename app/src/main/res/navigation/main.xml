@@ -92,7 +92,10 @@
         android:name="at.florianschuster.watchables.ui.detail.DetailFragment"
         tools:layout="@layout/fragment_detail">
         <argument
-            android:name="itemId"
+            android:name="id"
             app:argType="string" />
+        <argument
+            android:name="type"
+            app:argType="at.florianschuster.watchables.model.Watchable$Type" />
     </fragment>
 </navigation>

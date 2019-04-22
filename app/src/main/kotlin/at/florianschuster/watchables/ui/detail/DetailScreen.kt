@@ -45,8 +45,12 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
 import at.florianschuster.watchables.all.util.srcBlurConsumer
+import at.florianschuster.watchables.all.worker.AddWatchableWorker
+import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.model.Credits
+import at.florianschuster.watchables.model.Images
 import at.florianschuster.watchables.model.Videos
+import at.florianschuster.watchables.model.convertToSearchType
 import at.florianschuster.watchables.model.originalPoster
 import at.florianschuster.watchables.model.thumbnailPoster
 import at.florianschuster.watchables.ui.base.BaseCoordinator
@@ -67,6 +71,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_detail.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
@@ -89,7 +94,7 @@ class DetailCoordinator : BaseCoordinator<DetailRoute, NavController>() {
 
 class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<DetailReactor> {
     private val args: DetailFragmentArgs by navArgs()
-    override val reactor: DetailReactor by reactor { parametersOf(args.itemId) }
+    override val reactor: DetailReactor by reactor { parametersOf(args.id, args.type) }
     private val coordinator: DetailCoordinator by coordinator()
     private val detailMediaAdapter: DetailMediaAdapter by inject()
     private val optionsAdapter: OptionsAdapter by inject()
@@ -115,14 +120,6 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     }
 
     override fun bind(reactor: DetailReactor) {
-        reactor.state.changesFrom { it.watchable.asOptional }
-                .filterSome()
-                .bind { watchable ->
-                    tvTitle.text = watchable.name
-                    ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(watchable.thumbnailPoster)
-                }
-                .addTo(disposables)
-
         reactor.state.changesFrom { it.deleteResult }
                 .bind { deleteAsync ->
                     loading.isVisible = deleteAsync.loading
@@ -134,6 +131,9 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 .bind { additionalDataAsync ->
                     when (additionalDataAsync) {
                         is Async.Success -> {
+                            tvTitle.text = additionalDataAsync.element.name
+                            ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(additionalDataAsync.element.thumbnailPoster)
+
                             additionalDataAsync.element.airing?.let { airingDate ->
                                 tvAiring.text = if (airingDate.isBefore(ZonedDateTime.now().toLocalDate())) {
                                     getString(R.string.release_date_past, airingDate.asFormattedString)
@@ -163,17 +163,9 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .takeUntil { it.first == 0 && it.second == 0 }
 
-        val watchablePoster = reactor.state.changesFrom { it.watchable.asOptional }
-                .filterSome()
-                .map { DetailMediaItem.Poster(it.thumbnailPoster, it.originalPoster) }
-
-        val videos = reactor.state.changesFrom { it.additionalData().asOptional }
-                .filterSome()
-                .map { it.videos }
-
-        Observables.combineLatest(watchablePoster, videos)
-                .map { listOf(it.first) + it.second }
-                .distinctUntilChanged()
+        reactor.state.changesFrom { it.additionalData }
+                .ofType<Async.Success<DetailReactor.State.AdditionalData>>()
+                .map { listOf(DetailMediaItem.Poster(it.element.thumbnailPoster, it.element.originalPoster)) + it.element.videos }
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnNext(detailMediaAdapter::submitList)
                 .switchMap { snapToFirstItemObservable }
@@ -183,10 +175,11 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     private fun OptionsAdapter.update() {
         listOfNotNull(
+                if (reactor.currentState.watchable != null) null else addOption,
                 reactor.currentState.additionalData()?.website?.let(::createOpenWebOption),
                 reactor.currentState.additionalData()?.imdbId?.let(::createOopenImdbOption),
                 reactor.currentState.watchable?.let(::createShareOption),
-                deleteOption
+                if (reactor.currentState.watchable != null) deleteOption else null
         ).also(::submitList)
     }
 
@@ -216,6 +209,11 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                     .addTo(disposables)
         }
 
+    private val addOption: Option.Action
+        get() = Option.Action(R.string.menu_watchable_add, null) {
+            reactor.action.accept(DetailReactor.Action.AddWatchable)
+        }
+
     private fun RecyclerView.calculateDistanceToPosition(snapHelper: LinearSnapHelper, position: Int): Pair<Int, Int> {
         val layoutManager = layoutManager as? LinearLayoutManager ?: return 0 to 0
         val child = layoutManager.findViewByPosition(position) ?: return 0 to 0
@@ -226,67 +224,77 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 }
 
 class DetailReactor(
-    private val itemId: String,
-    private val movieDatabaseApi: MovieDatabaseApi,
-    private val watchablesDataSource: WatchablesDataSource,
-    private val analyticsService: AnalyticsService
+        private val itemId: String,
+        private val type: Watchable.Type,
+        private val movieDatabaseApi: MovieDatabaseApi,
+        private val watchablesDataSource: WatchablesDataSource,
+        private val analyticsService: AnalyticsService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
-        State()) {
+        initialState = State(),
+        initialAction = Action.InitialLoad
+) {
 
     sealed class Action {
-        data class LoadAdditionalData(val watchable: Watchable) : Action()
+        object InitialLoad : Action()
+        object LoadDetailData : Action()
         object DeleteWatchable : Action()
         data class SetWatched(val watched: Boolean) : Action()
         object Dismiss : Action()
+        object AddWatchable : Action()
     }
 
     sealed class Mutation {
         data class DeleteWatchableResult(val deleteResult: Async<Unit>) : Mutation()
-        data class SetWatchable(val watchable: Watchable) : Mutation()
+        data class SetWatchable(val watchable: Watchable?) : Mutation()
         data class SetAdditionalData(val additionalData: Async<State.AdditionalData>) : Mutation()
     }
 
     data class State(
-        val watchable: Watchable? = null,
-        val additionalData: Async<AdditionalData> = Async.Uninitialized,
-        val deleteResult: Async<Unit> = Async.Uninitialized
+            val watchable: Watchable? = null,
+            val additionalData: Async<AdditionalData> = Async.Uninitialized,
+            val deleteResult: Async<Unit> = Async.Uninitialized
     ) {
         data class AdditionalData(
-            val website: String? = null,
-            val imdbId: String? = null,
-            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
-            val summary: String? = null,
-            val airing: LocalDate? = null,
-            val actors: List<String> = emptyList()
+                val name: String? = null,
+                val thumbnailPoster: String? = null,
+                val originalPoster: String? = null,
+                val website: String? = null,
+                val imdbId: String? = null,
+                val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
+                val summary: String? = null,
+                val airing: LocalDate? = null,
+                val actors: List<String> = emptyList()
         )
     }
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val watchableMutation = watchablesDataSource.watchableObservable(itemId)
                 .toObservable()
-                .onErrorResumeNext { t: Throwable ->
-                    Timber.e(t)
-                    Observable.empty<Watchable>()
-                }
                 .map { Mutation.SetWatchable(it) }
-                .switchMap { watchableMutation ->
-                    Observable.concat(
-                            watchableMutation.observable,
-                            mutate(Action.LoadAdditionalData(watchableMutation.watchable))
-                    )
-                }
+                .doOnError(Timber::e)
+                .onErrorReturn { Mutation.SetWatchable(null) }
+                .switchMap { Observable.concat(it.observable, mutate(Action.LoadDetailData)) }
         return Observable.merge(mutation, watchableMutation)
     }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
-        is Action.LoadAdditionalData -> {
+        is Action.InitialLoad -> {
+            watchablesDataSource.watchable(itemId)
+                    .ignoreElement()
+                    .toObservable<Mutation>()
+                    .onErrorResumeNext { t: Throwable ->
+                        if (t is NoSuchElementException) mutate(Action.LoadDetailData)
+                        else Observable.empty()
+                    }
+        }
+        is Action.LoadDetailData -> {
             val loading = Mutation.SetAdditionalData(Async.Loading).observable
 
-            val additionalInfoLoad = when {
-                action.watchable.type == Watchable.Type.movie -> loadAdditionalInfoFromMovie()
+            val detailInfoLoad = when (type) {
+                Watchable.Type.movie -> loadAdditionalInfoFromMovie()
                 else -> loadAdditionalInfoFromShow()
             }
-            val load = additionalInfoLoad
+            val load = detailInfoLoad
                     .map { Mutation.SetAdditionalData(Async.Success(it)) }
                     .doOnError(Timber::e)
                     .onErrorReturn { Mutation.SetAdditionalData(Async.Error(it)) }
@@ -297,6 +305,7 @@ class DetailReactor(
         is Action.DeleteWatchable -> {
             watchablesDataSource.setWatchableDeleted(itemId)
                     .doOnComplete { currentState.watchable?.let(analyticsService::logWatchableDelete) }
+                    .doOnComplete { DeleteWatchablesWorker.startSingle() }
                     .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
                     .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
                     .doOnComplete { Router follow DetailRoute.Pop }
@@ -307,6 +316,9 @@ class DetailReactor(
         is Action.Dismiss -> {
             emptyMutation { Router follow DetailRoute.Pop }
         }
+        is Action.AddWatchable -> {
+            emptyMutation { AddWatchableWorker.start(itemId.toInt(), type.convertToSearchType()) }
+        }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
@@ -316,39 +328,35 @@ class DetailReactor(
     }
 
     private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {
-        return movieDatabaseApi
-                .movie(itemId.toInt())
+        return movieDatabaseApi.movie(itemId.toInt())
                 .map {
                     State.AdditionalData(
+                            it.name,
+                            Images.thumbnail.from(it.image),
+                            Images.original.from(it.image),
                             it.website,
                             it.imdbId,
                             it.videos.results.mapToYoutubeVideos(),
                             it.summary,
                             it.releaseDate,
-                            it.credits?.cast
-                                    ?.sortedWith(compareBy(Credits.Cast::order))
-                                    ?.map(Credits.Cast::name)
-                                    ?.take(5)
-                                    ?: emptyList()
+                            it.credits?.mapToActorList() ?: emptyList()
                     )
                 }
     }
 
     private fun loadAdditionalInfoFromShow(): Single<State.AdditionalData> {
-        return movieDatabaseApi
-                .show(itemId.toInt())
+        return movieDatabaseApi.show(itemId.toInt())
                 .map {
                     State.AdditionalData(
+                            it.name,
+                            Images.thumbnail.from(it.image),
+                            Images.original.from(it.image),
                             it.website,
                             it.externalIds.imdbId,
                             it.videos.results.mapToYoutubeVideos(),
                             it.summary,
                             it.nextEpisode?.airingDate,
-                            it.credits?.cast
-                                    ?.sortedWith(compareBy(Credits.Cast::order))
-                                    ?.map(Credits.Cast::name)
-                                    ?.take(5)
-                                    ?: emptyList()
+                            it.credits?.mapToActorList() ?: emptyList()
                     )
                 }
     }
@@ -359,5 +367,11 @@ class DetailReactor(
                 .sortedBy { it.type }
                 .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
                 .toList()
+    }
+
+    private fun Credits.mapToActorList(): List<String> {
+        return cast.sortedWith(compareBy(Credits.Cast::order))
+                .map(Credits.Cast::name)
+                .take(5)
     }
 }

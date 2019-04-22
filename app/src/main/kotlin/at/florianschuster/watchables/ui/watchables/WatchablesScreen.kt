@@ -39,6 +39,7 @@ import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
+import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.ui.main.mainScreenFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
@@ -70,14 +71,14 @@ import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 
 sealed class WatchablesRoute : CoordinatorRoute {
-    data class OnWatchableSelected(val id: String) : WatchablesRoute()
+    data class OnWatchableSelected(val id: String, val type: Watchable.Type) : WatchablesRoute()
 }
 
 class WatchablesCoordinator : BaseCoordinator<WatchablesRoute, NavController>() {
     override fun navigate(route: WatchablesRoute, handler: NavController) {
         when (route) {
             is WatchablesRoute.OnWatchableSelected -> {
-                WatchablesFragmentDirections.actionWatchablesToDetail(route.id)
+                WatchablesFragmentDirections.actionWatchablesToDetail(route.id, route.type)
             }
         }.also(handler::navigate)
     }
@@ -184,7 +185,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.ItemDetail>()
-                .map { WatchablesReactor.Action.SelectWatchable(it.watchable.id) }
+                .map { WatchablesReactor.Action.SelectWatchable(it.watchable.id, it.watchable.type) }
                 .bind(to = reactor.action)
                 .addTo(disposables)
 
@@ -211,16 +212,16 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             positiveButtonResource = R.string.dialog_ok
             negativeButtonResource = R.string.dialog_cancel
         }.ofType<RxDialogAction.Positive>()
-                .map { WatchablesReactor.Action.DeleteWatchable(watchable.id) }
+                .map { WatchablesReactor.Action.DeleteWatchable(watchable) }
                 .doOnSuccess(reactor.action)
                 .ignoreElement()
     }
 }
 
 class WatchablesReactor(
-    private val watchablesDataSource: WatchablesDataSource,
-    private val analyticsService: AnalyticsService,
-    private val prefRepo: PrefRepo
+        private val watchablesDataSource: WatchablesDataSource,
+        private val analyticsService: AnalyticsService,
+        private val prefRepo: PrefRepo
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = prefRepo.watchableContainerSortingType,
@@ -232,8 +233,8 @@ class WatchablesReactor(
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()
         data class SetEpisodeWatched(val watchableSeasonId: String, val episode: String, val watched: Boolean) : Action()
         data class SetSeasonWatched(val watchableSeasonId: String, val watched: Boolean) : Action()
-        data class DeleteWatchable(val watchableId: String) : Action()
-        data class SelectWatchable(val watchableId: String) : Action()
+        data class DeleteWatchable(val watchable: Watchable) : Action()
+        data class SelectWatchable(val id: String, val type: Watchable.Type) : Action()
         data class SortWatchables(val sorting: WatchableContainerSortingType) : Action()
         object SetOnboardingSnackShown : Action()
     }
@@ -245,9 +246,9 @@ class WatchablesReactor(
     }
 
     data class State(
-        val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-        val sorting: WatchableContainerSortingType,
-        private val onboardingSnackShown: Boolean
+            val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
+            val sorting: WatchableContainerSortingType,
+            private val onboardingSnackShown: Boolean
     ) {
         val numberOfWatchables: Int
             get() = if (watchables is Async.Success) watchables.element.count() else 0
@@ -287,11 +288,13 @@ class WatchablesReactor(
         }
         is Action.DeleteWatchable -> {
             watchablesDataSource
-                    .setWatchableDeleted(action.watchableId)
+                    .setWatchableDeleted(action.watchable.id)
+                    .doOnComplete { analyticsService.logWatchableDelete(action.watchable) }
+                    .doOnComplete { DeleteWatchablesWorker.startSingle() }
                     .toObservable()
         }
         is Action.SelectWatchable -> {
-            emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.watchableId) }
+            emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.id, action.type) }
         }
         is Action.SortWatchables -> {
             Single.just(action.sorting)

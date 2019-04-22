@@ -139,26 +139,3 @@ inline fun <reified T : FirestoreObject> Query.localObjectListObservable(): Flow
             }
             emitter.setCancellable(listener::remove)
         }, BackpressureStrategy.LATEST)
-
-// firebase storage
-
-fun StorageReference.upload(file: File, customMetaData: StorageMetadata? = null): Flowable<Long> =
-        Flowable.create({ emitter ->
-            emitter.onNext(0)
-            val uploadTask = when (customMetaData) {
-                null -> putFile(Uri.fromFile(file))
-                else -> putFile(Uri.fromFile(file), customMetaData)
-            }.also {
-                it.addOnFailureListener(emitter::onError)
-                it.addOnSuccessListener { emitter.onComplete() }
-                it.addOnProgressListener {
-                    try {
-                        val percentage = 100 * it.bytesTransferred / it.totalByteCount
-                        emitter.onNext(percentage)
-                    } catch (e: ArithmeticException) {
-                        emitter.onNext(0)
-                    }
-                }
-            }
-            emitter.setCancellable { uploadTask.cancel() }
-        }, BackpressureStrategy.LATEST)

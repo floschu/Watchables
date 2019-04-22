@@ -151,7 +151,7 @@ class MoreReactor(
         is Action.Logout -> {
             sessionService.logout()
                     .doOnComplete { UpdateWatchablesWorker.stop() }
-                    .doOnComplete { DeleteWatchablesWorker.stop() }
+                    .doOnComplete { DeleteWatchablesWorker.cancel() }
                     .toObservable()
         }
         is Action.SetAnalytics -> {

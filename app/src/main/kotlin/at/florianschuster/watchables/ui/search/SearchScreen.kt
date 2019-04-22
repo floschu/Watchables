@@ -37,6 +37,7 @@ import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
+import at.florianschuster.watchables.model.convertToWatchableType
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.main.mainScreenFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
@@ -65,14 +66,14 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 sealed class SearchRoute : CoordinatorRoute {
-    data class OnAddedItemSelected(val id: Int) : SearchRoute()
+    data class OnAddedItemSelected(val id: Int, val type: Search.SearchItem.Type) : SearchRoute()
 }
 
 class SearchCoordinator : BaseCoordinator<SearchRoute, NavController>() {
     override fun navigate(route: SearchRoute, handler: NavController) {
         when (route) {
             is SearchRoute.OnAddedItemSelected -> {
-                SearchFragmentDirections.actionSearchToDetail("${route.id}")
+                SearchFragmentDirections.actionSearchToDetail("${route.id}", route.type.convertToWatchableType())
             }
         }.also(handler::navigate)
     }
@@ -136,8 +137,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
                 .addTo(disposables)
 
         adapter.interaction
-                .ofType<SearchAdapterInteraction.AddedItemClick>()
-                .map { SearchReactor.Action.SelectAddedItem(it.itemId) }
+                .ofType<SearchAdapterInteraction.OpenItemClick>()
+                .map { SearchReactor.Action.OnItemSelect(it.item.id, it.item.type) }
                 .bind(to = reactor.action)
                 .addTo(disposables)
 
@@ -166,15 +167,15 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 }
 
 class SearchReactor(
-    private val movieDatabaseApi: MovieDatabaseApi,
-    private val watchablesDataSource: WatchablesDataSource
+        private val movieDatabaseApi: MovieDatabaseApi,
+        private val watchablesDataSource: WatchablesDataSource
 ) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
         data class UpdateQuery(val query: String) : Action()
         object LoadNextPage : Action()
         data class AddItemToWatchables(val item: Search.SearchItem) : Action()
-        data class SelectAddedItem(val itemId: Int) : Action()
+        data class OnItemSelect(val id: Int, val type: Search.SearchItem.Type) : Action()
     }
 
     sealed class Mutation {
@@ -188,12 +189,12 @@ class SearchReactor(
     }
 
     data class State(
-        val query: String = "",
-        val page: Int = 1,
-        val allItems: List<Search.SearchItem> = emptyList(),
-        val loading: Boolean = false,
-        val loadingError: Throwable? = null,
-        val addedWatchableIds: List<String> = emptyList()
+            val query: String = "",
+            val page: Int = 1,
+            val allItems: List<Search.SearchItem> = emptyList(),
+            val loading: Boolean = false,
+            val loadingError: Throwable? = null,
+            val addedWatchableIds: List<String> = emptyList()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
@@ -231,8 +232,8 @@ class SearchReactor(
                     .toObservableDefault("${action.item.id}")
                     .map(Mutation::AddCurrentlyAddingWatchableId)
         }
-        is Action.SelectAddedItem -> {
-            emptyMutation { Router follow SearchRoute.OnAddedItemSelected(action.itemId) }
+        is Action.OnItemSelect -> {
+            emptyMutation { Router follow SearchRoute.OnAddedItemSelected(action.id, action.type) }
         }
     }
 

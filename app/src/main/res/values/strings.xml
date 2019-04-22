@@ -29,6 +29,7 @@
     <string name="notification_update_title">%1$s will air on %2$s</string>
     <string name="notification_update_text">Click here to learn more</string>
     <string name="menu_watchable_delete">Delete</string>
+    <string name="menu_watchable_add">Add as Watchable</string>
     <string name="menu_watchable_website">Open Website</string>
     <string name="menu_watchable_imdb">Open Imdb</string>
     <string name="menu_watchable_share">Share Watchable</string>

@@ -36,7 +36,7 @@ import kotlinx.android.synthetic.main.item_search.*
 sealed class SearchAdapterInteraction {
     data class AddItemClick(val item: Search.SearchItem) : SearchAdapterInteraction()
     data class ImageClick(val imageUrl: String?) : SearchAdapterInteraction()
-    data class AddedItemClick(val itemId: Int) : SearchAdapterInteraction()
+    data class OpenItemClick(val item: Search.SearchItem) : SearchAdapterInteraction()
 }
 
 class SearchAdapter : ListAdapter<Search.SearchItem, SearchViewHolder>(searchDiff) {
@@ -53,12 +53,7 @@ private val searchDiff = object : DiffUtil.ItemCallback<Search.SearchItem>() {
 
 class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
     fun bind(item: Search.SearchItem, interaction: (SearchAdapterInteraction) -> Unit) {
-        containerView.setOnClickListener {
-            interaction(
-                    if (item.added) SearchAdapterInteraction.AddedItemClick(item.id)
-                    else SearchAdapterInteraction.AddItemClick(item)
-            )
-        }
+        containerView.setOnClickListener { interaction(SearchAdapterInteraction.OpenItemClick(item)) }
         tvTitle.text = item.title
 
         tvType.setText(if (item.type == Search.SearchItem.Type.movie) R.string.display_name_movie else R.string.display_name_show)
@@ -70,7 +65,13 @@ class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHold
         ivImage.setOnClickListener { interaction(SearchAdapterInteraction.ImageClick(item.originalPoster)) }
 
         ivAdd.setImageResource(if (item.added) R.drawable.ic_check else R.drawable.ic_add)
-        val color = ContextCompat.getColor(containerView.context, if (item.added) R.color.colorAccent else android.R.color.white)
-        ivAdd.setColorFilter(color)
+        when {
+            item.added -> R.color.colorAccent
+            else -> android.R.color.white
+        }.let { ContextCompat.getColor(containerView.context, it) }.let(ivAdd::setColorFilter)
+
+        if (!item.added) {
+            ivAdd.setOnClickListener { interaction(SearchAdapterInteraction.AddItemClick(item)) }
+        }
     }
 }
