@@ -52,13 +52,22 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    flavorDimensions 'buildType'
+    productFlavors {
+        mock {
+            dimension 'buildType'
+        }
+        prod {
+            dimension 'buildType'
+        }
+    }
     dataBinding {
         enabled = false
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
-        test.java.srcDirs += 'src/test/kotlin'
-        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+        mock.java.srcDirs += 'src/mock/kotlin'
+        prod.java.srcDirs += 'src/prod/kotlin'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

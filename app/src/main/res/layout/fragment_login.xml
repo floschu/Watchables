@@ -25,7 +25,7 @@
         android:backgroundTint="@color/white"
         android:text="@string/sign_in_google"
         android:textColor="@color/textDarkPrimary"
-        app:icon="@drawable/googleg_standard_color_18"
+        app:icon="@drawable/ic_google"
         app:iconTint="@color/transparent"
         app:iconTintMode="src_over"
         app:layout_constraintBottom_toTopOf="@id/progress"

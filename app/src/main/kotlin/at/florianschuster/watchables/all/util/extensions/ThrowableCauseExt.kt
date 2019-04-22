@@ -20,7 +20,7 @@ import android.content.res.Resources
 import androidx.annotation.StringRes
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.R
-import com.tailoredapps.androidutil.network.networkresponse.NetworkUnavailableException
+import com.tailoredapps.androidutil.network.NetworkUnavailableException
 import retrofit2.HttpException
 
 fun Throwable.asCause(@StringRes customOnOtherStringResource: Int? = null): Cause {
@@ -60,10 +60,10 @@ sealed class Cause(@StringRes val default: Int = R.string.error_other) {
 
     companion object {
         fun fromThrowable(throwable: Throwable, @StringRes otherRes: Int? = null): Cause = when (throwable) {
-            is NetworkUnavailableException -> Cause.NetworkUnavailable
-            is HttpException -> Cause.Http(throwable.code())
-            is SecurityException -> Cause.Permission
-            else -> Cause.Other(otherRes)
+            is NetworkUnavailableException -> NetworkUnavailable
+            is HttpException -> Http(throwable.code())
+            is SecurityException -> Permission
+            else -> Other(otherRes)
         }
     }
 }
