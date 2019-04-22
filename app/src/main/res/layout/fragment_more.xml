@@ -15,10 +15,9 @@
             android:id="@+id/ivBackground"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:alpha="0.5"
             android:scaleType="centerCrop"
             android:src="@drawable/bg_more"
-            app:layout_constraintDimensionRatio="2:1"
+            app:layout_constraintDimensionRatio="16:9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -37,7 +36,7 @@
             app:layout_constraintStart_toStartOf="@id/ivBackground"
             app:layout_constraintTop_toTopOf="@id/ivBackground"
             app:layout_constraintVertical_bias="0.95"
-            tools:text="Hello there Flosch" />
+            tools:text="Hi\nflosch" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMoreOptions"

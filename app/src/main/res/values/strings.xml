@@ -45,7 +45,7 @@
     <string name="more_privacy_policy">Privacy Policy</string>
     <string name="more_developer_info">Developer Info</string>
     <string name="more_share_app">Share App with Friends</string>
-    <string name="more_hello_there">Hi %s!</string>
+    <string name="more_hello_there">Hi\n%s</string>
     <string name="privacy_policy_url">https://florianschuster.at/watchables/privacy.html</string>
     <string name="developer_url">https://florianschuster.at/</string>
     <string name="dialog_ok">OK</string>
