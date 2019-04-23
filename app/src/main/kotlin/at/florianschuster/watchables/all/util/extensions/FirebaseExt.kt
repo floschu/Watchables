@@ -16,7 +16,6 @@
 
 package at.florianschuster.watchables.all.util.extensions
 
-import android.net.Uri
 import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
@@ -25,8 +24,6 @@ import com.google.firebase.firestore.Exclude
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.storage.StorageMetadata
-import com.google.firebase.storage.StorageReference
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.CompletableEmitter
@@ -36,8 +33,6 @@ import io.reactivex.Maybe
 import io.reactivex.MaybeEmitter
 import io.reactivex.Single
 import io.reactivex.SingleEmitter
-import java.io.File
-import java.lang.ArithmeticException
 
 // google task
 

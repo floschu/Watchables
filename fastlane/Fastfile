@@ -4,9 +4,23 @@ platform :android do
   desc "Builds a new version and pushes it to repository"
   lane :build do
     gradle(task: "test ktlintFormat clean")
-    ##increment_version_code_and_commit lane:self.runner.current_lane
+    increment_version_code_and_commit lane:self.runner.current_lane
     gradle(task: ":app:bundleRelease")
   end
+
+  desc "Builds a new version, pushes it to repository and deploys it to beta track"
+    lane :beta do
+      gradle(task: "test ktlintFormat")
+      increment_version_code_and_commit lane:self.runner.current_lane
+      gradle(task: "clean bundleRelease")
+      upload_to_play_store(
+        track: "beta",
+        skip_upload_apk: true,
+        skip_upload_metadata: true,
+        skip_upload_images: true,
+        skip_upload_screenshots: true
+      )
+    end
 end
 
 desc "Tags the current commit with the tag name"

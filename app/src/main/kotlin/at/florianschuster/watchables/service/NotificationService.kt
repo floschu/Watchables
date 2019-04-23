@@ -52,7 +52,7 @@ interface NotificationService {
 }
 
 class AndroidNotificationService(
-        private val context: Context
+    private val context: Context
 ) : NotificationService {
 
     init {

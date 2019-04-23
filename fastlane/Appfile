@@ -1,2 +1,2 @@
-json_key_file("api-5501136648178813323-429293-6e9480441643.json")
+json_key_file("fastlane/key.json")
 package_name("at.florianschuster.watchables")

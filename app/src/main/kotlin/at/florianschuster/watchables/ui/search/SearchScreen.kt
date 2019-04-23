@@ -167,8 +167,8 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 }
 
 class SearchReactor(
-        private val movieDatabaseApi: MovieDatabaseApi,
-        private val watchablesDataSource: WatchablesDataSource
+    private val movieDatabaseApi: MovieDatabaseApi,
+    private val watchablesDataSource: WatchablesDataSource
 ) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
@@ -189,12 +189,12 @@ class SearchReactor(
     }
 
     data class State(
-            val query: String = "",
-            val page: Int = 1,
-            val allItems: List<Search.SearchItem> = emptyList(),
-            val loading: Boolean = false,
-            val loadingError: Throwable? = null,
-            val addedWatchableIds: List<String> = emptyList()
+        val query: String = "",
+        val page: Int = 1,
+        val allItems: List<Search.SearchItem> = emptyList(),
+        val loading: Boolean = false,
+        val loadingError: Throwable? = null,
+        val addedWatchableIds: List<String> = emptyList()
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {

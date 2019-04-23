@@ -65,9 +65,8 @@ interface WatchablesDataSource {
     fun deleteWatchableSeason(seasonId: String): Completable
 }
 
-
 class FirebaseWatchablesDataSource(
-        private val sessionService: SessionService<FirebaseUser, AuthCredential>
+    private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : WatchablesDataSource {
     private val fireStore = FirebaseFirestore.getInstance()
 

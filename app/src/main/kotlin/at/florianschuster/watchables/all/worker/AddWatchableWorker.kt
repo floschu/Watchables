@@ -27,8 +27,6 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Search
-import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.convertToSearchType
 import at.florianschuster.watchables.model.convertToWatchable
 import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.AnalyticsService

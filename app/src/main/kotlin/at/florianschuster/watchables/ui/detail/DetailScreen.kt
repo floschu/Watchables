@@ -60,8 +60,6 @@ import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
-import com.tailoredapps.androidutil.optional.asOptional
-import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
@@ -69,7 +67,6 @@ import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.rxkotlin.Observables
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_detail.*
@@ -224,11 +221,11 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 }
 
 class DetailReactor(
-        private val itemId: String,
-        private val type: Watchable.Type,
-        private val movieDatabaseApi: MovieDatabaseApi,
-        private val watchablesDataSource: WatchablesDataSource,
-        private val analyticsService: AnalyticsService
+    private val itemId: String,
+    private val type: Watchable.Type,
+    private val movieDatabaseApi: MovieDatabaseApi,
+    private val watchablesDataSource: WatchablesDataSource,
+    private val analyticsService: AnalyticsService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
         initialState = State(),
         initialAction = Action.InitialLoad
@@ -250,20 +247,20 @@ class DetailReactor(
     }
 
     data class State(
-            val watchable: Watchable? = null,
-            val additionalData: Async<AdditionalData> = Async.Uninitialized,
-            val deleteResult: Async<Unit> = Async.Uninitialized
+        val watchable: Watchable? = null,
+        val additionalData: Async<AdditionalData> = Async.Uninitialized,
+        val deleteResult: Async<Unit> = Async.Uninitialized
     ) {
         data class AdditionalData(
-                val name: String? = null,
-                val thumbnailPoster: String? = null,
-                val originalPoster: String? = null,
-                val website: String? = null,
-                val imdbId: String? = null,
-                val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
-                val summary: String? = null,
-                val airing: LocalDate? = null,
-                val actors: List<String> = emptyList()
+            val name: String? = null,
+            val thumbnailPoster: String? = null,
+            val originalPoster: String? = null,
+            val website: String? = null,
+            val imdbId: String? = null,
+            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
+            val summary: String? = null,
+            val airing: LocalDate? = null,
+            val actors: List<String> = emptyList()
         )
     }
 
