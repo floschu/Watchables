@@ -76,7 +76,7 @@ sealed class OptionViewHolder(override val containerView: View) : RecyclerView.V
     class Toggle(containerView: View) : OptionViewHolder(containerView) {
         fun bind(option: Option.Toggle) {
             ivIconToggle.visibility = if (option.icon != null) {
-                ivIcon.setImageResource(option.icon)
+                ivIconToggle.setImageResource(option.icon)
                 View.VISIBLE
             } else {
                 View.INVISIBLE
