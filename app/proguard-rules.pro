@@ -72,8 +72,6 @@
 # Keep model classes
 -keep class at.florianschuster.watchables.model.** { *; }
 
--keep class com.google.android.material.appbar.AppBarLayout$Behavior { *; }
-
 # Okio
 
 -keep class sun.misc.Unsafe { *; }

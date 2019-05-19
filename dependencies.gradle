@@ -52,7 +52,7 @@ ext {
                     auth       : 'com.google.firebase:firebase-auth:17.0.0',
                     gmsauth    : 'com.google.android.gms:play-services-auth:16.0.1',
                     firestore  : 'com.google.firebase:firebase-firestore:19.0.0',
-                    crashlytics: 'com.crashlytics.sdk.android:crashlytics:2.10.0',
+                    crashlytics: 'com.crashlytics.sdk.android:crashlytics:2.9.9',
                     messaging  : 'com.google.firebase:firebase-messaging:18.0.0',
                     storage    : 'com.google.firebase:firebase-storage:17.0.0',
                     perf       : 'com.google.firebase:firebase-perf:17.0.0',
