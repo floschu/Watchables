@@ -30,7 +30,6 @@ import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.WatchableSeason
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ShareService
@@ -42,13 +41,16 @@ import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.ui.main.mainScreenFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
+import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
+import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
+import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterBottomSheetDialogFragment
+import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
 import at.florianschuster.watchables.ui.watchables.recyclerview.containerDiff
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
-import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
@@ -59,16 +61,15 @@ import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.rxkotlin.Flowables
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
+import java.util.concurrent.TimeUnit
 
 sealed class WatchablesRoute : CoordinatorRoute {
     data class OnWatchableSelected(val id: String, val type: Watchable.Type) : WatchablesRoute()
@@ -115,18 +116,21 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
     override fun bind(reactor: WatchablesReactor) {
         // state
-        reactor.state.changesFrom { it.watchables }
-                .ofType<Async.Success<List<WatchableContainer>>>()
-                .map { it.element to (adapter.data containerDiff it.element) }
+        reactor.state.changesFrom { it.loading }
+                .bind(to = pbLoading.visibility())
+                .addTo(disposables)
+
+        reactor.state.changesFrom { it.displayWatchables }
+                .map { it to (adapter.data containerDiff it) }
                 .bind(to = adapter::setData)
                 .addTo(disposables)
 
-        reactor.state.changesFrom { it.numberOfWatchables }
+        reactor.state.changesFrom { it.displayWatchables.count() }
                 .map { it > 5 }
                 .bind(to = rvWatchables::setFastScrollEnabled)
                 .addTo(disposables)
 
-        reactor.state.changesFrom { it.watchablesEmpty }
+        reactor.state.changesFrom { it.displayWatchables.isEmpty() && !it.loading }
                 .bind(to = emptyLayout.visibility())
                 .addTo(disposables)
 
@@ -190,18 +194,13 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         btnFilter.clicks()
-                .flatMapSingle {
-                    rxDialog(R.style.DialogTheme) {
-                        titleResource = R.string.watchables_dialog_sorting_title
-                        setSingleChoiceItems<WatchableContainerSortingType>(
-                                WatchableContainerSortingType.values().toList(),
-                                WatchableContainerSortingType.values().indexOf(reactor.currentState.sorting)
-                        ) { resources.getString(it.formatted) }
-                    }
+                .throttleFirst(1, TimeUnit.SECONDS)
+                .bind {
+                    WatchablesFilterBottomSheetDialogFragment().show(
+                            fragmentManager,
+                            WatchablesFilterBottomSheetDialogFragment::class.java.simpleName
+                    )
                 }
-                .ofType<RxDialogAction.Selected<WatchableContainerSortingType>>()
-                .map { WatchablesReactor.Action.SortWatchables(it.item) }
-                .bind(to = reactor.action)
                 .addTo(disposables)
     }
 
@@ -219,12 +218,14 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-    private val watchablesDataSource: WatchablesDataSource,
-    private val analyticsService: AnalyticsService,
-    private val prefRepo: PrefRepo
+        private val watchablesDataSource: WatchablesDataSource,
+        private val analyticsService: AnalyticsService,
+        private val prefRepo: PrefRepo,
+        private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
-                sorting = prefRepo.watchableContainerSortingType,
+                sorting = watchablesFilterService.currentSorting,
+                filtering = watchablesFilterService.currentFilter,
                 onboardingSnackShown = prefRepo.onboardingSnackShown
         )
 ) {
@@ -235,38 +236,40 @@ class WatchablesReactor(
         data class SetSeasonWatched(val watchableSeasonId: String, val watched: Boolean) : Action()
         data class DeleteWatchable(val watchable: Watchable) : Action()
         data class SelectWatchable(val id: String, val type: Watchable.Type) : Action()
-        data class SortWatchables(val sorting: WatchableContainerSortingType) : Action()
         object SetOnboardingSnackShown : Action()
     }
 
     sealed class Mutation {
-        data class SetWatchables(val watchables: Async<List<WatchableContainer>>) : Mutation()
-        data class SortWatchables(val sorting: WatchableContainerSortingType) : Mutation()
+        data class SetWatchables(val watchables: List<WatchableContainer>) : Mutation()
         data class SetOnboardingSnackShown(val shown: Boolean) : Mutation()
+        data class SetFilter(val filtering: WatchableContainerFilterType) : Mutation()
+        data class SetSorting(val sorting: WatchableContainerSortingType) : Mutation()
     }
 
     data class State(
-        val watchables: Async<List<WatchableContainer>> = Async.Uninitialized,
-        val sorting: WatchableContainerSortingType,
-        private val onboardingSnackShown: Boolean
+            val allWatchables: List<WatchableContainer> = emptyList(),
+            val displayWatchables: List<WatchableContainer> = emptyList(),
+            val sorting: WatchableContainerSortingType,
+            val filtering: WatchableContainerFilterType,
+            val loading: Boolean = true,
+            private val onboardingSnackShown: Boolean
     ) {
-        val numberOfWatchables: Int
-            get() = if (watchables is Async.Success) watchables.element.count() else 0
-
-        val watchablesEmpty: Boolean
-            get() = watchables is Async.Success && watchables.element.isEmpty()
-
         val showOnboardingSnack: Boolean
-            get() = !onboardingSnackShown && watchablesEmpty
+            get() = !onboardingSnackShown && displayWatchables.isEmpty()
     }
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
-        val watchablesMutation = watchableContainerObservable
-                .map<Async<List<WatchableContainer>>> { Async.Success(it) }
-                .onErrorReturn { Async.Error(it) }
+        val watchablesMutation = watchablesDataSource
+                .watchableContainerObservable
                 .map { Mutation.SetWatchables(it) }
                 .toObservable()
-        return Observable.merge(mutation, watchablesMutation)
+        val filterMutation = watchablesFilterService.filter
+                .toObservable()
+                .map(Mutation::SetFilter)
+        val sortingMutation = watchablesFilterService.sorting
+                .toObservable()
+                .map(Mutation::SetSorting)
+        return Observable.merge(mutation, watchablesMutation, filterMutation, sortingMutation)
     }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
@@ -296,12 +299,6 @@ class WatchablesReactor(
         is Action.SelectWatchable -> {
             emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.id, action.type) }
         }
-        is Action.SortWatchables -> {
-            Single.just(action.sorting)
-                    .doOnSuccess { prefRepo.watchableContainerSortingType = it }
-                    .map { Mutation.SortWatchables(it) }
-                    .toObservable()
-        }
         is Action.SetOnboardingSnackShown -> {
             Single.just(true)
                     .doOnSuccess { prefRepo.onboardingSnackShown = it }
@@ -311,39 +308,28 @@ class WatchablesReactor(
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
-        is Mutation.SetWatchables -> previousState.copy(watchables = mutation.watchables)
-        is Mutation.SortWatchables -> {
-            val sorted = when {
-                previousState.watchables is Async.Success -> {
-                    Async.Success(previousState.watchables.element.sortedWith(mutation.sorting.comparator))
-                }
-                else -> previousState.watchables
-            }
-            previousState.copy(watchables = sorted, sorting = mutation.sorting)
+        is Mutation.SetWatchables -> {
+            previousState.copy(
+                    allWatchables = mutation.watchables,
+                    displayWatchables = mutation.watchables.asSequence()
+                            .filter(currentState.filtering.predicate)
+                            .sortedWith(currentState.sorting.comparator)
+                            .toList(),
+                    loading = false
+            )
+        }
+        is Mutation.SetFilter -> {
+            previousState.copy(
+                    displayWatchables = previousState.allWatchables.filter(mutation.filtering.predicate),
+                    filtering = mutation.filtering
+            )
+        }
+        is Mutation.SetSorting -> {
+            previousState.copy(
+                    displayWatchables = previousState.allWatchables.sortedWith(mutation.sorting.comparator),
+                    sorting = mutation.sorting
+            )
         }
         is Mutation.SetOnboardingSnackShown -> previousState.copy(onboardingSnackShown = mutation.shown)
     }
-
-    private val watchableContainerObservable: Flowable<List<WatchableContainer>>
-        get() {
-            val watchablesObservable = watchablesDataSource.watchablesObservable
-                    .startWith(emptyList<Watchable>())
-            val watchableSeasonsObservable = watchablesDataSource.watchableSeasonsObservable
-                    .startWith(emptyList<WatchableSeason>())
-
-            return Flowables.combineLatest(watchablesObservable, watchableSeasonsObservable)
-                    .map { (watchables, seasons) ->
-                        watchables.asSequence()
-                                .map { watchable ->
-                                    val watchableSeasons = seasons.asSequence()
-                                            .filter { it.watchableId == watchable.id }
-                                            .sortedBy { it.index }
-                                            .toList()
-                                    watchable.convertToWatchableContainer(watchableSeasons)
-                                }
-                                .sortedWith(prefRepo.watchableContainerSortingType.comparator)
-                                .toList()
-                    }
-                    .skip(1) // skips initial startWith emptyLists that are needed when seasons are still empty
-        }
 }

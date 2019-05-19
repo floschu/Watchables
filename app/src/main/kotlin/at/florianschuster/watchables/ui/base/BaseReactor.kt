@@ -17,15 +17,29 @@
 package at.florianschuster.watchables.ui.base
 
 import androidx.annotation.CallSuper
+import at.florianschuster.reaktor.android.SimpleViewModelReactor
 import at.florianschuster.reaktor.android.ViewModelReactor
 import com.squareup.leakcanary.RefWatcher
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 
 abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
-    initialState: State,
-    initialAction: Action? = null
+        initialState: State,
+        initialAction: Action? = null
 ) : ViewModelReactor<Action, Mutation, State>(initialState, initialAction), KoinComponent {
+    private val refWatcher: RefWatcher by inject()
+
+    @CallSuper
+    override fun onCleared() {
+        super.onCleared()
+        refWatcher.watch(this)
+    }
+}
+
+abstract class SimpleBaseReactor<Action : Any, State : Any>(
+        initialState: State,
+        initialAction: Action? = null
+) : SimpleViewModelReactor<Action, State>(initialState, initialAction), KoinComponent {
     private val refWatcher: RefWatcher by inject()
 
     @CallSuper

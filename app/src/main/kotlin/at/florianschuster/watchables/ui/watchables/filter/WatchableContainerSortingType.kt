@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.ui.watchables
+package at.florianschuster.watchables.ui.watchables.filter
 
-import androidx.annotation.StringRes
-import at.florianschuster.watchables.R
+import at.florianschuster.watchables.ui.watchables.WatchableContainer
 
 enum class WatchableContainerSortingType(val comparator: Comparator<in WatchableContainer>) {
     ByWatched(compareBy({ it.watchable.watched }, { it.watchable.name })),
@@ -26,13 +25,3 @@ enum class WatchableContainerSortingType(val comparator: Comparator<in Watchable
     ByTypeAscending(compareBy({ it.watchable.type.name }, { it.watchable.watched })),
     ByTypeDescending(compareByDescending<WatchableContainer> { it.watchable.type.name }.thenByDescending { it.watchable.watched })
 }
-
-@get:StringRes
-val WatchableContainerSortingType.formatted: Int
-    get() = when (this) {
-        WatchableContainerSortingType.ByWatched -> R.string.watchables_sorting_watched_name
-        WatchableContainerSortingType.ByNameAscending -> R.string.watchables_sorting_name_ascending
-        WatchableContainerSortingType.ByNameDescending -> R.string.watchables_sorting_name_descending
-        WatchableContainerSortingType.ByTypeAscending -> R.string.watchables_sorting_type_ascending
-        WatchableContainerSortingType.ByTypeDescending -> R.string.watchables_sorting_type_descending
-    }

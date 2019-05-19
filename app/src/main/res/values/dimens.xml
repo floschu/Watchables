@@ -1,4 +1,5 @@
 <resources>
+    <dimen name="margin_large">32dp</dimen>
     <dimen name="margin">16dp</dimen>
     <dimen name="margin_half">8dp</dimen>
     <dimen name="padding">12dp</dimen>
@@ -9,6 +10,7 @@
     <dimen name="detail_media_height">232dp</dimen>
     <dimen name="episode_height">52dp</dimen>
     <dimen name="bnv_height">56dp</dimen>
+    <dimen name="watchables_filter_chip_height">42dp</dimen>
 
     <dimen name="padding_button">20dp</dimen>
 

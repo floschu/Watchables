@@ -28,6 +28,8 @@ import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.WatchablesDataSource
+import at.florianschuster.watchables.ui.watchables.filter.RxWatchablesFilterService
+import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.squareup.leakcanary.LeakCanary
@@ -41,6 +43,7 @@ val appModule = module {
     single { FirebaseAnalyticsService(androidContext(), get()) as AnalyticsService }
     single { AndroidNotificationService(androidContext()) as NotificationService }
     single { FirebaseWatchablesDataSource(get()) as WatchablesDataSource }
+    single { RxWatchablesFilterService(get()) as WatchablesFilterService }
 
     factory { (activity: AppCompatActivity) -> ActivityShareService(activity) as ShareService }
     factory { OptionsAdapter() }

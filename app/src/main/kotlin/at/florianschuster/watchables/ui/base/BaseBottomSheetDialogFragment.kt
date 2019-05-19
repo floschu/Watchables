@@ -22,24 +22,20 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
-import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.squareup.leakcanary.RefWatcher
 import io.reactivex.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 
-abstract class BaseFragment(
-        @LayoutRes protected val layoutResource: Int? = null
-) : Fragment() {
+abstract class BaseBottomSheetDialogFragment(
+        @LayoutRes protected val layout: Int? = null
+) : BottomSheetDialogFragment() {
     private val refWatcher: RefWatcher by inject()
-    protected val navController: NavController get() = findNavController()
-
     open val disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            if (layoutResource != null) inflater.inflate(layoutResource, container, false)
-            else throw RuntimeException("Please implement onCreateView().")
+            if (layout != null) inflater.inflate(layout, container, false)
+            else throw RuntimeException("Please implement onCreateView() with your layout.")
 
     @CallSuper
     override fun onDestroyView() {

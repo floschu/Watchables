@@ -18,14 +18,37 @@ package at.florianschuster.watchables.ui.watchables
 
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableSeason
+import at.florianschuster.watchables.service.WatchablesDataSource
+import io.reactivex.Flowable
+import io.reactivex.rxkotlin.Flowables
 
 data class WatchableContainer(val watchable: Watchable, val seasons: List<WatchableSeason>?)
 
 fun Watchable.convertToWatchableContainer(seasons: List<WatchableSeason>): WatchableContainer = when {
     type == Watchable.Type.movie || seasons.isEmpty() -> WatchableContainer(this, null)
     else -> {
-        val seasonsWatched = seasons.all { it.episodes.all { it.value } }
+        val seasonsWatched = seasons.all { it.episodes.all(Map.Entry<String, Boolean>::value) }
         if (watched == seasonsWatched) WatchableContainer(this, seasons)
         else WatchableContainer(this.apply { watched = seasonsWatched }, seasons)
     }
 }
+
+val WatchablesDataSource.watchableContainerObservable: Flowable<List<WatchableContainer>>
+    get() {
+        val watchablesObservable = watchablesObservable
+                .startWith(emptyList<Watchable>())
+        val watchableSeasonsObservable = watchableSeasonsObservable
+                .startWith(emptyList<WatchableSeason>())
+
+        return Flowables.combineLatest(watchablesObservable, watchableSeasonsObservable)
+                .map { (watchables, seasons) ->
+                    watchables.map { watchable ->
+                        val watchableSeasons = seasons.asSequence()
+                                .filter { it.watchableId == watchable.id }
+                                .sortedBy { it.index }
+                                .toList()
+                        watchable.convertToWatchableContainer(watchableSeasons)
+                    }
+                }
+                .skip(1) // skips initial startWith emptyLists that are needed when seasons are still empty
+    }

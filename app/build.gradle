@@ -74,8 +74,8 @@ dependencies {
     /**
      * Base
      */
-    implementation deps.reaktor.values()
-    implementation deps.koordinator.values()
+    implementation deps.reaktor
+    implementation deps.koordinator
     implementation deps.androidutil.values()
 
     /**

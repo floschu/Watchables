@@ -17,6 +17,7 @@
 package at.florianschuster.watchables.ui.watchables
 
 import at.florianschuster.koordinator.android.koin.coordinator
+import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterReactor
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
 import com.tailoredapps.reaktor.android.koin.reactor
 import org.koin.android.ext.koin.androidContext
@@ -24,6 +25,7 @@ import org.koin.dsl.module
 
 internal val watchablesModule = module {
     coordinator { WatchablesCoordinator() }
-    reactor { WatchablesReactor(get(), get(), get()) }
+    reactor { WatchablesReactor(get(), get(), get(), get()) }
     factory { WatchablesAdapter(androidContext().resources) }
+    reactor { WatchablesFilterReactor(get()) }
 }

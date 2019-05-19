@@ -12,6 +12,7 @@
         <item name="android:textColor">@color/textColor</item>
 
         <item name="android:popupMenuStyle">@style/PopupMenu</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
     </style>
 
     <style name="AppTheme.TransparentFullscreen">
@@ -74,5 +75,25 @@
     <!-- popup -->
     <style name="PopupMenu" parent="@android:style/Widget.PopupMenu">
         <item name="android:popupBackground">@drawable/bg_dialog</item>
+    </style>
+
+    <!-- BottomSheetDialogFragment -->
+    <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/AppModalStyle</item>
+    </style>
+
+    <style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">
+        <item name="android:background">@drawable/bg_bottomsheet</item>
+    </style>
+
+    <style name="FilterChip" parent="@style/Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@drawable/bg_filter_chip</item>
+        <item name="chipCornerRadius">@dimen/item_outer_corners</item>
+        <item name="chipEndPadding">@dimen/padding</item>
+        <item name="chipMinHeight">@dimen/watchables_filter_chip_height</item>
+        <item name="chipStartPadding">@dimen/padding</item>
+        <item name="chipStrokeColor">@color/white</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/textLightPrimary</item>
     </style>
 </resources>

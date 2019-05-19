@@ -35,7 +35,7 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
         super.onViewCreated(view, savedInstanceState)
 
         AlphaAnimation(1.0f, 0.0f).apply {
-            duration = screenDuration
+            duration = 1000
             fillAfter = true
 
             setAnimationListener(object : Animation.AnimationListener {
@@ -57,9 +57,5 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
             !sessionService.loggedIn -> SplashFragmentDirections.actionSplashscreenToLogin()
             else -> SplashFragmentDirections.actionSplashscreenToWatchables()
         }.let(navController::navigate)
-    }
-
-    companion object {
-        private const val screenDuration = 1000L
     }
 }

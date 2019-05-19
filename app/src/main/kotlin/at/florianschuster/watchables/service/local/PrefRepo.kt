@@ -17,7 +17,8 @@
 package at.florianschuster.watchables.service.local
 
 import android.content.Context
-import at.florianschuster.watchables.ui.watchables.WatchableContainerSortingType
+import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
+import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
 import com.orhanobut.hawk.Hawk
 import org.threeten.bp.LocalDate
 
@@ -25,6 +26,7 @@ interface PrefRepo {
     var analyticsEnabled: Boolean
     var onboardingSnackShown: Boolean
     var enjoyingAppDialogShownDate: LocalDate
+    var watchableContainerFilterType: WatchableContainerFilterType
     var watchableContainerSortingType: WatchableContainerSortingType
 }
 
@@ -57,10 +59,17 @@ class HawkPrefRepo(context: Context) : PrefRepo {
             Hawk.put(WATCHABLES_CONTAINER_SORTING_TYPE, value.ordinal)
         }
 
+    override var watchableContainerFilterType: WatchableContainerFilterType
+        get() = WatchableContainerFilterType.values()[Hawk.get(WATCHABLES_CONTAINER_FILTER_TYPE, 0)]
+        set(value) {
+            Hawk.put(WATCHABLES_CONTAINER_FILTER_TYPE, value.ordinal)
+        }
+
     companion object {
         private const val ANALYTICS_ENABLED = "analytics_enabled"
         private const val ONBOARDING_SNACK = "onboarding_snack"
         private const val ENJOYING_DIALOG_DATE = "enjoying_dialog_date"
         private const val WATCHABLES_CONTAINER_SORTING_TYPE = "watchables_container_sorting_type"
+        private const val WATCHABLES_CONTAINER_FILTER_TYPE = "watchables_container_filter_type"
     }
 }
