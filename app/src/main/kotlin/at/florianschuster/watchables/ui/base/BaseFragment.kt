@@ -30,7 +30,7 @@ import io.reactivex.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 
 abstract class BaseFragment(
-        @LayoutRes protected val layoutResource: Int? = null
+    @LayoutRes protected val layoutResource: Int? = null
 ) : Fragment() {
     private val refWatcher: RefWatcher by inject()
     protected val navController: NavController get() = findNavController()

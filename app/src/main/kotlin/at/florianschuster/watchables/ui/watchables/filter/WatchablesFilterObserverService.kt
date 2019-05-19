@@ -23,7 +23,7 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 
 interface WatchablesFilterService {
-    val currentFilter:WatchableContainerFilterType
+    val currentFilter: WatchableContainerFilterType
     val filter: Flowable<WatchableContainerFilterType>
     val currentSorting: WatchableContainerSortingType
     val sorting: Flowable<WatchableContainerSortingType>
@@ -33,7 +33,7 @@ interface WatchablesFilterService {
 }
 
 class RxWatchablesFilterService(
-        private val prefRepo: PrefRepo
+    private val prefRepo: PrefRepo
 ) : WatchablesFilterService {
     private val filterRelay: BehaviorRelay<WatchableContainerFilterType> =
             BehaviorRelay.createDefault(prefRepo.watchableContainerFilterType)

@@ -18,11 +18,9 @@ package at.florianschuster.watchables.ui.watchables.filter
 
 import android.os.Bundle
 import android.view.View
-import androidx.fragment.app.FragmentManager
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
-import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.ui.base.BaseBottomSheetDialogFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
@@ -93,7 +91,7 @@ class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(
 }
 
 class WatchablesFilterReactor(
-        private val watchablesFilterService: WatchablesFilterService
+    private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesFilterReactor.Action, WatchablesFilterReactor.Mutation, WatchablesFilterReactor.State>(
         initialState = State(watchablesFilterService.currentFilter, watchablesFilterService.currentSorting)
 ) {
@@ -108,8 +106,8 @@ class WatchablesFilterReactor(
     }
 
     data class State(
-            val selectedFiltering: WatchableContainerFilterType,
-            val selectedSorting: WatchableContainerSortingType
+        val selectedFiltering: WatchableContainerFilterType,
+        val selectedSorting: WatchableContainerSortingType
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {

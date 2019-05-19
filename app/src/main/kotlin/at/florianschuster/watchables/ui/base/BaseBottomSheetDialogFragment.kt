@@ -28,7 +28,7 @@ import io.reactivex.disposables.CompositeDisposable
 import org.koin.android.ext.android.inject
 
 abstract class BaseBottomSheetDialogFragment(
-        @LayoutRes protected val layout: Int? = null
+    @LayoutRes protected val layout: Int? = null
 ) : BottomSheetDialogFragment() {
     private val refWatcher: RefWatcher by inject()
     open val disposables = CompositeDisposable()

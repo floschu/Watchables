@@ -39,7 +39,8 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
-import at.florianschuster.watchables.ui.main.mainScreenFabClicks
+import at.florianschuster.watchables.ui.main.bnvReselects
+import at.florianschuster.watchables.ui.main.mainFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
@@ -47,7 +48,7 @@ import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterBottom
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
-import at.florianschuster.watchables.ui.watchables.recyclerview.containerDiff
+import at.florianschuster.watchables.ui.watchables.recyclerview.calculateDiff
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -103,7 +104,12 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             addScrolledPastItemListener { setMainScreenFabVisibility(it) }
         }
 
-        mainScreenFabClicks()?.subscribe { rvWatchables.smoothScrollUp() }?.addTo(disposables)
+        mainFabClicks.subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
+
+        bnvReselects
+                .filter { it.itemId == R.id.bnv_watchables }
+                .bind { rvWatchables.smoothScrollToPosition(0) }
+                .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.PhotoDetail>()
                 .map { it.url.asOptional }
@@ -121,12 +127,13 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-                .map { it to (adapter.data containerDiff it) }
-                .bind(to = adapter::setData)
+                .doOnNext(adapter::data::set)
+                .map(adapter::calculateDiff)
+                .bind { it.dispatchUpdatesTo(adapter) }
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables.count() }
-                .map { it > 5 }
+                .map { it > 15 }
                 .bind(to = rvWatchables::setFastScrollEnabled)
                 .addTo(disposables)
 
@@ -218,10 +225,10 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-        private val watchablesDataSource: WatchablesDataSource,
-        private val analyticsService: AnalyticsService,
-        private val prefRepo: PrefRepo,
-        private val watchablesFilterService: WatchablesFilterService
+    private val watchablesDataSource: WatchablesDataSource,
+    private val analyticsService: AnalyticsService,
+    private val prefRepo: PrefRepo,
+    private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = watchablesFilterService.currentSorting,
@@ -247,12 +254,12 @@ class WatchablesReactor(
     }
 
     data class State(
-            val allWatchables: List<WatchableContainer> = emptyList(),
-            val displayWatchables: List<WatchableContainer> = emptyList(),
-            val sorting: WatchableContainerSortingType,
-            val filtering: WatchableContainerFilterType,
-            val loading: Boolean = true,
-            private val onboardingSnackShown: Boolean
+        val allWatchables: List<WatchableContainer> = emptyList(),
+        val displayWatchables: List<WatchableContainer> = emptyList(),
+        val sorting: WatchableContainerSortingType,
+        val filtering: WatchableContainerFilterType,
+        val loading: Boolean = true,
+        private val onboardingSnackShown: Boolean
     ) {
         val showOnboardingSnack: Boolean
             get() = !onboardingSnackShown && displayWatchables.isEmpty()

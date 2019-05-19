@@ -17,12 +17,11 @@
 package at.florianschuster.watchables.ui.main
 
 import android.os.Bundle
-import android.view.View
+import android.view.MenuItem
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
-import androidx.navigation.ui.setupWithNavController
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
@@ -38,6 +37,7 @@ import at.florianschuster.watchables.ui.base.BaseReactor
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
+import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
@@ -48,27 +48,37 @@ import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
 
-class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReactor>, MainScreenFab {
+class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReactor>, MainScreenInteractions {
     private val navController: NavController by lazy { findNavController(R.id.navHost) }
     private val noSessionNeededDestinations = arrayOf(R.id.splashscreen, R.id.login)
 
     override val reactor: MainReactor by reactor()
 
-    override val mainScreenFab: FloatingActionButton by lazy { fabScrollDown }
-    override val fabClickedRelay: PublishRelay<View> = PublishRelay.create()
+    override val mainFab: FloatingActionButton get() = fabScrollDown
+    override val mainFabClickRelay: PublishRelay<Unit> = PublishRelay.create()
+    override val bnvReselectRelay: PublishRelay<MenuItem> = PublishRelay.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        bnv.setupWithNavController(navController)
+        bnv.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.bnv_watchables -> MainDirections.toWatchables()
+                R.id.bnv_search -> MainDirections.toSearch()
+                else -> MainDirections.toMore()
+            }.let(navController::navigate)
+            true
+        }
+
+        bnv.setOnNavigationItemReselectedListener(bnvReselectRelay::accept)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
-            main { mainScreenFab.isVisible = false }
+            main { mainFab.isVisible = false }
             val bnvShouldBeVisible = dest.id !in noSessionNeededDestinations
             if (bnv.isVisible != bnvShouldBeVisible) main { bnv.isVisible = bnvShouldBeVisible }
         }
 
-        attachMainScreenFabClicks()
+        fabScrollDown.clicks().subscribe(mainFabClickRelay).addTo(disposables)
 
         bind(reactor)
     }
@@ -76,7 +86,7 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
     override fun bind(reactor: MainReactor) {
         reactor.state.changesFrom { it.loggedIn }
                 .skip(1)
-                .filter { it.not() }
+                .filter(Boolean::not)
                 .filter { navController.currentDestination?.id !in noSessionNeededDestinations }
                 .bind {
                     val options = navController.currentDestination?.id?.let {

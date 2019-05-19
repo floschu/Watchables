@@ -39,7 +39,8 @@ import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
 import at.florianschuster.watchables.model.convertToWatchableType
 import at.florianschuster.watchables.ui.base.BaseCoordinator
-import at.florianschuster.watchables.ui.main.mainScreenFabClicks
+import at.florianschuster.watchables.ui.main.bnvReselects
+import at.florianschuster.watchables.ui.main.mainFabClicks
 import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
@@ -53,6 +54,7 @@ import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
+import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
@@ -60,6 +62,7 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_search.*
+import kotlinx.android.synthetic.main.fragment_search.emptyLayout
 import kotlinx.android.synthetic.main.fragment_search_toolbar.*
 import org.koin.android.ext.android.inject
 import timber.log.Timber
@@ -92,18 +95,30 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
     override fun bind(reactor: SearchReactor) {
         coordinator.provideNavigationHandler(navController)
 
-        rvSearch.adapter = adapter
-        rvSearch.setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
-        rvSearch.addScrolledPastItemListener { setMainScreenFabVisibility(it) }
+        with(rvSearch) {
+            adapter = this@SearchFragment.adapter
+            setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
+            addScrolledPastItemListener { setMainScreenFabVisibility(it) }
+        }
 
-        mainScreenFabClicks()?.subscribe { rvSearch.smoothScrollUp() }?.addTo(disposables)
+        mainFabClicks.subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
+
+        bnvReselects
+                .filter { it.itemId == R.id.bnv_search }
+                .bind {
+                    if (etSearch.text.isNotEmpty()) etSearch.setText("")
+                    etSearch.showKeyBoard()
+                    rvSearch.smoothScrollUp()
+                }
+                .addTo(disposables)
 
         ivClear.clicks()
-                .subscribe {
-                    rvSearch.smoothScrollUp()
-                    etSearch.hideKeyboard()
+                .bind {
                     etSearch.setText("")
-                }.addTo(disposables)
+                    etSearch.hideKeyboard()
+                    rvSearch.smoothScrollUp()
+                }
+                .addTo(disposables)
 
         etSearch.editorActions()
                 .filter { it == EditorInfo.IME_ACTION_DONE }

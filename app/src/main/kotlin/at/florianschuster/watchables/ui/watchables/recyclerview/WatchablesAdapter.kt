@@ -16,7 +16,6 @@
 
 package at.florianschuster.watchables.ui.watchables.recyclerview
 
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
@@ -38,18 +37,9 @@ sealed class WatchablesAdapterInteraction {
     data class EpisodeOptions(val seasonId: String, val seasonIndex: String, val episodeIndex: String) : WatchablesAdapterInteraction()
 }
 
-class WatchablesAdapter(
-    private val resources: Resources
-) : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
-    val interaction = PublishRelay.create<WatchablesAdapterInteraction>()
-
+class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
+    val interaction: PublishRelay<WatchablesAdapterInteraction> = PublishRelay.create()
     var data: List<WatchableContainer> = emptyList()
-        private set
-
-    fun setData(data: Pair<List<WatchableContainer>, DiffUtil.DiffResult>) {
-        this.data = data.first
-        data.second.dispatchUpdatesTo(this)
-    }
 
     private val viewPool = RecyclerView.RecycledViewPool()
 
@@ -80,31 +70,28 @@ class WatchablesAdapter(
         }
     }
 
-    override fun getSectionName(position: Int): String {
-        val item = data.get(position)
-        val watched = if (item.watchable.watched) resources.getString(R.string.watchable_watched) else resources.getString(R.string.watchable_not_watched)
-        return "$watched - ${item.watchable.name.firstOrNull()}"
-    }
+    override fun getSectionName(position: Int): String =
+            "${data[position].watchable.name.firstOrNull()}"
 }
 
 private const val DIFF_WATCHABLE = "watchable"
 private const val DIFF_SEASONS = "seasons"
 
-infix fun List<WatchableContainer>.containerDiff(new: List<WatchableContainer>): DiffUtil.DiffResult {
+infix fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): DiffUtil.DiffResult {
     return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
         override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                this@containerDiff[oldItemPosition].watchable.id == new[newItemPosition].watchable.id
+                data[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                this@containerDiff[oldItemPosition] == new[newItemPosition]
+                data[oldItemPosition] == newData[newItemPosition]
 
-        override fun getOldListSize(): Int = this@containerDiff.size
+        override fun getOldListSize(): Int = data.size
 
-        override fun getNewListSize(): Int = new.size
+        override fun getNewListSize(): Int = newData.size
 
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            val oldItem = this@containerDiff[oldItemPosition]
-            val newItem = new[newItemPosition]
+            val oldItem = data[oldItemPosition]
+            val newItem = newData[newItemPosition]
             val watchableDiff = oldItem.watchable != newItem.watchable
             val episodesDiff = oldItem.seasons != newItem.seasons
             return if (watchableDiff && episodesDiff) null

@@ -56,6 +56,14 @@
             app:popUpToInclusive="true" />
     </fragment>
 
+    <action
+        android:id="@+id/to_watchables"
+        app:destination="@id/watchables"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
+
     <fragment
         android:id="@+id/watchables"
         android:name="at.florianschuster.watchables.ui.watchables.WatchablesFragment"
@@ -69,6 +77,14 @@
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
+    <action
+        android:id="@+id/to_search"
+        app:destination="@id/search"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
+
     <fragment
         android:id="@+id/search"
         android:name="at.florianschuster.watchables.ui.search.SearchFragment"
@@ -81,6 +97,14 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+
+    <action
+        android:id="@+id/to_more"
+        app:destination="@id/more"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
 
     <fragment
         android:id="@+id/more"

@@ -16,28 +16,33 @@
 
 package at.florianschuster.watchables.ui.main
 
-import android.view.View
+import android.view.MenuItem
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jakewharton.rxrelay2.PublishRelay
 import io.reactivex.Observable
+import java.lang.IllegalStateException
 
-interface MainScreenFab {
-    val mainScreenFab: FloatingActionButton
-    val fabClickedRelay: PublishRelay<View>
+interface MainScreenInteractions {
+    val mainFab: FloatingActionButton
+    val mainFabClickRelay: PublishRelay<Unit>
+    val bnvReselectRelay: PublishRelay<MenuItem>
+}
 
-    fun attachMainScreenFabClicks() {
-        mainScreenFab.setOnClickListener(fabClickedRelay::accept)
+val Fragment.mainFabClicks: Observable<Unit>
+    get() {
+        val activity = activity as? MainScreenInteractions ?: throw IllegalStateException()
+        return activity.mainFabClickRelay.hide()
     }
-}
-
-fun Fragment.mainScreenFabClicks(): Observable<View>? {
-    val activity = activity as? MainScreenFab ?: return null
-    return activity.fabClickedRelay.hide()
-}
 
 fun Fragment.setMainScreenFabVisibility(visible: Boolean) {
-    val activity = activity as? MainScreenFab ?: return
-    activity.mainScreenFab.isVisible = visible
+    val activity = activity as? MainScreenInteractions ?: return
+    activity.mainFab.isVisible = visible
 }
+
+val Fragment.bnvReselects: Observable<MenuItem>
+    get() {
+        val activity = activity as? MainScreenInteractions ?: throw IllegalStateException()
+        return activity.bnvReselectRelay.hide()
+    }

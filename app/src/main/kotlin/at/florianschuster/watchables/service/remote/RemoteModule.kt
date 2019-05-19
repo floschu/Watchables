@@ -21,10 +21,12 @@ import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.all.util.gson.LocalDateTypeAdapter
 import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
+import com.ashokvarma.gander.GanderInterceptor
 import com.google.gson.GsonBuilder
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import org.threeten.bp.LocalDate
 import retrofit2.Retrofit
@@ -33,7 +35,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 val remoteModule = module {
     single { provideGson() }
-    single { provideOkHttpClient() }
+    single { HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC } }
+    single { GanderInterceptor(androidContext()).apply { showNotification(true) } }
+    single { provideOkHttpClient(get(), get()) }
     single { provideMovieDatabaseApi(get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
 }
 
@@ -42,16 +46,19 @@ private fun provideGson(): Gson = GsonBuilder().apply {
     registerTypeAdapter(Search.SearchItem::class.java, SearchItemTypeAdapter())
 }.create()
 
-private fun provideOkHttpClient() =
-        OkHttpClient().newBuilder().apply {
-            if (BuildConfig.DEBUG) {
-                val loggingInterceptor = HttpLoggingInterceptor()
-                loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
-                addInterceptor(loggingInterceptor)
-            }
-        }.build()
+private fun provideOkHttpClient(
+    loggingInterceptor: HttpLoggingInterceptor,
+    ganderInterceptor: GanderInterceptor
+): OkHttpClient = OkHttpClient().newBuilder().apply {
+    if (BuildConfig.DEBUG) addInterceptor(loggingInterceptor)
+    addInterceptor(ganderInterceptor)
+}.build()
 
-private fun provideMovieDatabaseApi(okHttpClient: OkHttpClient, gson: Gson, apiUrl: String): MovieDatabaseApi {
+private fun provideMovieDatabaseApi(
+    okHttpClient: OkHttpClient,
+    gson: Gson,
+    apiUrl: String
+): MovieDatabaseApi {
     val httpClientBuilder = okHttpClient.newBuilder()
 
     httpClientBuilder.addInterceptor {

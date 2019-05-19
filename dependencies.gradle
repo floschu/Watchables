@@ -107,6 +107,10 @@ ext {
                     gestureviews: 'com.alexvasilkov:gesture-views:2.5.2',
                     aboutlibs   : "com.mikepenz:aboutlibraries:6.2.1",
                     customtabs  : 'com.android.support:customtabs:28.0.0'
+            ],
+            gander     : [
+                    op  : 'com.ashokvarma.android:gander:1.4.0',
+                    noop: 'com.ashokvarma.android:gander-no-op:1.4.0'
             ]
     ]
 }

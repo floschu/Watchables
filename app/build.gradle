@@ -122,6 +122,8 @@ dependencies {
     implementation deps.glide.transformation
     kapt deps.glide.compiler
     implementation deps.work.values()
+    debugImplementation deps.gander.op
+    releaseImplementation deps.gander.noop
 }
 
 
