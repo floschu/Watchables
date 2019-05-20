@@ -127,9 +127,8 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-                .doOnNext(adapter::data::set)
-                .map(adapter::calculateDiff)
-                .bind { it.dispatchUpdatesTo(adapter) }
+                .flatMapSingle { newData -> adapter.calculateDiff(newData).map { newData to it } }
+                .bind { adapter.setData(it.first, it.second) }
                 .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables.count() }
@@ -225,10 +224,10 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-    private val watchablesDataSource: WatchablesDataSource,
-    private val analyticsService: AnalyticsService,
-    private val prefRepo: PrefRepo,
-    private val watchablesFilterService: WatchablesFilterService
+        private val watchablesDataSource: WatchablesDataSource,
+        private val analyticsService: AnalyticsService,
+        private val prefRepo: PrefRepo,
+        private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = watchablesFilterService.currentSorting,
@@ -254,12 +253,12 @@ class WatchablesReactor(
     }
 
     data class State(
-        val allWatchables: List<WatchableContainer> = emptyList(),
-        val displayWatchables: List<WatchableContainer> = emptyList(),
-        val sorting: WatchableContainerSortingType,
-        val filtering: WatchableContainerFilterType,
-        val loading: Boolean = true,
-        private val onboardingSnackShown: Boolean
+            val allWatchables: List<WatchableContainer> = emptyList(),
+            val displayWatchables: List<WatchableContainer> = emptyList(),
+            val sorting: WatchableContainerSortingType,
+            val filtering: WatchableContainerFilterType,
+            val loading: Boolean = true,
+            private val onboardingSnackShown: Boolean
     ) {
         val showOnboardingSnack: Boolean
             get() = !onboardingSnackShown && displayWatchables.isEmpty()
