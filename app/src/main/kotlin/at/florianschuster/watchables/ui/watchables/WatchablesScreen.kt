@@ -224,10 +224,10 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
-        private val watchablesDataSource: WatchablesDataSource,
-        private val analyticsService: AnalyticsService,
-        private val prefRepo: PrefRepo,
-        private val watchablesFilterService: WatchablesFilterService
+    private val watchablesDataSource: WatchablesDataSource,
+    private val analyticsService: AnalyticsService,
+    private val prefRepo: PrefRepo,
+    private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
         State(
                 sorting = watchablesFilterService.currentSorting,
@@ -253,12 +253,12 @@ class WatchablesReactor(
     }
 
     data class State(
-            val allWatchables: List<WatchableContainer> = emptyList(),
-            val displayWatchables: List<WatchableContainer> = emptyList(),
-            val sorting: WatchableContainerSortingType,
-            val filtering: WatchableContainerFilterType,
-            val loading: Boolean = true,
-            private val onboardingSnackShown: Boolean
+        val allWatchables: List<WatchableContainer> = emptyList(),
+        val displayWatchables: List<WatchableContainer> = emptyList(),
+        val sorting: WatchableContainerSortingType,
+        val filtering: WatchableContainerFilterType,
+        val loading: Boolean = true,
+        private val onboardingSnackShown: Boolean
     ) {
         val showOnboardingSnack: Boolean
             get() = !onboardingSnackShown && displayWatchables.isEmpty()
