@@ -25,7 +25,8 @@ ext {
                     optional   : "com.tailoredapps.androidutil:util-optional:${versions.androidutil}",
                     permissions: "com.tailoredapps.androidutil:util-permissions:${versions.androidutil}",
                     validation : "com.tailoredapps.androidutil:util-validation:${versions.androidutil}",
-                    viewstate  : "com.tailoredapps.androidutil:util-viewstate:${versions.androidutil}"
+                    viewstate  : "com.tailoredapps.androidutil:util-viewstate:${versions.androidutil}",
+                    firebase  : "com.tailoredapps.androidutil:util-firebase:${versions.androidutil}"
             ],
             ui         : [
                     material_core            : 'com.google.android.material:material:1.0.0',

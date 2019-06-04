@@ -64,6 +64,7 @@ import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -190,7 +191,13 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     private fun createShareOption(watchable: Watchable): Option.Action =
             Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
-                shareService.share(watchable).subscribe().addTo(disposables)
+                shareService.share(watchable)
+                    .onErrorResumeNext {
+                        Timber.e(it)
+                        toast(it.asCauseTranslation(resources))
+                        Completable.never()
+                    }
+                    .subscribe().addTo(disposables)
             }
 
     private val deleteOption: Option.Action

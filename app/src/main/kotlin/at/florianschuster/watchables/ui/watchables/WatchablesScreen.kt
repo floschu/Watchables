@@ -29,6 +29,7 @@ import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.all.util.extensions.asCauseTranslation
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.service.AnalyticsService
@@ -60,16 +61,19 @@ import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
+import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
+import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 sealed class WatchablesRoute : CoordinatorRoute {
@@ -107,15 +111,15 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
         mainFabClicks.subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
         bnvReselects
-                .filter { it.itemId == R.id.bnv_watchables }
-                .bind { rvWatchables.smoothScrollToPosition(0) }
-                .addTo(disposables)
+            .filter { it.itemId == R.id.bnv_watchables }
+            .bind { rvWatchables.smoothScrollToPosition(0) }
+            .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.PhotoDetail>()
-                .map { it.url.asOptional }
-                .filterSome()
-                .bind(to = requireContext().photoDetailConsumer)
-                .addTo(disposables)
+            .map { it.url.asOptional }
+            .filterSome()
+            .bind(to = requireContext().photoDetailConsumer)
+            .addTo(disposables)
 
         bind(reactor)
     }
@@ -123,91 +127,97 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
     override fun bind(reactor: WatchablesReactor) {
         // state
         reactor.state.changesFrom { it.loading }
-                .bind(to = pbLoading.visibility())
-                .addTo(disposables)
+            .bind(to = pbLoading.visibility())
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-                .flatMapSingle { newData -> adapter.calculateDiff(newData).map { newData to it } }
-                .bind { adapter.setData(it.first, it.second) }
-                .addTo(disposables)
+            .flatMapSingle { newData -> adapter.calculateDiff(newData).map { newData to it } }
+            .bind { adapter.setData(it.first, it.second) }
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables.count() }
-                .map { it > 15 }
-                .bind(to = rvWatchables::setFastScrollEnabled)
-                .addTo(disposables)
+            .map { it > 15 }
+            .bind(to = rvWatchables::setFastScrollEnabled)
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables.isEmpty() && !it.loading }
-                .bind(to = emptyLayout.visibility())
-                .addTo(disposables)
+            .bind(to = emptyLayout.visibility())
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.showOnboardingSnack }
-                .filter { it }
-                .take(1) // only show this once
-                .bind {
-                    rootLayout.snack(
-                            R.string.onboarding_snack,
-                            Snackbar.LENGTH_INDEFINITE,
-                            R.string.dialog_ok
-                    ) { reactor.action.accept(WatchablesReactor.Action.SetOnboardingSnackShown) }
-                }
-                .addTo(disposables)
+            .filter { it }
+            .take(1) // only show this once
+            .bind {
+                rootLayout.snack(
+                    R.string.onboarding_snack,
+                    Snackbar.LENGTH_INDEFINITE,
+                    R.string.dialog_ok
+                ) { reactor.action.accept(WatchablesReactor.Action.SetOnboardingSnackShown) }
+            }
+            .addTo(disposables)
 
         // action
         adapter.interaction.ofType<WatchablesAdapterInteraction.Watched>()
-                .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .map { WatchablesReactor.Action.SetWatched(it.watchableId, it.watched) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.WatchedEpisode>()
-                .map { WatchablesReactor.Action.SetEpisodeWatched(it.seasonId, it.episode, it.watched) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .map { WatchablesReactor.Action.SetEpisodeWatched(it.seasonId, it.episode, it.watched) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.Options>()
-                .map { it.watchable }
-                .flatMapCompletable { watchable ->
-                    rxDialog(R.style.DialogTheme) {
-                        title = getString(R.string.dialog_options_watchable, watchable.name)
-                        negativeButtonResource = R.string.dialog_cancel
-                        setItems(getString(R.string.menu_watchable_share), getString(R.string.menu_watchable_delete))
-                    }.ofType<RxDialogAction.Selected<*>>()
-                            .flatMapCompletable {
-                                when (it.index) {
-                                    0 -> shareService.share(watchable)
-                                    else -> deleteWatchableDialog(watchable)
-                                }
-                            }
-                }
-                .subscribe()
-                .addTo(disposables)
+            .map { it.watchable }
+            .flatMapCompletable { watchable ->
+                rxDialog(R.style.DialogTheme) {
+                    title = getString(R.string.dialog_options_watchable, watchable.name)
+                    negativeButtonResource = R.string.dialog_cancel
+                    setItems(getString(R.string.menu_watchable_share), getString(R.string.menu_watchable_delete))
+                }.ofType<RxDialogAction.Selected<*>>()
+                    .flatMapCompletable {
+                        when (it.index) {
+                            0 -> shareService.share(watchable)
+                            else -> deleteWatchableDialog(watchable)
+                        }
+                    }
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .onErrorResumeNext {
+                Timber.e(it)
+                toast(it.asCauseTranslation(resources))
+                Completable.never()
+            }
+            .subscribe()
+            .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.EpisodeOptions>()
-                .flatMapMaybe { clickType ->
-                    val seasonId = clickType.seasonId
-                    rxDialog(R.style.DialogTheme) {
-                        title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, clickType.seasonIndex, clickType.episodeIndex))
-                        negativeButtonResource = R.string.dialog_cancel
-                        setItems(getString(R.string.menu_watchable_season_set_watched), getString(R.string.menu_watchable_season_set_not_watched))
-                    }.ofType<RxDialogAction.Selected<*>>()
-                            .map { WatchablesReactor.Action.SetSeasonWatched(seasonId, it.index == 0) }
-                }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .flatMapMaybe { clickType ->
+                val seasonId = clickType.seasonId
+                rxDialog(R.style.DialogTheme) {
+                    title = getString(R.string.dialog_options_watchable, getString(R.string.episode_name, clickType.seasonIndex, clickType.episodeIndex))
+                    negativeButtonResource = R.string.dialog_cancel
+                    setItems(getString(R.string.menu_watchable_season_set_watched), getString(R.string.menu_watchable_season_set_not_watched))
+                }.ofType<RxDialogAction.Selected<*>>()
+                    .map { WatchablesReactor.Action.SetSeasonWatched(seasonId, it.index == 0) }
+            }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.ItemDetail>()
-                .map { WatchablesReactor.Action.SelectWatchable(it.watchable.id, it.watchable.type) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .map { WatchablesReactor.Action.SelectWatchable(it.watchable.id, it.watchable.type) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         btnFilter.clicks()
-                .throttleFirst(1, TimeUnit.SECONDS)
-                .bind {
-                    WatchablesFilterBottomSheetDialogFragment().show(
-                            fragmentManager,
-                            WatchablesFilterBottomSheetDialogFragment::class.java.simpleName
-                    )
-                }
-                .addTo(disposables)
+            .throttleFirst(1, TimeUnit.SECONDS)
+            .bind {
+                WatchablesFilterBottomSheetDialogFragment().show(
+                    fragmentManager,
+                    WatchablesFilterBottomSheetDialogFragment::class.java.simpleName
+                )
+            }
+            .addTo(disposables)
     }
 
     private fun deleteWatchableDialog(watchable: Watchable): Completable {
@@ -217,9 +227,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             positiveButtonResource = R.string.dialog_ok
             negativeButtonResource = R.string.dialog_cancel
         }.ofType<RxDialogAction.Positive>()
-                .map { WatchablesReactor.Action.DeleteWatchable(watchable) }
-                .doOnSuccess(reactor.action)
-                .ignoreElement()
+            .map { WatchablesReactor.Action.DeleteWatchable(watchable) }
+            .doOnSuccess(reactor.action)
+            .ignoreElement()
     }
 }
 
@@ -229,11 +239,11 @@ class WatchablesReactor(
     private val prefRepo: PrefRepo,
     private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
-        State(
-                sorting = watchablesFilterService.currentSorting,
-                filtering = watchablesFilterService.currentFilter,
-                onboardingSnackShown = prefRepo.onboardingSnackShown
-        )
+    State(
+        sorting = watchablesFilterService.currentSorting,
+        filtering = watchablesFilterService.currentFilter,
+        onboardingSnackShown = prefRepo.onboardingSnackShown
+    )
 ) {
 
     sealed class Action {
@@ -266,74 +276,74 @@ class WatchablesReactor(
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val watchablesMutation = watchablesDataSource
-                .watchableContainerObservable
-                .map { Mutation.SetWatchables(it) }
-                .toObservable()
+            .watchableContainerObservable
+            .map { Mutation.SetWatchables(it) }
+            .toObservable()
         val filterMutation = watchablesFilterService.filter
-                .toObservable()
-                .map(Mutation::SetFilter)
+            .toObservable()
+            .map(Mutation::SetFilter)
         val sortingMutation = watchablesFilterService.sorting
-                .toObservable()
-                .map(Mutation::SetSorting)
+            .toObservable()
+            .map(Mutation::SetSorting)
         return Observable.merge(mutation, watchablesMutation, filterMutation, sortingMutation)
     }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.SetWatched -> {
             watchablesDataSource
-                    .updateWatchable(action.watchableId, action.watched)
-                    .doOnComplete { analyticsService.logWatchableWatched(action.watchableId, action.watched) }
-                    .toObservable()
+                .updateWatchable(action.watchableId, action.watched)
+                .doOnComplete { analyticsService.logWatchableWatched(action.watchableId, action.watched) }
+                .toObservable()
         }
         is Action.SetEpisodeWatched -> {
             watchablesDataSource
-                    .updateSeasonEpisode(action.watchableSeasonId, action.episode, action.watched)
-                    .toObservable()
+                .updateSeasonEpisode(action.watchableSeasonId, action.episode, action.watched)
+                .toObservable()
         }
         is Action.SetSeasonWatched -> {
             watchablesDataSource
-                    .updateSeason(action.watchableSeasonId, action.watched)
-                    .toObservable()
+                .updateSeason(action.watchableSeasonId, action.watched)
+                .toObservable()
         }
         is Action.DeleteWatchable -> {
             watchablesDataSource
-                    .setWatchableDeleted(action.watchable.id)
-                    .doOnComplete { analyticsService.logWatchableDelete(action.watchable) }
-                    .doOnComplete { DeleteWatchablesWorker.startSingle() }
-                    .toObservable()
+                .setWatchableDeleted(action.watchable.id)
+                .doOnComplete { analyticsService.logWatchableDelete(action.watchable) }
+                .doOnComplete { DeleteWatchablesWorker.startSingle() }
+                .toObservable()
         }
         is Action.SelectWatchable -> {
             emptyMutation { Router follow WatchablesRoute.OnWatchableSelected(action.id, action.type) }
         }
         is Action.SetOnboardingSnackShown -> {
             Single.just(true)
-                    .doOnSuccess { prefRepo.onboardingSnackShown = it }
-                    .map { Mutation.SetOnboardingSnackShown(it) }
-                    .toObservable()
+                .doOnSuccess { prefRepo.onboardingSnackShown = it }
+                .map { Mutation.SetOnboardingSnackShown(it) }
+                .toObservable()
         }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.SetWatchables -> {
             previousState.copy(
-                    allWatchables = mutation.watchables,
-                    displayWatchables = mutation.watchables.asSequence()
-                            .filter(currentState.filtering.predicate)
-                            .sortedWith(currentState.sorting.comparator)
-                            .toList(),
-                    loading = false
+                allWatchables = mutation.watchables,
+                displayWatchables = mutation.watchables.asSequence()
+                    .filter(currentState.filtering.predicate)
+                    .sortedWith(currentState.sorting.comparator)
+                    .toList(),
+                loading = false
             )
         }
         is Mutation.SetFilter -> {
             previousState.copy(
-                    displayWatchables = previousState.allWatchables.filter(mutation.filtering.predicate),
-                    filtering = mutation.filtering
+                displayWatchables = previousState.allWatchables.filter(mutation.filtering.predicate),
+                filtering = mutation.filtering
             )
         }
         is Mutation.SetSorting -> {
             previousState.copy(
-                    displayWatchables = previousState.allWatchables.sortedWith(mutation.sorting.comparator),
-                    sorting = mutation.sorting
+                displayWatchables = previousState.allWatchables.sortedWith(mutation.sorting.comparator),
+                sorting = mutation.sorting
             )
         }
         is Mutation.SetOnboardingSnackShown -> previousState.copy(onboardingSnackShown = mutation.shown)

@@ -27,6 +27,7 @@ import at.florianschuster.watchables.ui.watchables.WatchableContainer
 import com.jakewharton.rxrelay2.PublishRelay
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tailoredapps.androidutil.ui.extensions.inflate
+import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
@@ -40,7 +41,10 @@ sealed class WatchablesAdapterInteraction {
 }
 
 class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
-    val interaction: PublishRelay<WatchablesAdapterInteraction> = PublishRelay.create()
+    private val interactionRelay: PublishRelay<WatchablesAdapterInteraction> = PublishRelay.create()
+    val interaction: Observable<WatchablesAdapterInteraction>
+        get() = interactionRelay.hide().share()
+
     var data: List<WatchableContainer> = emptyList()
         private set
 
@@ -60,7 +64,7 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
         else -> WatchableViewHolder.Show(parent.inflate(R.layout.item_watchable_show), viewPool)
     }
 
-    override fun onBindViewHolder(holder: WatchableViewHolder, position: Int) = holder.bind(data[position], interaction::accept)
+    override fun onBindViewHolder(holder: WatchableViewHolder, position: Int) = holder.bind(data[position], interactionRelay::accept)
 
     override fun onBindViewHolder(holder: WatchableViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) return onBindViewHolder(holder, position)
@@ -68,10 +72,10 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
             bundle.keySet()?.forEach {
                 when {
                     it == DIFF_WATCHABLE && bundle.getBoolean(it) -> {
-                        holder.bindWatchablePayload(data[position].watchable, interaction::accept)
+                        holder.bindWatchablePayload(data[position].watchable, interactionRelay::accept)
                     }
                     it == DIFF_SEASONS && bundle.getBoolean(it) -> {
-                        holder.bindSeasonsPayload(data[position].seasons, interaction::accept)
+                        holder.bindSeasonsPayload(data[position].seasons, interactionRelay::accept)
                     }
                 }
             }
@@ -79,20 +83,20 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
     }
 
     override fun getSectionName(position: Int): String =
-            "${data[position].watchable.name.firstOrNull()}"
+        "${data[position].watchable.name.firstOrNull()}"
 }
 
 private const val DIFF_WATCHABLE = "watchable"
 private const val DIFF_SEASONS = "seasons"
 
-infix fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): Single<DiffUtil.DiffResult> {
-    return Single.fromCallable {
-        DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+infix fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): Single<DiffUtil.DiffResult> = Single
+    .fromCallable {
+        object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                    data[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
+                data[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                    data[oldItemPosition] == newData[newItemPosition]
+                data[oldItemPosition] == newData[newItemPosition]
 
             override fun getOldListSize(): Int = data.size
 
@@ -106,6 +110,7 @@ infix fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): Si
                 return if (watchableDiff && episodesDiff) null
                 else bundleOf(DIFF_WATCHABLE to watchableDiff, DIFF_SEASONS to episodesDiff)
             }
-        })
-    }.subscribeOn(Schedulers.computation())
-}
+        }
+    }
+    .map(DiffUtil::calculateDiff)
+    .subscribeOn(Schedulers.computation())

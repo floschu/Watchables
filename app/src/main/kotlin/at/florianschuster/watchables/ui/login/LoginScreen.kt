@@ -35,7 +35,6 @@ import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.all.util.extensions.RxTasks
 import at.florianschuster.watchables.all.util.extensions.asCauseTranslation
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
@@ -48,6 +47,7 @@ import com.google.firebase.auth.GoogleAuthProvider
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
+import com.tailoredapps.androidutil.firebase.RxTasks
 import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tailoredapps.reaktor.android.koin.reactor
 import io.reactivex.Completable

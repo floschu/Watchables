@@ -30,6 +30,7 @@ import at.florianschuster.watchables.all.util.srcConsumer
 import at.florianschuster.watchables.model.originalPoster
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate
+import io.reactivex.Observable
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_search.*
 
@@ -40,10 +41,12 @@ sealed class SearchAdapterInteraction {
 }
 
 class SearchAdapter : ListAdapter<Search.SearchItem, SearchViewHolder>(searchDiff) {
-    val interaction: PublishRelay<SearchAdapterInteraction> = PublishRelay.create()
+    private val interactionRelay: PublishRelay<SearchAdapterInteraction> = PublishRelay.create()
+    val interaction: Observable<SearchAdapterInteraction>
+        get() = interactionRelay.hide().share()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder = SearchViewHolder(parent.inflate(R.layout.item_search))
-    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) = holder.bind(getItem(position), interaction::accept)
+    override fun onBindViewHolder(holder: SearchViewHolder, position: Int) = holder.bind(getItem(position), interactionRelay::accept)
 }
 
 private val searchDiff = object : DiffUtil.ItemCallback<Search.SearchItem>() {

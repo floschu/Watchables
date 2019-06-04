@@ -18,11 +18,11 @@ package at.florianschuster.watchables.service
 
 import android.content.Context
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.all.util.extensions.RxTasks
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import com.tailoredapps.androidutil.firebase.RxTasks
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Completable
 import io.reactivex.Flowable

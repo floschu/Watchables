@@ -16,9 +16,17 @@
 
 package at.florianschuster.watchables.model
 
-import at.florianschuster.watchables.all.util.extensions.FirestoreObject
+import com.tailoredapps.androidutil.firebase.firestore.FirestoreObject
 
-data class WatchableUser(val watchableCounter: Long = 0) : FirestoreObject()
+open class WatchablesFirestoreObject(var deleted: Boolean = false) : FirestoreObject() {
+    fun with(obj: WatchablesFirestoreObject): WatchablesFirestoreObject {
+        this.id = obj.id
+        this.deleted = obj.deleted
+        return this
+    }
+}
+
+data class WatchableUser(val watchableCounter: Long = 0) : WatchablesFirestoreObject()
 
 data class Watchable(
     var watched: Boolean = false,
@@ -27,7 +35,7 @@ data class Watchable(
     val posterPath: String? = null,
     val runtimeInMinutes: Long? = null,
     val status: Status = Status.finished
-) : FirestoreObject() {
+) : WatchablesFirestoreObject() {
     enum class Type { movie, show }
     enum class Status {
         running, finished;
@@ -41,4 +49,4 @@ data class WatchableSeason(
     val index: Int = 0,
     val posterPath: String? = null,
     val episodes: Map<String, Boolean> = emptyMap()
-) : FirestoreObject()
+) : WatchablesFirestoreObject()
