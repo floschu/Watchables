@@ -54,8 +54,17 @@
         <item>Hey there,\n</item>
         <item>What\'s up,\n</item>
         <item>Good to see you,\n</item>
+        <item>Nice to see you,\n</item>
         <item>Have a good day,\n</item>
         <item>Have a good one,\n</item>
+        <item>Greetings,\n</item>
+        <item>How\'s it going,\n</item>
+        <item>How\’s life,\n</item>
+        <item>Yo,\n</item>
+        <item>Sup,\n</item>
+        <item>Howdy,\n</item>
+        <item>Wazzup,\n</item>
+        <item>G\’day,\n</item>
     </string-array>
     <string name="more_user_id">User ID: %s</string>
     <string name="more_app_version">App Version: %s</string>
