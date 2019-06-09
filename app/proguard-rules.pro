@@ -72,6 +72,17 @@
 # Keep model classes
 -keep class at.florianschuster.watchables.model.** { *; }
 
+# kotlinx.serialization
+-keep,includedescriptorclasses class at.florianschuster.watchables.**$$serializer { *; }
+-keepclassmembers class at.florianschuster.watchables.** {
+    *** Companion;
+}
+-keepclasseswithmembers class at.florianschuster.watchables.** {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.SerializationKt
+
 # Okio
 
 -keep class sun.misc.Unsafe { *; }

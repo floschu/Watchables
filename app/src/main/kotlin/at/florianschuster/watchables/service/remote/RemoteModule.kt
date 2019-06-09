@@ -16,14 +16,15 @@
 
 package at.florianschuster.watchables.service.remote
 
-import com.google.gson.Gson
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
-import at.florianschuster.watchables.all.util.gson.LocalDateTypeAdapter
-import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
 import com.ashokvarma.gander.GanderInterceptor
 import com.google.gson.GsonBuilder
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.tailoredapps.androidutil.network.networkresponse.NetworkResponseRxJava2CallAdapterFactory
 import io.reactivex.schedulers.Schedulers
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -31,20 +32,14 @@ import org.koin.dsl.module
 import org.threeten.bp.LocalDate
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 
 val remoteModule = module {
-    single { provideGson() }
+    single { Json.nonstrict }
     single { HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC } }
     single { GanderInterceptor(androidContext()).apply { showNotification(true) } }
     single { provideOkHttpClient(get(), get()) }
     single { provideMovieDatabaseApi(get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
 }
-
-private fun provideGson(): Gson = GsonBuilder().apply {
-    registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter())
-    registerTypeAdapter(Search.SearchItem::class.java, SearchItemTypeAdapter())
-}.create()
 
 private fun provideOkHttpClient(
     loggingInterceptor: HttpLoggingInterceptor,
@@ -56,7 +51,7 @@ private fun provideOkHttpClient(
 
 private fun provideMovieDatabaseApi(
     okHttpClient: OkHttpClient,
-    gson: Gson,
+    json: Json,
     apiUrl: String
 ): MovieDatabaseApi {
     val httpClientBuilder = okHttpClient.newBuilder()
@@ -75,7 +70,8 @@ private fun provideMovieDatabaseApi(
     return Retrofit.Builder().apply {
         baseUrl(apiUrl)
         client(httpClientBuilder.build())
-        addConverterFactory(GsonConverterFactory.create(gson))
+        addConverterFactory(json.asConverterFactory(MediaType.get("application/json")))
+        addCallAdapterFactory(NetworkResponseRxJava2CallAdapterFactory.create())
         addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
     }.build().create(MovieDatabaseApi::class.java)
 }

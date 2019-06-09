@@ -16,10 +16,18 @@
 
 package at.florianschuster.watchables.model
 
-import com.google.gson.annotations.SerializedName
+import at.florianschuster.watchables.service.remote.LocalDateSerializer
+import at.florianschuster.watchables.service.remote.SearchItemSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import org.threeten.bp.LocalDate
 
-data class Search(val results: List<SearchItem?> = emptyList()) {
+@Serializable
+data class Search(val results: List<@Serializable(with = SearchItemSerializer::class) SearchItem?> = emptyList()) {
+
+    //todo polymorphic
+
+    @Serializable
     data class SearchItem(
         val id: Int,
         val title: String,
@@ -31,87 +39,94 @@ data class Search(val results: List<SearchItem?> = emptyList()) {
     }
 }
 
+@Serializable
 data class Movie(
     val id: Int,
-    @SerializedName("original_title") val name: String,
-    @SerializedName("imdb_id") val imdbId: String?,
-    @SerializedName("poster_path") val image: String?,
-    @SerializedName("homepage") val website: String?,
-    @SerializedName("release_date") val releaseDate: LocalDate?,
-    @SerializedName("runtime") val durationInMinutes: Long?,
-    @SerializedName("original_language") val language: String,
-    @SerializedName("overview") val summary: String?,
+    @SerialName("original_title") val name: String,
+    @SerialName("imdb_id") val imdbId: String?,
+    @SerialName("poster_path") val image: String?,
+    @SerialName("homepage") val website: String?,
+    @SerialName("release_date") @Serializable(with = LocalDateSerializer::class) val releaseDate: LocalDate?,
+    @SerialName("runtime") val durationInMinutes: Long?,
+    @SerialName("original_language") val language: String,
+    @SerialName("overview") val summary: String?,
     val status: Status,
     val videos: Videos,
     val credits: Credits?
 ) {
     enum class Status {
-        @SerializedName("Rumored")
+        @SerialName("Rumored")
         rumored,
-        @SerializedName("Planned")
+        @SerialName("Planned")
         planned,
-        @SerializedName("In Production")
+        @SerialName("In Production")
         inProduction,
-        @SerializedName("Post Production")
+        @SerialName("Post Production")
         postProduction,
-        @SerializedName("Released")
+        @SerialName("Released")
         released,
-        @SerializedName("Canceled")
+        @SerialName("Canceled")
         canceled
     }
 }
 
+@Serializable
 data class Show(
     val id: Int,
-    @SerializedName("original_name") val name: String,
-    @SerializedName("poster_path") val image: String?,
-    @SerializedName("homepage") val website: String,
-    @SerializedName("number_of_seasons") val seasons: Int,
-    @SerializedName("episode_run_time") val episodeRuntimes: List<Int>,
-    @SerializedName("external_ids") val externalIds: ExternalIds,
-    @SerializedName("first_air_date") val releaseDate: LocalDate?,
-    @SerializedName("overview") val summary: String?,
+    @SerialName("original_name") val name: String,
+    @SerialName("poster_path") val image: String?,
+    @SerialName("homepage") val website: String,
+    @SerialName("number_of_seasons") val seasons: Int,
+    @SerialName("episode_run_time") val episodeRuntimes: List<Int>,
+    @SerialName("external_ids") val externalIds: ExternalIds,
+    @SerialName("first_air_date") @Serializable(with = LocalDateSerializer::class) val releaseDate: LocalDate?,
+    @SerialName("overview") val summary: String?,
     val status: Status,
     val videos: Videos,
-    @SerializedName("next_episode_to_air") val nextEpisode: Season.Episode?,
-    @SerializedName("last_episode_to_air") val lastEpisode: Season.Episode?,
+    @SerialName("next_episode_to_air") val nextEpisode: Season.Episode?,
+    @SerialName("last_episode_to_air") val lastEpisode: Season.Episode?,
     val credits: Credits?
 ) {
     enum class Status {
-        @SerializedName("Returning Series")
+        @SerialName("Returning Series")
         returningSeries,
-        @SerializedName("Planned")
+        @SerialName("Planned")
         planned,
-        @SerializedName("In Production")
+        @SerialName("In Production")
         inProduction,
-        @SerializedName("Ended")
+        @SerialName("Ended")
         ended,
-        @SerializedName("Canceled")
+        @SerialName("Canceled")
         canceled,
-        @SerializedName("Pilot")
+        @SerialName("Pilot")
         pilot
     }
 
-    data class ExternalIds(@SerializedName("imdb_id") val imdbId: String?)
+    @Serializable
+    data class ExternalIds(@SerialName("imdb_id") val imdbId: String?)
 }
 
+@Serializable
 data class Season(
     val id: Int,
-    @SerializedName("season_number") val index: Int,
-    @SerializedName("poster_path") val image: String?,
-    @SerializedName("air_date") val airingDate: LocalDate?,
-    @SerializedName("episodes") val episodes: List<Episode>
+    @SerialName("season_number") val index: Int,
+    @SerialName("poster_path") val image: String?,
+    @SerialName("air_date") @Serializable(with = LocalDateSerializer::class) val airingDate: LocalDate?,
+    @SerialName("episodes") val episodes: List<Episode>
 ) {
+    @Serializable
     data class Episode(
         val id: Int,
         val name: String,
-        @SerializedName("season_number") val seasonIndex: Int,
-        @SerializedName("episode_number") val episodeIndex: Int,
-        @SerializedName("air_date") val airingDate: LocalDate?
+        @SerialName("season_number") val seasonIndex: Int,
+        @SerialName("episode_number") val episodeIndex: Int,
+        @SerialName("air_date") @Serializable(with = LocalDateSerializer::class) val airingDate: LocalDate?
     )
 }
 
+@Serializable
 data class Videos(val results: List<Video>) {
+    @Serializable
     data class Video(
         val id: String,
         val name: String,
@@ -120,15 +135,15 @@ data class Videos(val results: List<Video>) {
         val site: String
     ) {
         enum class Type {
-            @SerializedName("Trailer")
+            @SerialName("Trailer")
             trailer,
-            @SerializedName("Teaser")
+            @SerialName("Teaser")
             teaser,
-            @SerializedName("Clip")
+            @SerialName("Clip")
             clip,
-            @SerializedName("Featurette")
+            @SerialName("Featurette")
             featurette,
-            @SerializedName("Opening Credits")
+            @SerialName("Opening Credits")
             openingCredits
         }
 
@@ -137,9 +152,11 @@ data class Videos(val results: List<Video>) {
     }
 }
 
+@Serializable
 data class Credits(val id: Int, val cast: List<Cast>) {
+    @Serializable
     data class Cast(
-        @SerializedName("cast_id")
+        @SerialName("cast_id")
         val id: Int,
         val name: String,
         val order: Int

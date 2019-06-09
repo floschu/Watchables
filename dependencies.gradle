@@ -16,6 +16,10 @@ ext {
     ]
 
     deps = [
+            kotlin     : [
+                    standard     : "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$versions.kotlin",
+                    serialization: "org.jetbrains.kotlinx:kotlinx-serialization-runtime:0.11.0"
+            ],
             reaktor    : "at.florianschuster.reaktor:reaktor-android-koin:${versions.reaktor}",
             koordinator: "at.florianschuster.koordinator:koordinator-android-koin:${versions.koordinator}",
             androidutil: [
@@ -83,7 +87,7 @@ ext {
             ],
             networking : [
                     retrofit      : "com.squareup.retrofit2:retrofit:${versions.retrofit}",
-                    retrofitGson  : "com.squareup.retrofit2:converter-gson:${versions.retrofit}",
+                    retrofitSerialization: "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.4.0",
                     retrofitRxjava: "com.squareup.retrofit2:adapter-rxjava2:${versions.retrofit}",
                     okhttp        : "com.squareup.okhttp3:okhttp:${versions.okhttp}",
                     okhttpLogging : "com.squareup.okhttp3:logging-interceptor:${versions.okhttp}"
@@ -101,7 +105,6 @@ ext {
                     transformation: 'jp.wasabeef:glide-transformations:4.0.1'
             ],
             coreutil   : [
-                    gson        : 'com.google.code.gson:gson:2.8.5',
                     timber      : 'com.jakewharton.timber:timber:4.7.1',
                     threeten    : 'com.jakewharton.threetenabp:threetenabp:1.2.1',
                     flick       : 'me.saket:flick:1.4.0',
