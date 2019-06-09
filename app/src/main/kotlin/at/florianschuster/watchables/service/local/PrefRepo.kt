@@ -54,13 +54,29 @@ class HawkPrefRepo(context: Context) : PrefRepo {
         }
 
     override var watchableContainerSortingType: WatchableContainerSortingType
-        get() = WatchableContainerSortingType.values()[Hawk.get(WATCHABLES_CONTAINER_SORTING_TYPE, 0)]
+        get() {
+            val stored = Hawk.get(WATCHABLES_CONTAINER_SORTING_TYPE, 0)
+            return when {
+                stored < WatchableContainerSortingType.values().size -> {
+                    WatchableContainerSortingType.values()[stored]
+                }
+                else -> WatchableContainerSortingType.ByWatched
+            }
+        }
         set(value) {
             Hawk.put(WATCHABLES_CONTAINER_SORTING_TYPE, value.ordinal)
         }
 
     override var watchableContainerFilterType: WatchableContainerFilterType
-        get() = WatchableContainerFilterType.values()[Hawk.get(WATCHABLES_CONTAINER_FILTER_TYPE, 0)]
+        get() {
+            val stored = Hawk.get(WATCHABLES_CONTAINER_FILTER_TYPE, 0)
+            return when {
+                stored < WatchableContainerFilterType.values().size -> {
+                    WatchableContainerFilterType.values()[stored]
+                }
+                else -> WatchableContainerFilterType.All
+            }
+        }
         set(value) {
             Hawk.put(WATCHABLES_CONTAINER_FILTER_TYPE, value.ordinal)
         }

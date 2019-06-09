@@ -22,18 +22,18 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import at.florianschuster.watchables.R
 import com.tailoredapps.androidutil.ui.IntentUtil
 import io.reactivex.Completable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import at.florianschuster.watchables.R
 
 @SuppressLint("CheckResult")
 fun main(afterMillis: Long = 0, block: () -> Unit) {
     Completable.timer(afterMillis, TimeUnit.MILLISECONDS)
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe(block)
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(block)
 }
 
 fun FragmentActivity.openChromeTab(url: String) {
@@ -53,6 +53,6 @@ fun FragmentActivity.openChromeTab(url: String) {
 
 fun Fragment.openChromeTab(url: String) {
     val activity = this.activity
-            ?: throw RuntimeException("No Activity attached to Fragment. Cannot show Dialog.")
+        ?: throw RuntimeException("No Activity attached to Fragment. Cannot show Dialog.")
     activity.openChromeTab(url)
 }

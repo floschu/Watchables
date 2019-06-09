@@ -47,6 +47,9 @@
     <string name="more_developer_info">Developer Info</string>
     <string name="more_share_app">Share App with Friends</string>
     <string name="more_hello_there">Hi\n%s</string>
+    <string name="more_user_id">User ID: %s</string>
+    <string name="more_app_version">App Version: %s</string>
+    <string name="more_copied_user_id_label">Copied User ID</string>
     <string name="privacy_policy_url">https://florianschuster.at/watchables/privacy.html</string>
     <string name="developer_url">https://florianschuster.at/</string>
     <string name="dialog_ok">OK</string>
@@ -89,9 +92,8 @@
     <string name="watchables_filter_type_movies">Movies</string>
     <string name="watchables_filter_type_shows">Tv Shows</string>
     <string name="watchables_sorting_title">Sort Watchables</string>
-    <string name="watchables_sorting_watched_name">By watched then name</string>
-    <string name="watchables_sorting_name_ascending">By name ascending</string>
-    <string name="watchables_sorting_name_descending">By name descending</string>
-    <string name="watchables_sorting_type_ascending">By type ascending</string>
-    <string name="watchables_sorting_type_descending">By type descending</string>
+    <string name="watchables_sorting_watched_name">By watched</string>
+    <string name="watchables_sorting_last_updated">By last updated</string>
+    <string name="watchables_sorting_name_ascending">By name</string>
+    <string name="watchables_sorting_type_ascending">By type</string>
 </resources>

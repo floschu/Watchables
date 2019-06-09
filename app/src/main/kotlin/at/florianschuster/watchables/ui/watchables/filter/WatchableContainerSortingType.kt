@@ -16,12 +16,16 @@
 
 package at.florianschuster.watchables.ui.watchables.filter
 
+import at.florianschuster.watchables.model.WatchableSeason
 import at.florianschuster.watchables.ui.watchables.WatchableContainer
 
 enum class WatchableContainerSortingType(val comparator: Comparator<in WatchableContainer>) {
     ByWatched(compareBy({ it.watchable.watched }, { it.watchable.name })),
-    ByNameAscending(compareBy({ it.watchable.name }, { it.watchable.watched })),
-    ByNameDescending(compareByDescending<WatchableContainer> { it.watchable.name }.thenByDescending { it.watchable.watched }),
-    ByTypeAscending(compareBy({ it.watchable.type.name }, { it.watchable.watched })),
-    ByTypeDescending(compareByDescending<WatchableContainer> { it.watchable.type.name }.thenByDescending { it.watchable.watched })
+    ByLastUsed(
+        compareByDescending<WatchableContainer> { it.watchable.lastUpdated }
+            .thenByDescending { it.seasons?.sortedByDescending(WatchableSeason::lastUpdated)?.firstOrNull()?.lastUpdated }
+            .thenByDescending { it.watchable.name }
+    ),
+    ByName(compareBy({ it.watchable.name }, { it.watchable.watched })),
+    ByType(compareBy({ it.watchable.type.name }, { it.watchable.watched })),
 }

@@ -48,5 +48,29 @@
             app:stackFromEnd="true"
             tools:itemCount="7"
             tools:listitem="@layout/item_option" />
+
+        <TextView
+            android:id="@+id/tvUserId"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_half"
+            android:gravity="center"
+            android:textColor="@color/white_opacity_30"
+            app:layout_constraintBottom_toTopOf="@id/tvVersion"
+            app:layout_constraintTop_toBottomOf="@id/rvMoreOptions"
+            tools:text="User ID: 1238r397r8236e823r" />
+
+        <TextView
+            android:id="@+id/tvVersion"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin"
+            android:gravity="center"
+            android:textColor="@color/white_opacity_30"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvUserId"
+            tools:text="App Version 1.2.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

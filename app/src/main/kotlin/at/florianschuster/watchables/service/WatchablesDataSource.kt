@@ -18,6 +18,7 @@ package at.florianschuster.watchables.service
 
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.WatchableSeason
+import at.florianschuster.watchables.model.WatchableTimestamp
 import at.florianschuster.watchables.model.WatchableUser
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
@@ -116,7 +117,10 @@ class FirebaseWatchablesDataSource(
 
     override fun updateWatchable(watchableId: String, watched: Boolean): Completable = sessionService.user
         .map { fireStore.watchables(it.uid).document(watchableId) }
-        .flatMapCompletable { it.updateField(Watchable::watched.name, watched) }
+        .flatMapCompletable {
+            it.updateField(Watchable::watched.name, watched)
+                .andThen(it.updateField(Watchable::lastUpdated.name, WatchableTimestamp.now))
+        }
         .subscribeOn(Schedulers.io())
 
     override fun setWatchableDeleted(watchableId: String): Completable = sessionService.user
@@ -155,7 +159,7 @@ class FirebaseWatchablesDataSource(
             .map { fireStore.seasons(it.uid).document(seasonId) }
             .flatMapCompletable { seasonDocument ->
                 seasonDocument.localObject<WatchableSeason>()
-                    .map { it.copy(episodes = it.episodes.mapValues { watched }) }
+                    .map { it.copy(episodes = it.episodes.mapValues { watched }, lastUpdated = WatchableTimestamp.now) }
                     .flatMapCompletable(seasonDocument::updateObject)
             }
             .subscribeOn(Schedulers.io())
@@ -163,7 +167,10 @@ class FirebaseWatchablesDataSource(
 
     override fun updateSeasonEpisode(seasonId: String, episode: String, watched: Boolean): Completable = sessionService.user
         .map { fireStore.seasons(it.uid).document(seasonId) }
-        .flatMapCompletable { it.updateNestedField(WatchableSeason::episodes.name, episode to watched) }
+        .flatMapCompletable {
+            it.updateNestedField(WatchableSeason::episodes.name, episode to watched)
+                .andThen(it.updateField(Watchable::lastUpdated.name, WatchableTimestamp.now))
+        }
         .subscribeOn(Schedulers.io())
 
     override val watchablesToUpdate: Single<List<Watchable>>
@@ -201,6 +208,7 @@ class FirebaseWatchablesDataSource(
     private fun DocumentReference.updateNestedField(
         fieldName: String,
         keyValuePair: Pair<String, Any>
-    ): Completable =
-        RxTasks.completable { update("$fieldName.${keyValuePair.first}", keyValuePair.second) }
+    ): Completable = RxTasks.completable {
+        update("$fieldName.${keyValuePair.first}", keyValuePair.second)
+    }
 }

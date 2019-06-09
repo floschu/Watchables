@@ -37,17 +37,16 @@ class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(
     override val reactor: WatchablesFilterReactor by reactor()
 
     private val filterChipsIdMap = mapOf(
-            R.id.chipFilterAll to WatchableContainerFilterType.All,
-            R.id.chipFilterMovies to WatchableContainerFilterType.Movies,
-            R.id.chipFilterShows to WatchableContainerFilterType.Shows
+        R.id.chipFilterAll to WatchableContainerFilterType.All,
+        R.id.chipFilterMovies to WatchableContainerFilterType.Movies,
+        R.id.chipFilterShows to WatchableContainerFilterType.Shows
     )
 
     private val sortingChipsIdMap = mapOf(
-            R.id.chipSortingWatched to WatchableContainerSortingType.ByWatched,
-            R.id.chipSortingNameAsc to WatchableContainerSortingType.ByNameAscending,
-            R.id.chipSortingNameDsc to WatchableContainerSortingType.ByNameDescending,
-            R.id.chipSortingTypeAsc to WatchableContainerSortingType.ByTypeAscending,
-            R.id.chipSortingTypeDesc to WatchableContainerSortingType.ByTypeDescending
+        R.id.chipSortingWatched to WatchableContainerSortingType.ByWatched,
+        R.id.chipLastUpdated to WatchableContainerSortingType.ByLastUsed,
+        R.id.chipSortingNameAsc to WatchableContainerSortingType.ByName,
+        R.id.chipSortingTypeAsc to WatchableContainerSortingType.ByType
     )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -57,44 +56,43 @@ class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(
 
     override fun bind(reactor: WatchablesFilterReactor) {
         cgFilter.checkedChanges()
-                .skip(1)
-                .map { filterChipsIdMap[it].asOptional }
-                .filterSome()
-                .map { WatchablesFilterReactor.Action.SelectFilter(it) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .skip(1)
+            .map { filterChipsIdMap[it].asOptional }
+            .filterSome()
+            .map { WatchablesFilterReactor.Action.SelectFilter(it) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         cgSorting.checkedChanges()
-                .skip(1)
-                .map { sortingChipsIdMap[it].asOptional }
-                .filterSome()
-                .map { WatchablesFilterReactor.Action.SelectSorting(it) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .skip(1)
+            .map { sortingChipsIdMap[it].asOptional }
+            .filterSome()
+            .map { WatchablesFilterReactor.Action.SelectSorting(it) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.selectedFiltering }
-                .map { filterType -> filterChipsIdMap.entries.first { it.value == filterType }.key }
-                .onErrorReturn { -1 }
-                .doOnNext(cgFilter.checked())
-                .skip(1)
-                .bind { dismiss() }
-                .addTo(disposables)
+            .map { filterType -> filterChipsIdMap.entries.first { it.value == filterType }.key }
+            .onErrorReturn { -1 }
+            .doOnNext(cgFilter.checked())
+            .skip(1)
+            .bind { dismiss() }
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.selectedSorting }
-                .map { sortingType -> sortingChipsIdMap.entries.first { it.value == sortingType }.key }
-                .onErrorReturn { -1 }
-                .doOnNext(cgSorting.checked())
-                .skip(1)
-                .bind { dismiss() }
-                .addTo(disposables)
+            .map { sortingType -> sortingChipsIdMap.entries.first { it.value == sortingType }.key }
+            .onErrorReturn { -1 }
+            .doOnNext(cgSorting.checked())
+            .skip(1)
+            .bind { dismiss() }
+            .addTo(disposables)
     }
-
 }
 
 class WatchablesFilterReactor(
     private val watchablesFilterService: WatchablesFilterService
 ) : BaseReactor<WatchablesFilterReactor.Action, WatchablesFilterReactor.Mutation, WatchablesFilterReactor.State>(
-        initialState = State(watchablesFilterService.currentFilter, watchablesFilterService.currentSorting)
+    initialState = State(watchablesFilterService.currentFilter, watchablesFilterService.currentSorting)
 ) {
     sealed class Action {
         data class SelectFilter(val filter: WatchableContainerFilterType) : Action()
@@ -113,11 +111,11 @@ class WatchablesFilterReactor(
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val filterMutation = watchablesFilterService.filter
-                .toObservable()
-                .map(Mutation::SetFilter)
+            .toObservable()
+            .map(Mutation::SetFilter)
         val sortingMutation = watchablesFilterService.sorting
-                .toObservable()
-                .map(Mutation::SetSorting)
+            .toObservable()
+            .map(Mutation::SetSorting)
         return Observable.merge(mutation, filterMutation, sortingMutation)
     }
 
