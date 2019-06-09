@@ -62,4 +62,3 @@ object WatchableTimestamp {
     fun toOffsetDateTime(epochSeconds: Long): OffsetDateTime = OffsetDateTime
         .ofInstant(Instant.ofEpochSecond(epochSeconds), ZoneId.systemDefault())
 }
-
