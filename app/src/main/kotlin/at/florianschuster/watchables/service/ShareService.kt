@@ -46,30 +46,25 @@ class ActivityShareService(
     private val tempFile: File by lazy { File(activity.cacheDir, "shareimage.jpg") }
 
     override fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.originalPoster)
-            .flatMap {
-                val chooserText = when (watchable.type) {
-                    Watchable.Type.show -> resources.getString(R.string.share_watchable_chooser_text_show, watchable.name)
-                    Watchable.Type.movie -> resources.getString(R.string.share_watchable_chooser_text_movie, watchable.name)
-                }
-                chooserIntent(resources.getString(R.string.share_watchable_chooser_title, watchable.name), chooserText, it)
+        .flatMap {
+            val chooserText = when (watchable.type) {
+                Watchable.Type.show -> resources.getString(R.string.share_watchable_chooser_text_show, watchable.name)
+                Watchable.Type.movie -> resources.getString(R.string.share_watchable_chooser_text_movie, watchable.name)
             }
-            .doOnSuccess(activity::startActivity)
-            .ignoreElement()
+            chooserIntent(resources.getString(R.string.share_watchable_chooser_title, watchable.name), chooserText, it)
+        }
+        .doOnSuccess(activity::startActivity)
+        .ignoreElement()
 
     override fun shareApp(): Completable = chooserIntent(resources.getString(R.string.share_app_chooser_title), resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.app_link)), null)
-            .doOnSuccess(activity::startActivity)
-            .ignoreElement()
+        .doOnSuccess(activity::startActivity)
+        .ignoreElement()
 
     private fun downloadImageToShare(imageUrl: String?): Single<Uri> = Single
-            .fromCallable { // todo crash
-                val target = GlideApp.with(activity).asBitmap().load(imageUrl).submit()
-                val bitmap = target.get()
-                GlideApp.with(activity).clear(target)
-                bitmap
-            }
-            .flatMap(::cacheBitmapForShare)
-            .flatMap(::contentUriFromFile)
-            .subscribeOn(Schedulers.io())
+        .fromCallable { GlideApp.with(activity).asBitmap().load(imageUrl).submit().get() }
+        .flatMap(::cacheBitmapForShare)
+        .flatMap(::contentUriFromFile)
+        .subscribeOn(Schedulers.io())
 
     private fun cacheBitmapForShare(bitmap: Bitmap): Single<File> = Single.create { emitter ->
         FileOutputStream(tempFile).use {
@@ -84,16 +79,16 @@ class ActivityShareService(
     }
 
     private fun chooserIntent(chooserTitle: String, intentText: String, imageUri: Uri?): Single<Intent> =
-            Single.fromCallable {
-                Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_TEXT, intentText)
-                    if (imageUri != null) {
-                        type = activity.contentResolver.getType(imageUri)
-                        putExtra(Intent.EXTRA_STREAM, imageUri)
-                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    } else {
-                        type = "text/plain"
-                    }
+        Single.fromCallable {
+            Intent(Intent.ACTION_SEND).apply {
+                putExtra(Intent.EXTRA_TEXT, intentText)
+                if (imageUri != null) {
+                    type = activity.contentResolver.getType(imageUri)
+                    putExtra(Intent.EXTRA_STREAM, imageUri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                } else {
+                    type = "text/plain"
                 }
-            }.map { Intent.createChooser(it, chooserTitle) }
+            }
+        }.map { Intent.createChooser(it, chooserTitle) }
 }
