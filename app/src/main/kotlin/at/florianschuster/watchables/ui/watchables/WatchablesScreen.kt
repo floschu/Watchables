@@ -49,7 +49,6 @@ import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterBottom
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
-import at.florianschuster.watchables.ui.watchables.recyclerview.calculateDiff
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -131,8 +130,13 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         reactor.state.changesFrom { it.displayWatchables }
             .throttleLatest(250, TimeUnit.MILLISECONDS)
-            .flatMapSingle { newData -> adapter.calculateDiff(newData).map { newData to it } }
-            .bind { adapter.setData(it.first, it.second) }
+            .flatMapSingle { newData ->
+                WatchablesAdapter.calculateDiff(adapter.data, newData)
+                    .map { newData to it }
+            }
+            .bind { (watchableContainer, diffResult) ->
+                adapter.setData(watchableContainer, diffResult)
+            }
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables.count() }

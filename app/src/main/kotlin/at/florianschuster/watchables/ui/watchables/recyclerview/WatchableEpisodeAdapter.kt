@@ -64,7 +64,8 @@ class WatchableEpisodeViewHolder(
                     WatchablesAdapterInteraction.EpisodeOptions(
                             watchableEpisode.seasonId,
                             watchableEpisode.seasonIndex,
-                            watchableEpisode.episode)
+                            watchableEpisode.episode
+                    )
             )
             true
         }

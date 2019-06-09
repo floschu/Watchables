@@ -68,50 +68,50 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
         holder.bind(data[position], interactionRelay::accept)
 
     override fun onBindViewHolder(holder: WatchableViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.isEmpty()) return onBindViewHolder(holder, position)
-        (payloads[0] as? Bundle)?.let { bundle ->
-            bundle.keySet()?.forEach {
-                when {
-                    it == DIFF_WATCHABLE && bundle.getBoolean(it) -> {
-                        holder.bindWatchablePayload(data[position].watchable, interactionRelay::accept)
-                    }
-                    it == DIFF_SEASONS && bundle.getBoolean(it) -> {
-                        holder.bindSeasonsPayload(data[position].seasons, interactionRelay::accept)
-                    }
-                }
-            }
+        if (payloads.isEmpty()) {
+            onBindViewHolder(holder, position)
+            return
+        }
+        val payLoadPair = payloads.firstOrNull() as? Pair<*, *> ?: return
+        val (watchableDiff, episodesDiff) = payLoadPair
+
+        if (watchableDiff is Boolean && watchableDiff) {
+            holder.bindWatchablePayload(data[position].watchable, interactionRelay::accept)
+        }
+        if (episodesDiff is Boolean && episodesDiff) {
+            holder.bindSeasonsPayload(data[position].seasons, interactionRelay::accept)
         }
     }
 
     override fun getSectionName(position: Int): String =
         "${data[position].watchable.name.firstOrNull()}"
-}
 
-private const val DIFF_WATCHABLE = "watchable"
-private const val DIFF_SEASONS = "seasons"
+    companion object {
+        fun calculateDiff(
+            oldData: List<WatchableContainer>,
+            newData: List<WatchableContainer>
+        ): Single<DiffUtil.DiffResult> = Single
+            .fromCallable {
+                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                        oldData[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
 
-fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): Single<DiffUtil.DiffResult> = Single
-    .fromCallable {
-        object : DiffUtil.Callback() {
-            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                data[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
+                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                        oldData[oldItemPosition] == newData[newItemPosition]
 
-            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                data[oldItemPosition] == newData[newItemPosition]
+                    override fun getOldListSize(): Int = oldData.size
 
-            override fun getOldListSize(): Int = data.size
+                    override fun getNewListSize(): Int = newData.size
 
-            override fun getNewListSize(): Int = newData.size
-
-            override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-                val oldItem = data[oldItemPosition]
-                val newItem = newData[newItemPosition]
-                val watchableDiff = oldItem.watchable != newItem.watchable
-                val episodesDiff = oldItem.seasons != newItem.seasons
-                return if (watchableDiff && episodesDiff) null
-                else bundleOf(DIFF_WATCHABLE to watchableDiff, DIFF_SEASONS to episodesDiff)
+                    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+                        val oldItem = oldData[oldItemPosition]
+                        val newItem = newData[newItemPosition]
+                        val watchableDiff = oldItem.watchable != newItem.watchable
+                        val episodesDiff = oldItem.seasons != newItem.seasons
+                        return if (watchableDiff && episodesDiff) null else watchableDiff to episodesDiff
+                    }
+                })
             }
-        }
+            .subscribeOn(Schedulers.computation())
     }
-    .map(DiffUtil::calculateDiff)
-    .subscribeOn(Schedulers.computation())
+}
