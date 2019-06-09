@@ -61,7 +61,7 @@ class ActivityShareService(
             .ignoreElement()
 
     private fun downloadImageToShare(imageUrl: String?): Single<Uri> = Single
-            .fromCallable {
+            .fromCallable { //todo crash
                 val target = GlideApp.with(activity).asBitmap().load(imageUrl).submit()
                 val bitmap = target.get()
                 GlideApp.with(activity).clear(target)

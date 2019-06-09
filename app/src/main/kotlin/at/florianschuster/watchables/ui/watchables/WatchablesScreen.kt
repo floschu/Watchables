@@ -62,7 +62,7 @@ import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.toast
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -110,8 +110,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         mainFabClicks.subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
 
-        bnvReselects
-            .filter { it.itemId == R.id.bnv_watchables }
+        bnvReselects.filter { it.itemId == R.id.watchables }
             .bind { rvWatchables.smoothScrollToPosition(0) }
             .addTo(disposables)
 
@@ -131,6 +130,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
+            .throttleLatest(250, TimeUnit.MILLISECONDS)
             .flatMapSingle { newData -> adapter.calculateDiff(newData).map { newData to it } }
             .bind { adapter.setData(it.first, it.second) }
             .addTo(disposables)

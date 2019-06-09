@@ -49,7 +49,7 @@ import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.firebase.RxTasks
 import com.tailoredapps.androidutil.ui.extensions.toast
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo

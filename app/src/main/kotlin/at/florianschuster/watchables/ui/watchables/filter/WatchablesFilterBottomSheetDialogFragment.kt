@@ -28,7 +28,7 @@ import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.ui.rxviews.checked
 import com.tailoredapps.androidutil.ui.rxviews.checkedChanges
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_watchables_filter.*

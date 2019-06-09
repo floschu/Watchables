@@ -64,7 +64,8 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
         else -> WatchableViewHolder.Show(parent.inflate(R.layout.item_watchable_show), viewPool)
     }
 
-    override fun onBindViewHolder(holder: WatchableViewHolder, position: Int) = holder.bind(data[position], interactionRelay::accept)
+    override fun onBindViewHolder(holder: WatchableViewHolder, position: Int) =
+        holder.bind(data[position], interactionRelay::accept)
 
     override fun onBindViewHolder(holder: WatchableViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isEmpty()) return onBindViewHolder(holder, position)
@@ -89,7 +90,7 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
 private const val DIFF_WATCHABLE = "watchable"
 private const val DIFF_SEASONS = "seasons"
 
-infix fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): Single<DiffUtil.DiffResult> = Single
+fun WatchablesAdapter.calculateDiff(newData: List<WatchableContainer>): Single<DiffUtil.DiffResult> = Single
     .fromCallable {
         object : DiffUtil.Callback() {
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =

@@ -18,8 +18,11 @@ package at.florianschuster.watchables.ui.main
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.annotation.IdRes
 import androidx.core.view.isVisible
+import androidx.core.view.iterator
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import at.florianschuster.reaktor.ReactorView
@@ -41,7 +44,7 @@ import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
@@ -63,8 +66,8 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 
         bnv.setOnNavigationItemSelectedListener {
             when (it.itemId) {
-                R.id.bnv_watchables -> MainDirections.toWatchables()
-                R.id.bnv_search -> MainDirections.toSearch()
+                R.id.watchables -> MainDirections.toWatchables()
+                R.id.search -> MainDirections.toSearch()
                 else -> MainDirections.toMore()
             }.let(navController::navigate)
             true
@@ -77,7 +80,6 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
             val bnvShouldBeVisible = dest.id !in noSessionNeededDestinations
             if (bnv.isVisible != bnvShouldBeVisible) main { bnv.isVisible = bnvShouldBeVisible }
         }
-
         fabScrollDown.clicks().subscribe(mainFabClickRelay).addTo(disposables)
 
         bind(reactor)
@@ -85,33 +87,33 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 
     override fun bind(reactor: MainReactor) {
         reactor.state.changesFrom { it.loggedIn }
-                .skip(1)
-                .filter(Boolean::not)
-                .filter { navController.currentDestination?.id !in noSessionNeededDestinations }
-                .bind {
-                    val options = navController.currentDestination?.id?.let {
-                        navOptions { popUpTo(it) { inclusive = true } }
-                    }
-                    navController.navigate(MainDirections.toLogin(), options)
+            .skip(1)
+            .filter(Boolean::not)
+            .filter { navController.currentDestination?.id !in noSessionNeededDestinations }
+            .bind {
+                val options = navController.currentDestination?.id?.let {
+                    navOptions { popUpTo(it) { inclusive = true } }
                 }
-                .addTo(disposables)
+                navController.navigate(MainDirections.toLogin(), options)
+            }
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.dialogShownDate }
-                .filter { it.isBefore(LocalDate.now().minusMonths(1)) }
-                .filter { reactor.currentState.loggedIn }
-                .flatMapSingle {
-                    rxDialog(R.style.DialogTheme) {
-                        titleResource = R.string.enjoying_dialog_title
-                        messageResource = R.string.enjoying_dialog_message
-                        positiveButtonResource = R.string.enjoying_dialog_positive
-                        negativeButtonResource = R.string.enjoying_dialog_negative
-                    }
+            .filter { it.isBefore(LocalDate.now().minusMonths(1)) }
+            .filter { reactor.currentState.loggedIn }
+            .flatMapSingle {
+                rxDialog(R.style.DialogTheme) {
+                    titleResource = R.string.enjoying_dialog_title
+                    messageResource = R.string.enjoying_dialog_message
+                    positiveButtonResource = R.string.enjoying_dialog_positive
+                    negativeButtonResource = R.string.enjoying_dialog_negative
                 }
-                .ofType<RxDialogAction.Positive>()
-                .map { Utils.rateApp(this) }
-                .doOnNext { reactor.action.accept(MainReactor.Action.UpdateDialogShownDate) }
-                .bind(::startActivity)
-                .addTo(disposables)
+            }
+            .ofType<RxDialogAction.Positive>()
+            .map { Utils.rateApp(this) }
+            .doOnNext { reactor.action.accept(MainReactor.Action.UpdateDialogShownDate) }
+            .bind(::startActivity)
+            .addTo(disposables)
     }
 
     override fun onSupportNavigateUp() = navController.navigateUp()
@@ -121,8 +123,8 @@ class MainReactor(
     private val prefRepo: PrefRepo,
     private val sessionService: SessionService<FirebaseUser, AuthCredential>
 ) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
-        initialState = State(),
-        initialAction = Action.LoadDialogShownDate
+    initialState = State(),
+    initialAction = Action.LoadDialogShownDate
 ) {
     sealed class Action {
         object LoadDialogShownDate : Action()
@@ -141,8 +143,8 @@ class MainReactor(
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val sessionMutation = sessionService.session
-                .map { Mutation.SetLoggedIn(it.loggedIn) }
-                .toObservable()
+            .map { Mutation.SetLoggedIn(it.loggedIn) }
+            .toObservable()
         return Observable.merge(mutation, sessionMutation)
     }
 

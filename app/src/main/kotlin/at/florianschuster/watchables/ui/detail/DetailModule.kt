@@ -18,7 +18,7 @@ package at.florianschuster.watchables.ui.detail
 
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.watchables.model.Watchable
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 internal val detailModule = module {

@@ -63,7 +63,7 @@ import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single

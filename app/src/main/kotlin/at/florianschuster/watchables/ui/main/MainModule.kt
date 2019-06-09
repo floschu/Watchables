@@ -1,6 +1,6 @@
 package at.florianschuster.watchables.ui.main
 
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 /**

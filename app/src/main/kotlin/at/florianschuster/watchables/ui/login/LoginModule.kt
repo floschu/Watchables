@@ -17,7 +17,7 @@
 package at.florianschuster.watchables.ui.login
 
 import at.florianschuster.koordinator.android.koin.coordinator
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 internal val loginModule = module {

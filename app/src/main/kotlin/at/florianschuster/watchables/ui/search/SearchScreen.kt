@@ -56,7 +56,7 @@ import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import com.tailoredapps.androidutil.ui.extensions.toast
-import com.tailoredapps.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.android.koin.reactor
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -103,8 +103,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         mainFabClicks.subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
 
-        bnvReselects
-                .filter { it.itemId == R.id.bnv_search }
+        bnvReselects.filter { it.itemId == R.id.search }
                 .bind {
                     if (etSearch.text.isNotEmpty()) etSearch.setText("")
                     etSearch.showKeyBoard()

@@ -54,10 +54,10 @@ class WatchablesApp : Application() {
         startKoin {
             androidContext(this@WatchablesApp)
             androidLogger(Level.INFO)
-            modules(
-                    appModule, localModule, remoteModule,
-                    mainModule, loginModule, watchablesModule, searchModule, detailModule, moreModule
-            )
+            modules(listOf(
+                appModule, localModule, remoteModule,
+                mainModule, loginModule, watchablesModule, searchModule, detailModule, moreModule
+            ))
         }
     }
 
