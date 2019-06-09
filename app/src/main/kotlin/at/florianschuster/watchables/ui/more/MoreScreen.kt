@@ -55,6 +55,7 @@ import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_more.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
+import kotlin.random.Random
 
 class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReactor> {
     override val reactor: MoreReactor by reactor()
@@ -81,7 +82,10 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
         reactor.state.changesFrom { it.userName.asOptional }
             .filterSome()
-            .map { getString(R.string.more_hello_there, it) }
+            .map {
+                val array = resources.getStringArray(R.array.more_hello_there)
+                "${array[Random.nextInt(array.size)]}$it"
+            }
             .bind(to = tvHello::setText)
             .addTo(disposables)
 
