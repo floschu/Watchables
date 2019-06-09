@@ -19,7 +19,9 @@ package at.florianschuster.watchables.ui.watchables.filter
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.ui.watchables.WatchableContainer
 
-enum class WatchableContainerFilterType(val predicate: (WatchableContainer) -> Boolean) {
+enum class WatchableContainerFilterType(
+    val predicate: (WatchableContainer) -> Boolean
+) {
     All({ true }),
     Movies({ it.watchable.type == Watchable.Type.movie }),
     Shows({ it.watchable.type == Watchable.Type.show })

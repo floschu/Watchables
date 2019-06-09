@@ -17,14 +17,24 @@
 package at.florianschuster.watchables.ui.watchables.filter
 
 import at.florianschuster.watchables.model.WatchableSeason
+import at.florianschuster.watchables.model.WatchableTimestamp
 import at.florianschuster.watchables.ui.watchables.WatchableContainer
+import kotlin.math.max
 
-enum class WatchableContainerSortingType(val comparator: Comparator<in WatchableContainer>) {
+enum class WatchableContainerSortingType(
+    val comparator: Comparator<in WatchableContainer>
+) {
     ByWatched(compareBy({ it.watchable.watched }, { it.watchable.name })),
     ByLastUsed(
-        compareByDescending<WatchableContainer> { it.watchable.lastUpdated }
-            .thenByDescending { it.seasons?.sortedByDescending(WatchableSeason::lastUpdated)?.firstOrNull()?.lastUpdated }
-            .thenByDescending { it.watchable.name }
+        compareByDescending<WatchableContainer> {
+            val watchableLastUpdated = it.watchable.lastUpdated
+            val seasonsLastUpdated = it.seasons
+                ?.sortedByDescending(WatchableSeason::lastUpdated)
+                ?.firstOrNull()
+                ?.lastUpdated
+                ?: WatchableTimestamp.min
+            max(watchableLastUpdated, seasonsLastUpdated)
+        }.thenByDescending { it.watchable.name }
     ),
     ByName(compareBy({ it.watchable.name }, { it.watchable.watched })),
     ByType(compareBy({ it.watchable.type.name }, { it.watchable.watched })),
