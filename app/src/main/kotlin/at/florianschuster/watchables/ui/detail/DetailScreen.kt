@@ -121,7 +121,9 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         reactor.state.changesFrom { it.deleteResult }
                 .bind { deleteAsync ->
                     loading.isVisible = deleteAsync.loading
-                    if (deleteAsync is Async.Error) toast(deleteAsync.error.asCauseTranslation(resources))
+                    if (deleteAsync is Async.Error) {
+                        toast(deleteAsync.error.asCauseTranslation(resources))
+                    }
                 }
                 .addTo(disposables)
 
@@ -130,7 +132,8 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                     when (additionalDataAsync) {
                         is Async.Success -> {
                             tvTitle.text = additionalDataAsync.element.name
-                            ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(additionalDataAsync.element.thumbnailPoster)
+                            ivBackground.srcBlurConsumer(R.drawable.ic_logo)
+                                .accept(additionalDataAsync.element.thumbnailPoster)
 
                             additionalDataAsync.element.airing?.let { airingDate ->
                                 tvAiring.text = if (airingDate.isBefore(ZonedDateTime.now().toLocalDate())) {
