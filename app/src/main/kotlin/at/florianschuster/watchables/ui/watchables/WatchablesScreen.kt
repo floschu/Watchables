@@ -129,8 +129,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-            .throttleLatest(250, TimeUnit.MILLISECONDS)
-            .flatMapSingle { newData ->
+            .switchMapSingle { newData ->
                 WatchablesAdapter.calculateDiff(adapter.data, newData)
                     .map { newData to it }
             }
@@ -331,25 +330,39 @@ class WatchablesReactor(
         is Mutation.SetWatchables -> {
             previousState.copy(
                 allWatchables = mutation.watchables,
-                displayWatchables = mutation.watchables.asSequence()
-                    .filter(currentState.filtering.predicate)
-                    .sortedWith(currentState.sorting.comparator)
-                    .toList(),
+                displayWatchables = mutation.watchables.sortAndFilter(
+                    currentState.filtering,
+                    currentState.sorting
+                ),
                 loading = false
             )
         }
         is Mutation.SetFilter -> {
             previousState.copy(
-                displayWatchables = previousState.allWatchables.filter(mutation.filtering.predicate),
+                displayWatchables = previousState.allWatchables.sortAndFilter(
+                    mutation.filtering,
+                    currentState.sorting
+                ),
                 filtering = mutation.filtering
             )
         }
         is Mutation.SetSorting -> {
             previousState.copy(
-                displayWatchables = previousState.allWatchables.sortedWith(mutation.sorting.comparator),
+                displayWatchables = previousState.allWatchables.sortAndFilter(
+                    currentState.filtering,
+                    mutation.sorting
+                ),
                 sorting = mutation.sorting
             )
         }
         is Mutation.SetOnboardingSnackShown -> previousState.copy(onboardingSnackShown = mutation.shown)
     }
+
+    private fun List<WatchableContainer>.sortAndFilter(
+        filtering: WatchableContainerFilterType,
+        sorting: WatchableContainerSortingType
+    ): List<WatchableContainer> = asSequence()
+        .filter(filtering.predicate)
+        .sortedWith(sorting.comparator)
+        .toList()
 }

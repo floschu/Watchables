@@ -88,6 +88,7 @@ class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(
                 .bind { dismiss() }
                 .addTo(disposables)
     }
+
 }
 
 class WatchablesFilterReactor(

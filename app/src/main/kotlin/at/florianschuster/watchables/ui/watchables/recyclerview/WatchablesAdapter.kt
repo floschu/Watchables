@@ -16,9 +16,7 @@
 
 package at.florianschuster.watchables.ui.watchables.recyclerview
 
-import android.os.Bundle
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R

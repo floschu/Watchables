@@ -18,11 +18,9 @@ package at.florianschuster.watchables.ui.main
 
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import androidx.core.view.iterator
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import at.florianschuster.reaktor.ReactorView
