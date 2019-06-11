@@ -16,13 +16,10 @@
 
 package at.florianschuster.watchables.model
 
-fun Search.SearchItem.Type.convertToWatchableType(): Watchable.Type = when (this) {
-    Search.SearchItem.Type.movie -> Watchable.Type.movie
-    Search.SearchItem.Type.tv -> Watchable.Type.show
+fun Search.Result.toWatchableType(): Watchable.Type = when (this) {
+    is Search.Result.Movie -> Watchable.Type.movie
+    is Search.Result.Show -> Watchable.Type.show
 }
-
-fun Watchable.Type.convertToSearchType(): Search.SearchItem.Type =
-        if (this == Watchable.Type.movie) Search.SearchItem.Type.movie else Search.SearchItem.Type.tv
 
 fun Movie.convertToWatchable(): Watchable = Watchable(
         false,

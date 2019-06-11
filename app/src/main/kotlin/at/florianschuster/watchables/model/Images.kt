@@ -31,8 +31,8 @@ val Watchable.thumbnailPoster: String?
 val Watchable.originalPoster: String?
     get() = Images.original.from(this.posterPath)
 
-val Search.SearchItem.thumbnailPoster: String?
+val Search.Result.thumbnailPoster: String?
     get() = Images.thumbnail.from(this.posterPath)
 
-val Search.SearchItem.originalPoster: String?
+val Search.Result.originalPoster: String?
     get() = Images.original.from(this.posterPath)

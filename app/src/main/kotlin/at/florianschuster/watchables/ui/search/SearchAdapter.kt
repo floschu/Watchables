@@ -35,12 +35,12 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_search.*
 
 sealed class SearchAdapterInteraction {
-    data class AddItemClick(val item: Search.SearchItem) : SearchAdapterInteraction()
+    data class AddItemClick(val item: Search.Result) : SearchAdapterInteraction()
     data class ImageClick(val imageUrl: String?) : SearchAdapterInteraction()
-    data class OpenItemClick(val item: Search.SearchItem) : SearchAdapterInteraction()
+    data class OpenItemClick(val item: Search.Result) : SearchAdapterInteraction()
 }
 
-class SearchAdapter : ListAdapter<Search.SearchItem, SearchViewHolder>(searchDiff) {
+class SearchAdapter : ListAdapter<Search.Result, SearchViewHolder>(searchDiff) {
     private val interactionRelay: PublishRelay<SearchAdapterInteraction> = PublishRelay.create()
     val interaction: Observable<SearchAdapterInteraction>
         get() = interactionRelay.hide().share()
@@ -49,17 +49,20 @@ class SearchAdapter : ListAdapter<Search.SearchItem, SearchViewHolder>(searchDif
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) = holder.bind(getItem(position), interactionRelay::accept)
 }
 
-private val searchDiff = object : DiffUtil.ItemCallback<Search.SearchItem>() {
-    override fun areItemsTheSame(oldItem: Search.SearchItem, newItem: Search.SearchItem): Boolean = oldItem.id == newItem.id
-    override fun areContentsTheSame(oldItem: Search.SearchItem, newItem: Search.SearchItem): Boolean = oldItem == newItem
+private val searchDiff = object : DiffUtil.ItemCallback<Search.Result>() {
+    override fun areItemsTheSame(oldItem: Search.Result, newItem: Search.Result): Boolean = oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: Search.Result, newItem: Search.Result): Boolean = oldItem == newItem
 }
 
 class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
-    fun bind(item: Search.SearchItem, interaction: (SearchAdapterInteraction) -> Unit) {
+    fun bind(item: Search.Result, interaction: (SearchAdapterInteraction) -> Unit) {
         containerView.setOnClickListener { interaction(SearchAdapterInteraction.OpenItemClick(item)) }
-        tvTitle.text = item.title
+        tvTitle.text = when (item) {
+            is Search.Result.Movie -> item.title
+            is Search.Result.Show -> item.name
+        }
 
-        tvType.setText(if (item.type == Search.SearchItem.Type.movie) R.string.display_name_movie else R.string.display_name_show)
+        tvType.setText(if (item is Search.Result.Movie) R.string.display_name_movie else R.string.display_name_show)
 
         ivImage.clipToOutline = true
         ivImage.srcConsumer(R.drawable.ic_logo).accept(item.thumbnailPoster)

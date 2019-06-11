@@ -19,26 +19,37 @@ package at.florianschuster.watchables.service.remote
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
 import com.ashokvarma.gander.GanderInterceptor
-import com.google.gson.GsonBuilder
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.tailoredapps.androidutil.network.networkresponse.NetworkResponseRxJava2CallAdapterFactory
 import io.reactivex.schedulers.Schedulers
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.modules.SerializersModule
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import org.threeten.bp.LocalDate
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 
 val remoteModule = module {
-    single { Json.nonstrict }
+    single { provideJson() }
     single { HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC } }
     single { GanderInterceptor(androidContext()).apply { showNotification(true) } }
     single { provideOkHttpClient(get(), get()) }
     single { provideMovieDatabaseApi(get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
+}
+
+private fun provideJson(): Json {
+    val jsonConfig = JsonConfiguration(strictMode = false, useArrayPolymorphism = true)
+    val serializerModule = SerializersModule {
+        polymorphic(Search.Result::class) {
+            Search.Result.Movie::class with Search.Result.Movie.serializer()
+            Search.Result.Show::class with Search.Result.Show.serializer()
+        }
+    }
+    return Json(configuration = jsonConfig, context = serializerModule)
 }
 
 private fun provideOkHttpClient(

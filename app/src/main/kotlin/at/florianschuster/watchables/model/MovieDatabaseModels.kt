@@ -17,25 +17,52 @@
 package at.florianschuster.watchables.model
 
 import at.florianschuster.watchables.service.remote.LocalDateSerializer
-import at.florianschuster.watchables.service.remote.SearchItemSerializer
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.threeten.bp.LocalDate
 
 @Serializable
-data class Search(val results: List<@Serializable(with = SearchItemSerializer::class) SearchItem?> = emptyList()) {
-
-    //todo polymorphic
-
+data class Search(
+    val page: Int,
+    val results: List<@Polymorphic Result?> = emptyList()
+) {
+    @Polymorphic
     @Serializable
-    data class SearchItem(
-        val id: Int,
-        val title: String,
-        val type: Type,
-        val posterPath: String?,
-        val added: Boolean
-    ) {
-        enum class Type { movie, tv }
+    sealed class Result {
+        abstract val id: Int
+        abstract val posterPath: String?
+        abstract val added: Boolean
+
+        @SerialName("movie")
+        @Serializable
+        data class Movie(
+            override val id: Int,
+            override val posterPath: String?,
+            override val added: Boolean = false,
+            val title: String?
+        ) : Result()
+
+        @SerialName("tv")
+        @Serializable
+        data class Show(
+            override val id: Int,
+            override val posterPath: String?,
+            override val added: Boolean = false,
+            val name: String?
+        ) : Result()
+
+        override fun equals(other: Any?): Boolean { // todo
+            if (other == null || other !is Result) return false
+            if (this is Movie && other is Movie) return this as Movie == other as Movie
+            if (this is Show && other is Show) return this as Show == other as Show
+            return super.equals(other)
+        }
+
+        fun copyWith(added: Boolean): Result = when (this) {
+            is Movie -> copy(added = added)
+            is Show -> copy(added = added)
+        }
     }
 }
 

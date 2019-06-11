@@ -50,9 +50,6 @@ import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.model.Credits
 import at.florianschuster.watchables.model.Images
 import at.florianschuster.watchables.model.Videos
-import at.florianschuster.watchables.model.convertToSearchType
-import at.florianschuster.watchables.model.originalPoster
-import at.florianschuster.watchables.model.thumbnailPoster
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
@@ -321,7 +318,7 @@ class DetailReactor(
             emptyMutation { Router follow DetailRoute.Pop }
         }
         is Action.AddWatchable -> {
-            emptyMutation { AddWatchableWorker.start(itemId.toInt(), type.convertToSearchType()) }
+            emptyMutation { AddWatchableWorker.start(itemId.toInt(), type) }
         }
     }
 
