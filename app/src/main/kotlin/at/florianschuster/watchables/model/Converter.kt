@@ -16,18 +16,18 @@
 
 package at.florianschuster.watchables.model
 
-fun Search.Result.toWatchableType(): Watchable.Type = when (this) {
-    is Search.Result.Movie -> Watchable.Type.movie
-    is Search.Result.Show -> Watchable.Type.show
+fun Search.Result.toWatchableType(): Watchable.Type = when (type) {
+    Search.Result.Type.movie -> Watchable.Type.movie
+    Search.Result.Type.show -> Watchable.Type.show
 }
 
 fun Movie.convertToWatchable(): Watchable = Watchable(
-        false,
-        name,
-        Watchable.Type.movie,
-        image,
-        durationInMinutes,
-        watchableStatus()
+    false,
+    name,
+    Watchable.Type.movie,
+    image,
+    durationInMinutes,
+    watchableStatus()
 ).apply { id = "${this@convertToWatchable.id}" }
 
 private fun Movie.watchableStatus(): Watchable.Status = when (status) {
@@ -40,12 +40,12 @@ private fun Movie.watchableStatus(): Watchable.Status = when (status) {
 }
 
 fun Show.convertToWatchable(): Watchable = Watchable(
-        false,
-        name,
-        Watchable.Type.show,
-        image,
-        if (episodeRuntimes.isEmpty()) null else episodeRuntimes.average().toLong(),
-        watchableStatus()
+    false,
+    name,
+    Watchable.Type.show,
+    image,
+    if (episodeRuntimes.isEmpty()) null else episodeRuntimes.average().toLong(),
+    watchableStatus()
 ).apply { id = "${this@convertToWatchable.id}" }
 
 private fun Show.watchableStatus(): Watchable.Status = when (status) {
@@ -58,8 +58,8 @@ private fun Show.watchableStatus(): Watchable.Status = when (status) {
 }
 
 fun Season.convertToWatchableSeason(watchableId: String): WatchableSeason = WatchableSeason(
-        watchableId,
-        index,
-        image,
-        episodes.sortedBy { it.episodeIndex }.associate { "${it.episodeIndex}" to false }
+    watchableId,
+    index,
+    image,
+    episodes.sortedBy { it.episodeIndex }.associate { "${it.episodeIndex}" to false }
 ).apply { id = "${this@convertToWatchableSeason.id}" }

@@ -116,86 +116,86 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     override fun bind(reactor: DetailReactor) {
         reactor.state.changesFrom { it.deleteResult }
-                .bind { deleteAsync ->
-                    loading.isVisible = deleteAsync.loading
-                    if (deleteAsync is Async.Error) toast(deleteAsync.error.asCauseTranslation(resources))
-                }
-                .addTo(disposables)
+            .bind { deleteAsync ->
+                loading.isVisible = deleteAsync.loading
+                if (deleteAsync is Async.Error) toast(deleteAsync.error.asCauseTranslation(resources))
+            }
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.additionalData }
-                .bind { additionalDataAsync ->
-                    when (additionalDataAsync) {
-                        is Async.Success -> {
-                            tvTitle.text = additionalDataAsync.element.name
-                            ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(additionalDataAsync.element.thumbnailPoster)
+            .bind { additionalDataAsync ->
+                when (additionalDataAsync) {
+                    is Async.Success -> {
+                        tvTitle.text = additionalDataAsync.element.name
+                        ivBackground.srcBlurConsumer(R.drawable.ic_logo).accept(additionalDataAsync.element.thumbnailPoster)
 
-                            additionalDataAsync.element.airing?.let { airingDate ->
-                                tvAiring.text = if (airingDate.isBefore(ZonedDateTime.now().toLocalDate())) {
-                                    getString(R.string.release_date_past, airingDate.asFormattedString)
-                                } else {
-                                    getString(R.string.release_date_future, airingDate.asFormattedString)
-                                }
+                        additionalDataAsync.element.airing?.let { airingDate ->
+                            tvAiring.text = if (airingDate.isBefore(ZonedDateTime.now().toLocalDate())) {
+                                getString(R.string.release_date_past, airingDate.asFormattedString)
+                            } else {
+                                getString(R.string.release_date_future, airingDate.asFormattedString)
                             }
-
-                            val summary = additionalDataAsync.element.summary
-                            tvSummary.isVisible = summary != null
-                            if (summary != null) tvSummary.text = summary
-
-                            val actors = additionalDataAsync.element.actors
-                            tvActors.isVisible = actors.isNotEmpty()
-                            tvActors.text = getString(R.string.detail_tv_actors, actors.joinToString(", "))
-
-                            optionsAdapter.update()
                         }
-                        is Async.Error -> toast(R.string.detail_error_additional_data)
+
+                        val summary = additionalDataAsync.element.summary
+                        tvSummary.isVisible = summary != null
+                        if (summary != null) tvSummary.text = summary
+
+                        val actors = additionalDataAsync.element.actors
+                        tvActors.isVisible = actors.isNotEmpty()
+                        tvActors.text = getString(R.string.detail_tv_actors, actors.joinToString(", "))
+
+                        optionsAdapter.update()
                     }
+                    is Async.Error -> toast(R.string.detail_error_additional_data)
                 }
-                .addTo(disposables)
+            }
+            .addTo(disposables)
 
         val snapToFirstItemObservable = rvMedia.globalLayouts()
-                .map { rvMedia.calculateDistanceToPosition(snapHelper, 0) }
-                .doOnNext { rvMedia.scrollBy(it.first, it.second) }
-                .debounce(200, TimeUnit.MILLISECONDS)
-                .takeUntil { it.first == 0 && it.second == 0 }
+            .map { rvMedia.calculateDistanceToPosition(snapHelper, 0) }
+            .doOnNext { rvMedia.scrollBy(it.first, it.second) }
+            .debounce(200, TimeUnit.MILLISECONDS)
+            .takeUntil { it.first == 0 && it.second == 0 }
 
         reactor.state.changesFrom { it.additionalData }
-                .ofType<Async.Success<DetailReactor.State.AdditionalData>>()
-                .map { listOf(DetailMediaItem.Poster(it.element.thumbnailPoster, it.element.originalPoster)) + it.element.videos }
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnNext(detailMediaAdapter::submitList)
-                .switchMap { snapToFirstItemObservable }
-                .bind()
-                .addTo(disposables)
+            .ofType<Async.Success<DetailReactor.State.AdditionalData>>()
+            .map { listOf(DetailMediaItem.Poster(it.element.thumbnailPoster, it.element.originalPoster)) + it.element.videos }
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext(detailMediaAdapter::submitList)
+            .switchMap { snapToFirstItemObservable }
+            .bind()
+            .addTo(disposables)
     }
 
     private fun OptionsAdapter.update() {
         listOfNotNull(
-                if (reactor.currentState.watchable != null) null else addOption,
-                reactor.currentState.additionalData()?.website?.let(::createOpenWebOption),
-                reactor.currentState.additionalData()?.imdbId?.let(::createOopenImdbOption),
-                reactor.currentState.watchable?.let(::createShareOption),
-                if (reactor.currentState.watchable != null) deleteOption else null
+            if (reactor.currentState.watchable != null) null else addOption,
+            reactor.currentState.additionalData()?.website?.let(::createOpenWebOption),
+            reactor.currentState.additionalData()?.imdbId?.let(::createOopenImdbOption),
+            reactor.currentState.watchable?.let(::createShareOption),
+            if (reactor.currentState.watchable != null) deleteOption else null
         ).also(::submitList)
     }
 
     private fun createOpenWebOption(webSite: String): Option.Action =
-            Option.Action(R.string.menu_watchable_website, R.drawable.ic_open_in_browser) { openChromeTab(webSite) }
+        Option.Action(R.string.menu_watchable_website, R.drawable.ic_open_in_browser) { openChromeTab(webSite) }
 
     private fun createOopenImdbOption(imdbId: String): Option.Action =
-            Option.Action(R.string.menu_watchable_imdb, R.drawable.ic_imdb) {
-                openChromeTab(getString(R.string.imdb_search, imdbId))
-            }
+        Option.Action(R.string.menu_watchable_imdb, R.drawable.ic_imdb) {
+            openChromeTab(getString(R.string.imdb_search, imdbId))
+        }
 
     private fun createShareOption(watchable: Watchable): Option.Action =
-            Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
-                shareService.share(watchable)
-                    .onErrorResumeNext {
-                        Timber.e(it)
-                        toast(it.asCauseTranslation(resources))
-                        Completable.never()
-                    }
-                    .subscribe().addTo(disposables)
-            }
+        Option.Action(R.string.menu_watchable_share, R.drawable.ic_share) {
+            shareService.share(watchable)
+                .onErrorResumeNext {
+                    Timber.e(it)
+                    toast(it.asCauseTranslation(resources))
+                    Completable.never()
+                }
+                .subscribe().addTo(disposables)
+        }
 
     private val deleteOption: Option.Action
         get() = Option.Action(R.string.menu_watchable_delete, R.drawable.ic_delete_forever) {
@@ -205,9 +205,9 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 positiveButtonResource = R.string.dialog_ok
                 negativeButtonResource = R.string.dialog_cancel
             }.ofType<RxDialogAction.Positive>()
-                    .map { DetailReactor.Action.DeleteWatchable }
-                    .subscribe(reactor.action)
-                    .addTo(disposables)
+                .map { DetailReactor.Action.DeleteWatchable }
+                .subscribe(reactor.action)
+                .addTo(disposables)
         }
 
     private val addOption: Option.Action
@@ -219,7 +219,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         val layoutManager = layoutManager as? LinearLayoutManager ?: return 0 to 0
         val child = layoutManager.findViewByPosition(position) ?: return 0 to 0
         val distances = snapHelper.calculateDistanceToFinalSnap(layoutManager, child)
-                ?: return 0 to 0
+            ?: return 0 to 0
         return distances[0] to distances[1]
     }
 }
@@ -231,8 +231,8 @@ class DetailReactor(
     private val watchablesDataSource: WatchablesDataSource,
     private val analyticsService: AnalyticsService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
-        initialState = State(),
-        initialAction = Action.InitialLoad
+    initialState = State(),
+    initialAction = Action.InitialLoad
 ) {
 
     sealed class Action {
@@ -270,23 +270,23 @@ class DetailReactor(
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val watchableMutation = watchablesDataSource.watchableObservable(itemId)
-                .toObservable()
-                .map { Mutation.SetWatchable(it) }
-                .doOnError(Timber::e)
-                .onErrorReturn { Mutation.SetWatchable(null) }
-                .switchMap { Observable.concat(it.observable, mutate(Action.LoadDetailData)) }
+            .toObservable()
+            .map { Mutation.SetWatchable(it) }
+            .doOnError(Timber::e)
+            .onErrorReturn { Mutation.SetWatchable(null) }
+            .switchMap { Observable.concat(it.observable, mutate(Action.LoadDetailData)) }
         return Observable.merge(mutation, watchableMutation)
     }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.InitialLoad -> {
             watchablesDataSource.watchable(itemId)
-                    .ignoreElement()
-                    .toObservable<Mutation>()
-                    .onErrorResumeNext { t: Throwable ->
-                        if (t is NoSuchElementException) mutate(Action.LoadDetailData)
-                        else Observable.empty()
-                    }
+                .ignoreElement()
+                .toObservable<Mutation>()
+                .onErrorResumeNext { t: Throwable ->
+                    if (t is NoSuchElementException) mutate(Action.LoadDetailData)
+                    else Observable.empty()
+                }
         }
         is Action.LoadDetailData -> {
             val loading = Mutation.SetAdditionalData(Async.Loading).observable
@@ -296,20 +296,21 @@ class DetailReactor(
                 else -> loadAdditionalInfoFromShow()
             }
             val load = detailInfoLoad
-                    .map { Mutation.SetAdditionalData(Async.Success(it)) }
-                    .doOnError(Timber::e)
-                    .onErrorReturn { Mutation.SetAdditionalData(Async.Error(it)) }
-                    .toObservable()
+                .map { Mutation.SetAdditionalData(Async.Success(it)) }
+                .doOnError(Timber::e)
+                .onErrorReturn { Mutation.SetAdditionalData(Async.Error(it)) }
+                .toObservable()
 
             Observable.concat(loading, load)
         }
         is Action.DeleteWatchable -> {
             watchablesDataSource.setWatchableDeleted(itemId)
-                    .doOnComplete { currentState.watchable?.let(analyticsService::logWatchableDelete) }
-                    .doOnComplete { DeleteWatchablesWorker.startSingle() }
-                    .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
-                    .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
-                    .doOnComplete { Router follow DetailRoute.Pop }
+                .doOnComplete { currentState.watchable?.let(analyticsService::logWatchableDelete) }
+                .doOnComplete { DeleteWatchablesWorker.startSingle() }
+                .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
+                .doOnError(Timber::e)
+                .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
+                .doOnComplete { Router follow DetailRoute.Pop }
         }
         is Action.SetWatched -> {
             watchablesDataSource.updateWatchable(itemId, action.watched).toObservable()
@@ -330,49 +331,49 @@ class DetailReactor(
 
     private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {
         return movieDatabaseApi.movie(itemId.toInt())
-                .map {
-                    State.AdditionalData(
-                            it.name,
-                            Images.thumbnail.from(it.image),
-                            Images.original.from(it.image),
-                            it.website,
-                            it.imdbId,
-                            it.videos.results.mapToYoutubeVideos(),
-                            it.summary,
-                            it.releaseDate,
-                            it.credits?.mapToActorList() ?: emptyList()
-                    )
-                }
+            .map {
+                State.AdditionalData(
+                    it.name,
+                    Images.thumbnail.from(it.image),
+                    Images.original.from(it.image),
+                    it.website,
+                    it.imdbId,
+                    it.videos.results.mapToYoutubeVideos(),
+                    it.summary,
+                    it.releaseDate,
+                    it.credits?.mapToActorList() ?: emptyList()
+                )
+            }
     }
 
     private fun loadAdditionalInfoFromShow(): Single<State.AdditionalData> {
         return movieDatabaseApi.show(itemId.toInt())
-                .map {
-                    State.AdditionalData(
-                            it.name,
-                            Images.thumbnail.from(it.image),
-                            Images.original.from(it.image),
-                            it.website,
-                            it.externalIds.imdbId,
-                            it.videos.results.mapToYoutubeVideos(),
-                            it.summary,
-                            it.nextEpisode?.airingDate,
-                            it.credits?.mapToActorList() ?: emptyList()
-                    )
-                }
+            .map {
+                State.AdditionalData(
+                    it.name,
+                    Images.thumbnail.from(it.image),
+                    Images.original.from(it.image),
+                    it.website,
+                    it.externalIds.imdbId,
+                    it.videos.results.mapToYoutubeVideos(),
+                    it.summary,
+                    it.nextEpisode?.airingDate,
+                    it.credits?.mapToActorList() ?: emptyList()
+                )
+            }
     }
 
     private fun List<Videos.Video>.mapToYoutubeVideos(): List<DetailMediaItem.YoutubeVideo> {
         return asSequence()
-                .filter { it.isYoutube }
-                .sortedBy { it.type }
-                .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
-                .toList()
+            .filter { it.isYoutube }
+            .sortedBy { it.type }
+            .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
+            .toList()
     }
 
     private fun Credits.mapToActorList(): List<String> {
         return cast.sortedWith(compareBy(Credits.Cast::order))
-                .map(Credits.Cast::name)
-                .take(5)
+            .map(Credits.Cast::name)
+            .take(5)
     }
 }

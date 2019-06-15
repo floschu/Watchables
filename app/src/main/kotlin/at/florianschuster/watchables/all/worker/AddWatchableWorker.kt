@@ -104,14 +104,7 @@ class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Wor
         }
 
     companion object {
-        fun start(item: Search.Result): Operation = start(
-            item.id,
-            item.toWatchableType(),
-            when (item) {
-                is Search.Result.Movie -> item.title
-                is Search.Result.Show -> item.name
-            }
-        )
+        fun start(item: Search.Result): Operation = start(item.id, item.toWatchableType(), item.title)
 
         fun start(id: Int, type: Watchable.Type, title: String? = null): Operation =
             OneTimeWorkRequest.Builder(AddWatchableWorker::class.java).apply {

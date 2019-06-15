@@ -64,6 +64,7 @@ import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_search.*
 import kotlinx.android.synthetic.main.fragment_search.emptyLayout
 import kotlinx.android.synthetic.main.fragment_search_toolbar.*
+import kotlinx.serialization.Polymorphic
 import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -213,7 +214,8 @@ class SearchReactor(
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val watchablesMutation = watchablesDataSource.watchablesObservable
-            .doOnError(Timber::e).onErrorReturn { emptyList() }
+            .doOnError(Timber::e)
+            .onErrorReturn { emptyList() }
             .map { it.map(Watchable::id) }
             .map(Mutation::SetAddedWatchableIds)
             .toObservable()
@@ -226,6 +228,7 @@ class SearchReactor(
             val loadMutation = Observable.just(Mutation.SetLoading(true))
             val firstPageMutation = loadPage(action.query, 1)
                 .map<Mutation>(Mutation::SetSearchItems)
+                .doOnError(Timber::e)
                 .onErrorReturn { Mutation.SetLoadingError(it) }
             val endLoadMutation = Observable.just(Mutation.SetLoading(false))
             Observable.concat(queryMutation, loadMutation, firstPageMutation, endLoadMutation)
@@ -236,6 +239,7 @@ class SearchReactor(
                 val loadMutation = Observable.just(Mutation.SetLoading(true))
                 val nextPageMutation = loadPage(currentState.query, currentState.page + 1)
                     .map<Mutation>(Mutation::AppendSearchItems)
+                    .doOnError(Timber::e)
                     .onErrorReturn { Mutation.SetLoadingError(it) }
                 val endLoadMutation = Observable.just(Mutation.SetLoading(false))
                 Observable.concat(loadMutation, nextPageMutation, endLoadMutation)
@@ -287,6 +291,6 @@ class SearchReactor(
 
     private fun List<Search.Result>.mapAdded(addedIds: List<String>): List<Search.Result> = map { item ->
         val added = addedIds.any { it == "${item.id}" }
-        if (item.added != added) item.copyWith(added) else item
+        if (item.added != added) item.copy(added = added) else item
     }
 }

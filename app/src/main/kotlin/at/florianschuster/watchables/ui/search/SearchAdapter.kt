@@ -57,12 +57,9 @@ private val searchDiff = object : DiffUtil.ItemCallback<Search.Result>() {
 class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
     fun bind(item: Search.Result, interaction: (SearchAdapterInteraction) -> Unit) {
         containerView.setOnClickListener { interaction(SearchAdapterInteraction.OpenItemClick(item)) }
-        tvTitle.text = when (item) {
-            is Search.Result.Movie -> item.title
-            is Search.Result.Show -> item.name
-        }
+        tvTitle.text = item.title
 
-        tvType.setText(if (item is Search.Result.Movie) R.string.display_name_movie else R.string.display_name_show)
+        tvType.setText(if (item.type == Search.Result.Type.movie) R.string.display_name_movie else R.string.display_name_show)
 
         ivImage.clipToOutline = true
         ivImage.srcConsumer(R.drawable.ic_logo).accept(item.thumbnailPoster)

@@ -54,6 +54,7 @@ import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
+import timber.log.Timber
 
 enum class LoginRoute : CoordinatorRoute {
     OnLoggedIn
@@ -87,25 +88,25 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         tvPolicy.clicks().subscribe { openChromeTab(getString(R.string.privacy_policy_url)) }.addTo(disposables)
 
         btnSignIn.clicks()
-                .map {
-                    GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).apply {
-                        requestIdToken(getString(R.string.default_web_client_id))
-                        requestEmail()
-                    }.build()
-                }
-                .map { GoogleSignIn.getClient(activity!!, it) }
-                .subscribe { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
-                .addTo(disposables)
+            .map {
+                GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).apply {
+                    requestIdToken(getString(R.string.default_web_client_id))
+                    requestEmail()
+                }.build()
+            }
+            .map { GoogleSignIn.getClient(activity!!, it) }
+            .subscribe { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
+            .addTo(disposables)
 
         // state
         reactor.state.changesFrom { it.result }
-                .bind {
-                    progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
-                    if (it is Async.Error) {
-                        toast(it.error.asCauseTranslation(resources))
-                    }
+            .bind {
+                progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
+                if (it is Async.Error) {
+                    toast(it.error.asCauseTranslation(resources))
                 }
-                .addTo(disposables)
+            }
+            .addTo(disposables)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -113,10 +114,10 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         if (requestCode != SIGN_IN_CODE) return
 
         RxTasks.single { GoogleSignIn.getSignedInAccountFromIntent(data) }
-                .map { GoogleAuthProvider.getCredential(it.idToken, null) }
-                .map { LoginReactor.Action.Login(it) }
-                .subscribe(reactor.action::accept) { toast(it.asCauseTranslation(resources)) }
-                .addTo(disposables)
+            .map { GoogleAuthProvider.getCredential(it.idToken, null) }
+            .map { LoginReactor.Action.Login(it) }
+            .subscribe(reactor.action::accept) { toast(it.asCauseTranslation(resources)) }
+            .addTo(disposables)
     }
 
     companion object {
@@ -145,14 +146,15 @@ class LoginReactor(
         is Action.Login -> {
             val loading = Observable.just(Mutation.Login(Async.Loading))
             val loginMutation = sessionService.login(action.credential)
-                    .andThen(sessionService.user)
-                    .flatMapCompletable(::createWatchableUserIfNeeded)
-                    .doOnComplete { UpdateWatchablesWorker.start() }
-                    .doOnComplete { DeleteWatchablesWorker.enqueue() }
-                    .toSingleDefault(Mutation.Login(Async.Success(Unit)))
-                    .toObservable()
-                    .onErrorReturn { Mutation.Login(Async.Error(it)) }
-                    .doOnComplete { Router follow LoginRoute.OnLoggedIn }
+                .andThen(sessionService.user)
+                .flatMapCompletable(::createWatchableUserIfNeeded)
+                .doOnComplete { UpdateWatchablesWorker.start() }
+                .doOnComplete { DeleteWatchablesWorker.enqueue() }
+                .toSingleDefault(Mutation.Login(Async.Success(Unit)))
+                .toObservable()
+                .doOnError(Timber::e)
+                .onErrorReturn { Mutation.Login(Async.Error(it)) }
+                .doOnComplete { Router follow LoginRoute.OnLoggedIn }
             Observable.concat(loading, loginMutation)
         }
     }
@@ -162,11 +164,11 @@ class LoginReactor(
     }
 
     private fun createWatchableUserIfNeeded(user: FirebaseUser): Completable =
-            watchablesDataSource.watchableUser.ignoreElement().onErrorResumeNext {
-                if (it is NoSuchElementException) {
-                    watchablesDataSource.createUser(WatchableUser(0).apply { id = user.uid })
-                } else {
-                    Completable.error(it)
-                }
+        watchablesDataSource.watchableUser.ignoreElement().onErrorResumeNext {
+            if (it is NoSuchElementException) {
+                watchablesDataSource.createUser(WatchableUser(0).apply { id = user.uid })
+            } else {
+                Completable.error(it)
             }
+        }
 }
