@@ -1,6 +1,18 @@
 default_platform(:android)
 
 platform :android do
+  desc "Fetch localizations"
+  lane :localize do
+    google_sheet_localize(
+        service_account_path: "./fastlane/google_drive_credentials.json",
+        sheet_id: "1nNIq7ULcSUd3CbUleBtMgp2WxGupWcbHOWvCwRlPnZs",
+        language_titles: ["de", "en"],
+        default_language: "en",
+        base_language: "en",
+        localization_path: "./app/src/main/res/"
+      )
+  end
+
   desc "Builds a new version and pushes it to repository"
   lane :build do
     gradle(task: "test ktlintFormat clean")

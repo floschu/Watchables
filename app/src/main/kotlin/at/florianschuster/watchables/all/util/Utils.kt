@@ -46,7 +46,6 @@ object Utils {
             withActivityTitle(context.getString(R.string.more_licenses))
             withActivityStyle(Libs.ActivityStyle.DARK)
             withCheckCachedDetection(false)
-            withAboutDescription(context.getString(R.string.dev_info))
         }.start(context)
     }
 }
