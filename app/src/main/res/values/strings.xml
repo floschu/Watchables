@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="login_text_src"><![CDATA[This App uses The Movie Database (TMDb) as its data source.]]></string>
+    <string name="login_text_src"><![CDATA[This App uses "The Movie Database (TMDb)" as its data source.]]></string>
     <string name="login_text_privacy"><![CDATA[By signing in, you agree that you have read  and accepted the Privacy Policy. Click here to view it.]]></string>
     <string name="search_hint"><![CDATA[Search for Movies or TV Shows…]]></string>
     <string name="search_empty"><![CDATA[The search did not return any Results.]]></string>
     <string name="dialog_logout_title"><![CDATA[Logout]]></string>
-    <string name="dialog_logout_message"><![CDATA[Are you sure that you want to log out? Don\'t worry, your watchables are saved with your account.]]></string>
+    <string name="dialog_logout_message"><![CDATA[Are you sure that you want to log out? Don\'t worry, your Watchables are saved with your account.]]></string>
     <string name="dialog_delete_watchable_title"><![CDATA[Watch out!]]></string>
     <string name="dialog_delete_watchable_message"><![CDATA[Are you sure you want to delete this Watchable?]]></string>
     <string name="display_name_movie"><![CDATA[Movie]]></string>
@@ -21,7 +21,7 @@
     <string name="watchable_watched"><![CDATA[Watched]]></string>
     <string name="watchable_not_watched"><![CDATA[Not yet Watched]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh no :(]]></string>
-    <string name="empty_watchable_text"><![CDATA[You have not added any watchables yet. Add some by using the search on the upper left!]]></string>
+    <string name="empty_watchable_text"><![CDATA[You have not added any Watchables yet. Add some by using the Search!]]></string>
     <string name="more_logout"><![CDATA[Logout]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
     <string name="more_licenses"><![CDATA[Open Source Licenses]]></string>
@@ -32,42 +32,24 @@
     <string name="more_app_version"><![CDATA[App Version: %s]]></string>
     <string name="more_copied_user_id_label"><![CDATA[Copied User ID]]></string>
     <string-array name="more_hello_there">
-        <item><![CDATA[Hi
-]]></item>
-        <item><![CDATA[Hello
-]]></item>
-        <item><![CDATA[Hello there,
-]]></item>
-        <item><![CDATA[Hey
-]]></item>
-        <item><![CDATA[Hey there,
-]]></item>
-        <item><![CDATA[What\'s up,
-]]></item>
-        <item><![CDATA[Good to see you,
-]]></item>
-        <item><![CDATA[Nice to see you,
-]]></item>
-        <item><![CDATA[Have a good day,
-]]></item>
-        <item><![CDATA[Have a good one,
-]]></item>
-        <item><![CDATA[Greetings,
-]]></item>
-        <item><![CDATA[How\'s it going,
-]]></item>
-        <item><![CDATA[How’s life,
-]]></item>
-        <item><![CDATA[Yo,
-]]></item>
-        <item><![CDATA[Sup,
-]]></item>
-        <item><![CDATA[Howdy,
-]]></item>
-        <item><![CDATA[Wazzup,
-]]></item>
-        <item><![CDATA[G’day,
-]]></item>
+        <item><![CDATA[Hi\n]]></item>
+        <item><![CDATA[Hello\n]]></item>
+        <item><![CDATA[Hello there,\n]]></item>
+        <item><![CDATA[Hey\n]]></item>
+        <item><![CDATA[Hey there,\n]]></item>
+        <item><![CDATA[What\'s up,\n]]></item>
+        <item><![CDATA[Good to see you,\n]]></item>
+        <item><![CDATA[Nice to see you,\n]]></item>
+        <item><![CDATA[Have a good day,\n]]></item>
+        <item><![CDATA[Have a good one,\n]]></item>
+        <item><![CDATA[Greetings,\n]]></item>
+        <item><![CDATA[How\'s it going,\n]]></item>
+        <item><![CDATA[How’s life,\n]]></item>
+        <item><![CDATA[Yo,\n]]></item>
+        <item><![CDATA[Sup,\n]]></item>
+        <item><![CDATA[Howdy,\n]]></item>
+        <item><![CDATA[Wazzup,\n]]></item>
+        <item><![CDATA[G’day,\n]]></item>
     </string-array>
     <string name="dialog_ok"><![CDATA[OK]]></string>
     <string name="dialog_cancel"><![CDATA[Cancel]]></string>
@@ -95,7 +77,7 @@
     <string name="share_watchable_chooser_text_movie"><![CDATA[Check out this Movie: %s]]></string>
     <string name="share_watchable_chooser_text_show"><![CDATA[Check out this Show: %s]]></string>
     <string name="enjoying_dialog_title"><![CDATA[Are you enjoying Watchables?]]></string>
-    <string name="enjoying_dialog_message"><![CDATA[If you do, you could rate it on the Play Store! If you do not… well maybe nest time! :D]]></string>
+    <string name="enjoying_dialog_message"><![CDATA[If you do, you could rate it on the Play Store! If you do not… well maybe wait for an update! :D]]></string>
     <string name="enjoying_dialog_positive"><![CDATA[Rate now]]></string>
     <string name="enjoying_dialog_negative"><![CDATA[Not now]]></string>
     <string name="detail_error_additional_data"><![CDATA[Error loading additional data]]></string>
@@ -116,7 +98,7 @@
     <string name="notification_message_channel_name"><![CDATA[Message Notifications]]></string>
     <string name="notification_message_channel_description"><![CDATA[These notifications are displayed when a message is received from the Server.]]></string>
     <string name="notification_update_channel_name"><![CDATA[Watchable Update Notifications]]></string>
-    <string name="notification_update_channel_description"><![CDATA[These notifications are displayed when a watchable is updated with new information.]]></string>
+    <string name="notification_update_channel_description"><![CDATA[These notifications are displayed when a Watchable is updated with new information.]]></string>
     <string name="notification_update_title_show_name"><![CDATA[%1$s - S%2$d]]></string>
     <string name="notification_update_title"><![CDATA[%1$s will air on %2$s]]></string>
     <string name="notification_update_text"><![CDATA[Click here to learn more]]></string>

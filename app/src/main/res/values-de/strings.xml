@@ -1,125 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="login_text_src"><![CDATA[This App uses The Movie Database (TMDb) as its data source.]]></string>
-    <string name="login_text_privacy"><![CDATA[By signing in, you agree that you have read  and accepted the Privacy Policy. Click here to view it.]]></string>
-    <string name="search_hint"><![CDATA[Search for Movies or TV Shows…]]></string>
-    <string name="search_empty"><![CDATA[The search did not return any Results.]]></string>
-    <string name="dialog_logout_title"><![CDATA[Logout]]></string>
-    <string name="dialog_logout_message"><![CDATA[Are you sure that you want to log out? Don\'t worry, your watchables are saved with your account.]]></string>
-    <string name="dialog_delete_watchable_title"><![CDATA[Watch out!]]></string>
-    <string name="dialog_delete_watchable_message"><![CDATA[Are you sure you want to delete this Watchable?]]></string>
-    <string name="display_name_movie"><![CDATA[Movie]]></string>
-    <string name="display_name_show"><![CDATA[TV Show]]></string>
-    <string name="menu_watchable_delete"><![CDATA[Delete]]></string>
-    <string name="menu_watchable_add"><![CDATA[Add as Watchable]]></string>
-    <string name="menu_watchable_website"><![CDATA[Open Website]]></string>
-    <string name="menu_watchable_imdb"><![CDATA[Open Imdb]]></string>
-    <string name="menu_watchable_share"><![CDATA[Share Watchable]]></string>
-    <string name="release_date_past"><![CDATA[Aired on %s]]></string>
-    <string name="release_date_future"><![CDATA[Airing on %s]]></string>
-    <string name="release_date_not_available"><![CDATA[No airing information available.]]></string>
-    <string name="watchable_watched"><![CDATA[Watched]]></string>
-    <string name="watchable_not_watched"><![CDATA[Not yet Watched]]></string>
-    <string name="empty_watchable_title"><![CDATA[Oh no :(]]></string>
-    <string name="empty_watchable_text"><![CDATA[You have not added any watchables yet. Add some by using the search on the upper left!]]></string>
-    <string name="more_logout"><![CDATA[Logout]]></string>
+    <string name="login_text_src"><![CDATA[Diese App benutzt "The Movie Database (TMDb)" als Datenquelle.]]></string>
+    <string name="login_text_privacy"><![CDATA[Mit der Anmeldung stimmst du zu, dass du die Datenschutzbestimmungen gelesen und akzeptiert hast. Klicke hier, um sie anzuzeigen.]]></string>
+    <string name="search_hint"><![CDATA[Suche nach Filmen oder Serien...]]></string>
+    <string name="search_empty"><![CDATA[Die Suche hat keine Ergebnisse geliefert.]]></string>
+    <string name="dialog_logout_title"><![CDATA[Ausloggen]]></string>
+    <string name="dialog_logout_message"><![CDATA[Bist du dir sicher, dass du dich ausloggen möchtest? Kein Angst, deine Watchable Liste wird mit deinem Account gespeichert.]]></string>
+    <string name="dialog_delete_watchable_title"><![CDATA[Achtung!]]></string>
+    <string name="dialog_delete_watchable_message"><![CDATA[Bist du dir sicher, dass du dieses Watchable löschen willst?]]></string>
+    <string name="display_name_movie"><![CDATA[Film]]></string>
+    <string name="display_name_show"><![CDATA[Serie]]></string>
+    <string name="menu_watchable_delete"><![CDATA[Löschen]]></string>
+    <string name="menu_watchable_add"><![CDATA[Als Watchable hinzufügen]]></string>
+    <string name="menu_watchable_website"><![CDATA[Website öffnen]]></string>
+    <string name="menu_watchable_imdb"><![CDATA[Auf IMDB öffnen]]></string>
+    <string name="menu_watchable_share"><![CDATA[Watchable weiterleiten]]></string>
+    <string name="release_date_past"><![CDATA[Erschienen am %s]]></string>
+    <string name="release_date_future"><![CDATA[Erscheint am %s]]></string>
+    <string name="release_date_not_available"><![CDATA[Kein Erscheinungsdatum bekannt.]]></string>
+    <string name="watchable_watched"><![CDATA[Gesehen]]></string>
+    <string name="watchable_not_watched"><![CDATA[Nicht gesehen]]></string>
+    <string name="empty_watchable_title"><![CDATA[Oh nein :(]]></string>
+    <string name="empty_watchable_text"><![CDATA[Du hast noch keine Watchables hinzugefügt. Füge welche mit Hilfe der Suche hinzu!]]></string>
+    <string name="more_logout"><![CDATA[Ausloggen]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
-    <string name="more_licenses"><![CDATA[Open Source Licenses]]></string>
-    <string name="more_privacy_policy"><![CDATA[Privacy Policy]]></string>
-    <string name="more_developer_info"><![CDATA[Developer Info]]></string>
-    <string name="more_share_app"><![CDATA[Share App with Friends]]></string>
+    <string name="more_licenses"><![CDATA[Open Source Lizenzen]]></string>
+    <string name="more_privacy_policy"><![CDATA[Datenschutzerklärung]]></string>
+    <string name="more_developer_info"><![CDATA[Entwickler Informationen]]></string>
+    <string name="more_share_app"><![CDATA[App mit Freunden teilen]]></string>
     <string name="more_user_id"><![CDATA[User ID: %s]]></string>
-    <string name="more_app_version"><![CDATA[App Version: %s]]></string>
-    <string name="more_copied_user_id_label"><![CDATA[Copied User ID]]></string>
+    <string name="more_app_version"><![CDATA[Version der App: %s]]></string>
+    <string name="more_copied_user_id_label"><![CDATA[User ID wurde kopiert]]></string>
     <string-array name="more_hello_there">
-        <item><![CDATA[Hi
-]]></item>
-        <item><![CDATA[Hello
-]]></item>
-        <item><![CDATA[Hello there,
-]]></item>
-        <item><![CDATA[Hey
-]]></item>
-        <item><![CDATA[Hey there,
-]]></item>
-        <item><![CDATA[What\'s up,
-]]></item>
-        <item><![CDATA[Good to see you,
-]]></item>
-        <item><![CDATA[Nice to see you,
-]]></item>
-        <item><![CDATA[Have a good day,
-]]></item>
-        <item><![CDATA[Have a good one,
-]]></item>
-        <item><![CDATA[Greetings,
-]]></item>
-        <item><![CDATA[How\'s it going,
-]]></item>
-        <item><![CDATA[How’s life,
-]]></item>
-        <item><![CDATA[Yo,
-]]></item>
-        <item><![CDATA[Sup,
-]]></item>
-        <item><![CDATA[Howdy,
-]]></item>
-        <item><![CDATA[Wazzup,
-]]></item>
-        <item><![CDATA[G’day,
-]]></item>
+        <item><![CDATA[Hi\n]]></item>
+        <item><![CDATA[Hallo\n]]></item>
+        <item><![CDATA[Hey\n]]></item>
+        <item><![CDATA[Wie geht\'s,\n]]></item>
+        <item><![CDATA[Gut dich zu sehen,\n]]></item>
+        <item><![CDATA[Gut dich zu sehen,\n]]></item>
+        <item><![CDATA[Was geht,\n]]></item>
+        <item><![CDATA[Yo,\n]]></item>
     </string-array>
     <string name="dialog_ok"><![CDATA[OK]]></string>
-    <string name="dialog_cancel"><![CDATA[Cancel]]></string>
+    <string name="dialog_cancel"><![CDATA[Abbrechen]]></string>
     <string name="video_type_trailer"><![CDATA[Trailer]]></string>
     <string name="video_type_teaser"><![CDATA[Teaser]]></string>
     <string name="video_type_clip"><![CDATA[Clip]]></string>
     <string name="video_type_featurette"><![CDATA[Featurette]]></string>
-    <string name="video_type_openingCredits"><![CDATA[Opening Credits]]></string>
+    <string name="video_type_openingCredits"><![CDATA[Vorspann]]></string>
     <string name="episode_name"><![CDATA[S%1$sE%2$s]]></string>
-    <string name="dialog_options_watchable"><![CDATA[Actions for \"%s\"]]></string>
-    <string name="error_not_authenticated"><![CDATA[Your session has expired]]></string>
-    <string name="error_network_unavailable"><![CDATA[No internet connection]]></string>
-    <string name="error_server_error"><![CDATA[A server error (%d) occurred]]></string>
-    <string name="error_server_error_no_code"><![CDATA[A server error occurred]]></string>
+    <string name="dialog_options_watchable"><![CDATA[Aktionen für \"%s\"]]></string>
+    <string name="error_not_authenticated"><![CDATA[Deine Session ist abgelaufen]]></string>
+    <string name="error_network_unavailable"><![CDATA[Keine Internetverbindung]]></string>
+    <string name="error_server_error"><![CDATA[Ein Servererror (%d) ist aufgetreten]]></string>
+    <string name="error_server_error_no_code"><![CDATA[Ein Servererror ist aufgetreten]]></string>
     <string name="error_permission"><![CDATA[Please give the permission to use this feature]]></string>
-    <string name="error_other"><![CDATA[An error occurred]]></string>
-    <string name="sign_in_google"><![CDATA[Sign in with Google]]></string>
-    <string name="menu_watchable_season_set_watched"><![CDATA[Set season watched]]></string>
-    <string name="menu_watchable_season_set_not_watched"><![CDATA[Set season not watched]]></string>
-    <string name="onboarding_snack"><![CDATA[By long pressing Watchables and Episodes, you get more options!]]></string>
-    <string name="settings_rate_app"><![CDATA[Rate App in Play Store]]></string>
-    <string name="share_app_chooser_title"><![CDATA[Share App]]></string>
+    <string name="error_other"><![CDATA[Ein Fehler ist aufgetreten]]></string>
+    <string name="sign_in_google"><![CDATA[Mit Google einloggen]]></string>
+    <string name="menu_watchable_season_set_watched"><![CDATA[Staffel auf gesehen setzen]]></string>
+    <string name="menu_watchable_season_set_not_watched"><![CDATA[Staffel auf nicht gesehen setzen]]></string>
+    <string name="onboarding_snack"><![CDATA[Durch langes drücken auf Watchables und Episoden erhältst du mehr Optionen!]]></string>
+    <string name="settings_rate_app"><![CDATA[App im Play Store bewerten]]></string>
+    <string name="share_app_chooser_title"><![CDATA[App weiterempfehlen]]></string>
     <string name="share_app_chooser_text"><![CDATA[Check out Watchables: %s]]></string>
-    <string name="share_watchable_chooser_title"><![CDATA[Share %s]]></string>
-    <string name="share_watchable_chooser_text_movie"><![CDATA[Check out this Movie: %s]]></string>
-    <string name="share_watchable_chooser_text_show"><![CDATA[Check out this Show: %s]]></string>
-    <string name="enjoying_dialog_title"><![CDATA[Are you enjoying Watchables?]]></string>
-    <string name="enjoying_dialog_message"><![CDATA[If you do, you could rate it on the Play Store! If you do not… well maybe nest time! :D]]></string>
-    <string name="enjoying_dialog_positive"><![CDATA[Rate now]]></string>
-    <string name="enjoying_dialog_negative"><![CDATA[Not now]]></string>
-    <string name="detail_error_additional_data"><![CDATA[Error loading additional data]]></string>
-    <string name="detail_tv_actors"><![CDATA[Starring %s…]]></string>
-    <string name="watchables_filter_tv_title"><![CDATA[Filter Watchables]]></string>
-    <string name="watchables_filter_type_all"><![CDATA[All]]></string>
-    <string name="watchables_filter_type_movies"><![CDATA[Movies]]></string>
-    <string name="watchables_filter_type_shows"><![CDATA[Tv Shows]]></string>
-    <string name="watchables_sorting_title"><![CDATA[Sort Watchables]]></string>
-    <string name="watchables_sorting_watched_name"><![CDATA[By watched]]></string>
-    <string name="watchables_sorting_last_updated"><![CDATA[By last updated]]></string>
-    <string name="watchables_sorting_name_ascending"><![CDATA[By name]]></string>
-    <string name="watchables_sorting_type_ascending"><![CDATA[By type]]></string>
-    <string name="notification_add_channel_name"><![CDATA[Watchables Add Notifications]]></string>
-    <string name="notification_add_channel_description"><![CDATA[These notifications are displayed when a Watchable is being added to your list.]]></string>
-    <string name="notification_add_error_notification_title"><![CDATA[Sorry!]]></string>
-    <string name="notification_add_error_notification_text"><![CDATA[An error occurred while trying to add %s]]></string>
-    <string name="notification_message_channel_name"><![CDATA[Message Notifications]]></string>
-    <string name="notification_message_channel_description"><![CDATA[These notifications are displayed when a message is received from the Server.]]></string>
-    <string name="notification_update_channel_name"><![CDATA[Watchable Update Notifications]]></string>
-    <string name="notification_update_channel_description"><![CDATA[These notifications are displayed when a watchable is updated with new information.]]></string>
+    <string name="share_watchable_chooser_title"><![CDATA[%s weiterleiten]]></string>
+    <string name="share_watchable_chooser_text_movie"><![CDATA[Schau dir diesen Film an: %s]]></string>
+    <string name="share_watchable_chooser_text_show"><![CDATA[Schau dir diese Serie an: %s]]></string>
+    <string name="enjoying_dialog_title"><![CDATA[Gefällt dir Watchables?]]></string>
+    <string name="enjoying_dialog_message"><![CDATA[Bewerte die App doch bitte im Play Store!]]></string>
+    <string name="enjoying_dialog_positive"><![CDATA[Jetzt bewerten]]></string>
+    <string name="enjoying_dialog_negative"><![CDATA[Nicht jetzt]]></string>
+    <string name="detail_error_additional_data"><![CDATA[Fehler beim laden der Daten]]></string>
+    <string name="detail_tv_actors"><![CDATA[Mit %s...]]></string>
+    <string name="watchables_filter_tv_title"><![CDATA[Watchables filtern]]></string>
+    <string name="watchables_filter_type_all"><![CDATA[Alle]]></string>
+    <string name="watchables_filter_type_movies"><![CDATA[Filme]]></string>
+    <string name="watchables_filter_type_shows"><![CDATA[Serien]]></string>
+    <string name="watchables_sorting_title"><![CDATA[Watchables sortieren]]></string>
+    <string name="watchables_sorting_watched_name"><![CDATA[Nach gesehen]]></string>
+    <string name="watchables_sorting_last_updated"><![CDATA[Nach zuletzt aktualisiert]]></string>
+    <string name="watchables_sorting_name_ascending"><![CDATA[Nach Name]]></string>
+    <string name="watchables_sorting_type_ascending"><![CDATA[Nach Typ]]></string>
+    <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
+    <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
+    <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>
+    <string name="notification_add_error_notification_text"><![CDATA[Ein Fehler ist aufgetreten beim hinzufügen von %s]]></string>
+    <string name="notification_message_channel_name"><![CDATA[Mitteilung Notifikation]]></string>
+    <string name="notification_message_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn eine Mitteilung vom Server empfangen wird.]]></string>
+    <string name="notification_update_channel_name"><![CDATA[Watchable Update Notifikation]]></string>
+    <string name="notification_update_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable geupdated wird.]]></string>
     <string name="notification_update_title_show_name"><![CDATA[%1$s - S%2$d]]></string>
-    <string name="notification_update_title"><![CDATA[%1$s will air on %2$s]]></string>
-    <string name="notification_update_text"><![CDATA[Click here to learn more]]></string>
+    <string name="notification_update_title"><![CDATA[%1$s wird am %2$s erscheinen]]></string>
+    <string name="notification_update_text"><![CDATA[Klicke hier um mehr zu lernen]]></string>
     <string name="dev_mail"><![CDATA[mail@florianschuster.at]]></string>
     <string name="imdb_search"><![CDATA[https://www.imdb.com/title/%s/]]></string>
     <string name="tmdb_url"><![CDATA[https://www.themoviedb.org/]]></string>
