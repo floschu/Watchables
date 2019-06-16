@@ -1,10 +1,12 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: "kotlin-android-extensions"
-apply plugin: 'kotlin-kapt'
-apply plugin: 'com.akaita.android.easylauncher'
-apply plugin: 'io.fabric'
-apply plugin: 'androidx.navigation.safeargs.kotlin'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id "kotlin-android-extensions"
+    id 'kotlin-kapt'
+    id 'com.akaita.android.easylauncher'
+    id 'io.fabric'
+    id 'androidx.navigation.safeargs.kotlin'
+}
 
 def keystorePropertiesFile = rootProject.file("secret.properties")
 def keystoreProperties = new Properties()
@@ -69,59 +71,61 @@ androidExtensions {
 }
 
 dependencies {
+    implementation Dependencies.KotlinStd
+
     /**
      * Base
      */
-    implementation deps.reaktor
-    implementation deps.koordinator
-    implementation deps.androidutil.values()
+    implementation Dependencies.Reaktor
+    implementation Dependencies.Koordinator
+    implementation Dependencies.AndroidUtil.values()
 
     /**
      * UI
      */
-    implementation deps.ui.values()
-    implementation deps.lifecycle.extensions
-    kapt deps.lifecycle.compiler
-    implementation deps.navigation.values()
+    implementation Dependencies.UI.values()
+    implementation Dependencies.Navigation.values()
+    implementation Dependencies.Lifecycle.Extensions
+    kapt Dependencies.Lifecycle.Compiler
 
     /**
      * Dependency Injection
      */
-    implementation deps.koin.values()
+    implementation Dependencies.Koin.values()
 
     /**
      * Networking
      */
-    implementation deps.networking.values()
+    implementation Dependencies.Network.values()
 
     /**
      * Local
      */
-    implementation deps.local.hawk
+    implementation Dependencies.Local.Hawk
 
     /**
      * Firebase
      */
-    implementation deps.firebase.values()
+    implementation Dependencies.Firebase.values()
 
     /**
      * Rx
      */
-    implementation deps.rxjava.values()
-    implementation deps.rxbinding.values()
+    implementation Dependencies.RxJava.values()
+    implementation Dependencies.RxBinding.values()
 
     /**
      * Utils
      */
-    implementation deps.coreutil.values()
-    debugImplementation deps.leakcanary.op
-    releaseImplementation deps.leakcanary.noop
-    implementation deps.glide.core
-    implementation deps.glide.transformation
-    kapt deps.glide.compiler
-    implementation deps.work.values()
-    debugImplementation deps.gander.op
-    releaseImplementation deps.gander.noop
+    implementation Dependencies.MiscUtil.values()
+    debugImplementation Dependencies.LeakCanary.Op
+    releaseImplementation Dependencies.LeakCanary.NoOp
+    implementation Dependencies.Glide.Core
+    implementation Dependencies.Glide.Transformation
+    kapt Dependencies.Glide.Compiler
+    implementation Dependencies.Work.values()
+    debugImplementation Dependencies.Gander.Op
+    releaseImplementation Dependencies.Gander.NoOp
 }
 
 
