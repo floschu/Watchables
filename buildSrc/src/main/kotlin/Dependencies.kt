@@ -81,7 +81,7 @@ object Dependencies {
     )
 
     val Local = dependencyGroup(
-        "Hawk" to "com.orhanobut:hawk:2.0.1"
+        "Hawk" fromRemote "com.orhanobut:hawk:2.0.1"
     )
 
     val Firebase = dependencyGroup(

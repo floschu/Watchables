@@ -29,7 +29,9 @@ open class WatchablesFirestoreObject(var deleted: Boolean = false) : FirestoreOb
     }
 }
 
-data class WatchableUser(val watchableCounter: Long = 0) : WatchablesFirestoreObject()
+data class WatchableUser(
+    val watchableCounter: Long = 0
+) : WatchablesFirestoreObject()
 
 data class Watchable(
     var watched: Boolean = false,
