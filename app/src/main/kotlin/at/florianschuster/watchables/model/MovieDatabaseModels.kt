@@ -34,7 +34,6 @@ data class Search(val results: List<SearchItem?> = emptyList()) {
 data class Movie(
     val id: Int,
     @SerializedName("original_title") val name: String,
-    @SerializedName("imdb_id") val imdbId: String?,
     @SerializedName("poster_path") val image: String?,
     @SerializedName("homepage") val website: String?,
     @SerializedName("release_date") val releaseDate: LocalDate?,
@@ -43,6 +42,7 @@ data class Movie(
     @SerializedName("overview") val summary: String?,
     val status: Status,
     val videos: Videos,
+    @SerializedName("external_ids") val externalIds: ExternalIds,
     val credits: Credits?
 ) {
     enum class Status {
@@ -91,9 +91,14 @@ data class Show(
         @SerializedName("Pilot")
         pilot
     }
-
-    data class ExternalIds(@SerializedName("imdb_id") val imdbId: String?)
 }
+
+data class ExternalIds(
+    @SerializedName("imdb_id") val imdbId: String?,
+    @SerializedName("facebook_id") val facebookId: String?,
+    @SerializedName("instagram_id") val instagramId: String?,
+    @SerializedName("twitter_id") val twitterId: String?
+)
 
 data class Season(
     val id: Int,

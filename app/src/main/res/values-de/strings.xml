@@ -14,6 +14,9 @@
     <string name="menu_watchable_add"><![CDATA[Als Watchable hinzufügen]]></string>
     <string name="menu_watchable_website"><![CDATA[Website öffnen]]></string>
     <string name="menu_watchable_imdb"><![CDATA[Auf IMDB öffnen]]></string>
+    <string name="menu_watchable_facebook"><![CDATA[In Facebook öffnen]]></string>
+    <string name="menu_watchable_instagram"><![CDATA[In Instragram öffnen]]></string>
+    <string name="menu_watchable_twitter"><![CDATA[In Twitter öffnen]]></string>
     <string name="menu_watchable_share"><![CDATA[Watchable weiterleiten]]></string>
     <string name="release_date_past"><![CDATA[Erschienen am %s]]></string>
     <string name="release_date_future"><![CDATA[Erscheint am %s]]></string>
@@ -93,7 +96,7 @@
     <string name="notification_update_title"><![CDATA[%1$s wird am %2$s erscheinen]]></string>
     <string name="notification_update_text"><![CDATA[Klicke hier um mehr zu lernen]]></string>
     <string name="dev_mail"><![CDATA[mail@florianschuster.at]]></string>
-    <string name="imdb_search"><![CDATA[https://www.imdb.com/title/%s/]]></string>
+    <string name="imdb_id_url"><![CDATA[https://www.imdb.com/title/%s/]]></string>
     <string name="tmdb_url"><![CDATA[https://www.themoviedb.org/]]></string>
     <string name="privacy_policy_url"><![CDATA[https://florianschuster.at/watchables/privacy.html]]></string>
     <string name="developer_url"><![CDATA[https://florianschuster.at/]]></string>
@@ -101,6 +104,9 @@
     <string name="youtube_thumbnail"><![CDATA[https://img.youtube.com/vi/%s/sddefault.jpg]]></string>
     <string name="app_link"><![CDATA[https://watchables.page.link/app]]></string>
     <string name="deeplink_domain"><![CDATA[https://watchables.page.link]]></string>
+    <string name="facebook_id_url"><![CDATA[https://www.facebook.com/%s/]]></string>
+    <string name="instagram_id_url"><![CDATA[https://www.instagram.com/%s/]]></string>
+    <string name="twitter_id_url"><![CDATA[https://twitter.com/%s/]]></string>
     <string name="analytics_watchable_add_event"><![CDATA[watchable_add]]></string>
     <string name="analytics_watchable_delete_event"><![CDATA[watchable_delete]]></string>
     <string name="analytics_watchable_watched_event"><![CDATA[watchable_watched]]></string>
