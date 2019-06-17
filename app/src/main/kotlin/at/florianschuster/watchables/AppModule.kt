@@ -16,6 +16,8 @@
 
 package at.florianschuster.watchables
 
+import android.content.res.Resources
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import at.florianschuster.watchables.all.OptionsAdapter
 import at.florianschuster.watchables.service.ActivityShareService
@@ -36,8 +38,10 @@ import com.squareup.leakcanary.LeakCanary
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
+import java.util.Locale
 
 val appModule = module {
+    single { provideAppLocale(androidContext().resources) }
     single { LeakCanary.install(androidApplication()) }
     single { FirebaseSessionService(androidContext()) as SessionService<FirebaseUser, AuthCredential> }
     single { FirebaseAnalyticsService(androidContext(), get()) as AnalyticsService }
@@ -47,4 +51,18 @@ val appModule = module {
 
     factory { (activity: AppCompatActivity) -> ActivityShareService(activity) as ShareService }
     factory { OptionsAdapter() }
+}
+
+private fun provideAppLocale(resources: Resources): Locale {
+    val currentLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        resources.configuration.locales[0]
+    } else {
+        @Suppress("DEPRECATION")
+        resources.configuration.locale
+    }
+
+    return when (currentLocale.language) {
+        Locale.GERMAN.language -> currentLocale
+        else -> Locale.US
+    }
 }

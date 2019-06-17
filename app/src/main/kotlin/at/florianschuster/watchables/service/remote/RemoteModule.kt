@@ -16,8 +16,6 @@
 
 package at.florianschuster.watchables.service.remote
 
-import android.content.Context
-import android.os.Build
 import com.google.gson.Gson
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
@@ -26,9 +24,7 @@ import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
 import com.ashokvarma.gander.GanderInterceptor
 import com.google.gson.GsonBuilder
 import io.reactivex.schedulers.Schedulers
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
@@ -43,7 +39,7 @@ internal val remoteModule = module {
     single { HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC } }
     single { GanderInterceptor(androidContext()).apply { showNotification(true) } }
     single { provideOkHttpClient(get(), get()) }
-    single { provideMovieDatabaseApi(androidContext().currentLocale, get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
+    single { provideMovieDatabaseApi(get(), get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
 }
 
 private fun provideGson(): Gson = GsonBuilder().apply {
@@ -87,11 +83,3 @@ private fun provideMovieDatabaseApi(
         addCallAdapterFactory(RxJava2CallAdapterFactory.createWithScheduler(Schedulers.io()))
     }.build().create(MovieDatabaseApi::class.java)
 }
-
-@Suppress("DEPRECATION")
-private val Context.currentLocale: Locale
-    get() = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        resources.configuration.locales[0]
-    } else {
-        resources.configuration.locale
-    }
