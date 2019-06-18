@@ -7,7 +7,7 @@
     <dimen name="item_outer_corners">12dp</dimen>
     <dimen name="item_inner_corners">8dp</dimen>
 
-    <dimen name="detail_media_height">232dp</dimen>
+    <dimen name="detail_media_height">248dp</dimen>
     <dimen name="episode_height">52dp</dimen>
     <dimen name="bnv_height">56dp</dimen>
     <dimen name="bnv_height_rv_padding">112dp</dimen>

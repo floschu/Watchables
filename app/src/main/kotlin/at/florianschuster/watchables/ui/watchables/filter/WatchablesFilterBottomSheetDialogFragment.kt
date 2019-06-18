@@ -33,7 +33,10 @@ import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_watchables_filter.*
 
-class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(R.layout.fragment_watchables_filter), ReactorView<WatchablesFilterReactor> {
+class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(
+    R.layout.fragment_watchables_filter,
+    WatchablesFilterBottomSheetDialogFragment::class.java.simpleName
+), ReactorView<WatchablesFilterReactor> {
     override val reactor: WatchablesFilterReactor by reactor()
 
     private val filterChipsIdMap = mapOf(

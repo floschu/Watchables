@@ -64,6 +64,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    packagingOptions {
+        exclude 'META-INF/library-core_release.kotlin_module'
+    }
 }
 
 androidExtensions {
@@ -124,8 +127,6 @@ dependencies {
     implementation Dependencies.Glide.Transformation
     kapt Dependencies.Glide.Compiler
     implementation Dependencies.Work.values()
-    debugImplementation Dependencies.Gander.Op
-    releaseImplementation Dependencies.Gander.NoOp
 }
 
 

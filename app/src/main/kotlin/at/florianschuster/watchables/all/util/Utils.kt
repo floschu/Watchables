@@ -28,11 +28,17 @@ import com.tailoredapps.androidutil.ui.IntentUtil
 
 object Utils {
     fun rateApp(context: Context): Intent {
-        val marketIntent = Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=${WatchablesApp.instance.packageName}")).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_NEW_DOCUMENT or Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
-        }
         return try {
-            marketIntent
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("market://details?id=${WatchablesApp.instance.packageName}")
+            ).apply {
+                addFlags(
+                    Intent.FLAG_ACTIVITY_NO_HISTORY or
+                        Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                        Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                )
+            }
         } catch (e: ActivityNotFoundException) {
             IntentUtil.playstore(context)
         }
@@ -40,12 +46,12 @@ object Utils {
 
     fun showLibraries(context: Context) {
         LibsBuilder().apply {
-            withFields(*Libs.toStringArray(R.string::class.java.fields))
-            withLicenseShown(true)
-            withAutoDetect(true)
             withActivityTitle(context.getString(R.string.more_licenses))
             withActivityStyle(Libs.ActivityStyle.DARK)
+
             withCheckCachedDetection(false)
+            withLicenseShown(true)
+            withAutoDetect(true)
         }.start(context)
     }
 }

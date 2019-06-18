@@ -9,11 +9,10 @@ object Versions {
     const val Lifecycle = "2.0.0"
     const val Koin = "2.0.1"
     const val RxBinding = "3.0.0-alpha2"
-    const val Retrofit = "2.5.0"
+    const val Retrofit = "2.6.0"
     const val OkHttp = "3.14.1"
     const val Leakcanary = "1.6.3"
     const val Glide = "4.9.0"
-    const val Gander = "1.4.0"
 }
 
 @Suppress("SpellCheckingInspection", "unused")
@@ -120,7 +119,7 @@ object Dependencies {
         "Threeten" fromRemote "com.jakewharton.threetenabp:threetenabp:1.2.1",
         "Flick" fromRemote "me.saket:flick:1.4.0",
         "Gestureviews" fromRemote "com.alexvasilkov:gesture-views:2.5.2",
-        "Aboutlibs" fromRemote "com.mikepenz:aboutlibraries:6.2.1",
+        "Aboutlibs" fromRemote "com.mikepenz:aboutlibraries:7.0.0",
         "Customtabs" fromRemote "com.android.support:customtabs:28.0.0"
     )
 
@@ -138,11 +137,6 @@ object Dependencies {
     val Work = dependencyGroup(
         "Core" fromRemote "androidx.work:work-runtime:${Versions.Work}",
         "RxJava" fromRemote "androidx.work:work-rxjava2:${Versions.Work}"
-    )
-
-    val Gander = dependencyGroup(
-        "Op" fromRemote "com.ashokvarma.android:gander:${Versions.Gander}",
-        "NoOp" fromRemote "com.ashokvarma.android:gander-no-op:${Versions.Gander}"
     )
 }
 

@@ -214,12 +214,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         btnFilter.clicks()
             .throttleFirst(1, TimeUnit.SECONDS)
-            .bind {
-                WatchablesFilterBottomSheetDialogFragment().show(
-                    fragmentManager,
-                    WatchablesFilterBottomSheetDialogFragment::class.java.simpleName
-                )
-            }
+            .bind { WatchablesFilterBottomSheetDialogFragment().show(fragmentManager) }
             .addTo(disposables)
     }
 

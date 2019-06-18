@@ -21,12 +21,10 @@ import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.all.util.gson.LocalDateTypeAdapter
 import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
-import com.ashokvarma.gander.GanderInterceptor
 import com.google.gson.GsonBuilder
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import org.threeten.bp.LocalDate
 import retrofit2.Retrofit
@@ -37,8 +35,7 @@ import java.util.Locale
 internal val remoteModule = module {
     single { provideGson() }
     single { HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BASIC } }
-    single { GanderInterceptor(androidContext()).apply { showNotification(true) } }
-    single { provideOkHttpClient(get(), get()) }
+    single { provideOkHttpClient(loggingInterceptor = get()) }
     single { provideMovieDatabaseApi(get(), get(), get(), BuildConfig.MOVIEDB_BASE_URL) }
 }
 
@@ -48,11 +45,9 @@ private fun provideGson(): Gson = GsonBuilder().apply {
 }.create()
 
 private fun provideOkHttpClient(
-    loggingInterceptor: HttpLoggingInterceptor,
-    ganderInterceptor: GanderInterceptor
+    loggingInterceptor: HttpLoggingInterceptor
 ): OkHttpClient = OkHttpClient().newBuilder().apply {
     if (BuildConfig.DEBUG) addInterceptor(loggingInterceptor)
-    addInterceptor(ganderInterceptor)
 }.build()
 
 private fun provideMovieDatabaseApi(
@@ -61,19 +56,19 @@ private fun provideMovieDatabaseApi(
     gson: Gson,
     apiUrl: String
 ): MovieDatabaseApi {
-    val httpClientBuilder = okHttpClient.newBuilder()
-
-    httpClientBuilder.addInterceptor {
-        val originalRequest = it.request()
-        val request = originalRequest.newBuilder().apply {
-            val url = originalRequest.url().newBuilder().apply {
-                addQueryParameter("api_key", BuildConfig.MOVIEDB_KEY)
-                addQueryParameter("language", currentLocale.toLanguageTag())
-                addQueryParameter("region", currentLocale.language.toUpperCase())
+    val httpClientBuilder = okHttpClient.newBuilder().apply {
+        addInterceptor {
+            val originalRequest = it.request()
+            val request = originalRequest.newBuilder().apply {
+                val url = originalRequest.url().newBuilder().apply {
+                    addQueryParameter("api_key", BuildConfig.MOVIEDB_KEY)
+                    addQueryParameter("language", currentLocale.toLanguageTag())
+                    addQueryParameter("region", currentLocale.language.toUpperCase())
+                }.build()
+                url(url)
             }.build()
-            url(url)
-        }.build()
-        it.proceed(request)
+            it.proceed(request)
+        }
     }
 
     return Retrofit.Builder().apply {
