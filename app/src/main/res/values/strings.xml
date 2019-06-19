@@ -5,7 +5,7 @@
     <string name="search_hint"><![CDATA[Search for Movies or TV Shows…]]></string>
     <string name="search_empty"><![CDATA[The search did not return any Results.]]></string>
     <string name="dialog_logout_title"><![CDATA[Logout]]></string>
-    <string name="dialog_logout_message"><![CDATA[Are you sure that you want to log out? Don\'t worry, your Watchables are saved with your account.]]></string>
+    <string name="dialog_logout_message"><![CDATA[Are you sure that you want to log out? Don\'t worry, your Watchables are saved with your account and you can log in again anytime.]]></string>
     <string name="dialog_delete_watchable_title"><![CDATA[Watch out!]]></string>
     <string name="dialog_delete_watchable_message"><![CDATA[Are you sure you want to delete this Watchable?]]></string>
     <string name="display_name_movie"><![CDATA[Movie]]></string>
@@ -26,6 +26,7 @@
     <string name="empty_watchable_title"><![CDATA[Oh no :(]]></string>
     <string name="empty_watchable_text"><![CDATA[You have not added any Watchables yet. Add some by using the Search!]]></string>
     <string name="more_logout"><![CDATA[Logout]]></string>
+    <string name="more_report_bug"><![CDATA[Report a bug]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
     <string name="more_licenses"><![CDATA[Open Source Licenses]]></string>
     <string name="more_privacy_policy"><![CDATA[Privacy Policy]]></string>

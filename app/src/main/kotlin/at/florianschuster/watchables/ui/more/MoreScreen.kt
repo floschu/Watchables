@@ -47,6 +47,7 @@ import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.watchables.BuildConfig
 import com.jakewharton.rxbinding3.view.clicks
+import com.tailoredapps.androidutil.ui.IntentUtil
 import com.tailoredapps.androidutil.ui.extensions.toast
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -73,10 +74,11 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
         listOf(
             rateOption,
             shareOption,
-            devInfoOption,
             privacyOption,
             licensesOption,
             analyticsOption,
+            devInfoOption,
+            reportBugOption,
             logoutOption
         ).also(adapter::submitList)
 
@@ -124,6 +126,11 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
     private val devInfoOption: Option
         get() = Option.Action(R.string.more_developer_info, R.drawable.ic_code) {
             openChromeTab(getString(R.string.developer_url))
+        }
+
+    private val reportBugOption: Option
+        get() = Option.Action(R.string.more_report_bug, R.drawable.ic_bug_report) {
+            startActivity(IntentUtil.mail(getString(R.string.dev_mail)))
         }
 
     private val privacyOption: Option

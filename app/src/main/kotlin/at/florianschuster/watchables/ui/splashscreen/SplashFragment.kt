@@ -34,22 +34,24 @@ class SplashFragment : BaseFragment(R.layout.fragment_splash) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        AlphaAnimation(1.0f, 0.0f).apply {
-            duration = 1000
-            fillAfter = true
+        AlphaAnimation(1.0f, 0.0f)
+            .apply {
+                duration = 1000
+                fillAfter = true
 
-            setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationEnd(animation: Animation?) {
-                    afterAnimation()
-                }
+                setAnimationListener(object : Animation.AnimationListener {
+                    override fun onAnimationEnd(animation: Animation?) {
+                        afterAnimation()
+                    }
 
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
+                    override fun onAnimationRepeat(animation: Animation?) {
+                    }
 
-                override fun onAnimationStart(animation: Animation?) {
-                }
-            })
-        }.let(ivLogo::startAnimation)
+                    override fun onAnimationStart(animation: Animation?) {
+                    }
+                })
+            }
+            .let(ivLogo::startAnimation)
     }
 
     private fun afterAnimation() {

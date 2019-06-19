@@ -5,7 +5,7 @@
     <string name="search_hint"><![CDATA[Suche nach Filmen oder Serien...]]></string>
     <string name="search_empty"><![CDATA[Die Suche hat keine Ergebnisse geliefert.]]></string>
     <string name="dialog_logout_title"><![CDATA[Ausloggen]]></string>
-    <string name="dialog_logout_message"><![CDATA[Bist du dir sicher, dass du dich ausloggen möchtest? Kein Angst, deine Watchable Liste wird mit deinem Account gespeichert.]]></string>
+    <string name="dialog_logout_message"><![CDATA[Bist du dir sicher, dass du dich ausloggen möchtest? Kein Angst, deine Watchable Liste wird mit deinem Account gespeichert und du kannst dich jederzeit wieder einloggen.]]></string>
     <string name="dialog_delete_watchable_title"><![CDATA[Achtung!]]></string>
     <string name="dialog_delete_watchable_message"><![CDATA[Bist du dir sicher, dass du dieses Watchable löschen willst?]]></string>
     <string name="display_name_movie"><![CDATA[Film]]></string>
@@ -15,7 +15,7 @@
     <string name="menu_watchable_website"><![CDATA[Website öffnen]]></string>
     <string name="menu_watchable_imdb"><![CDATA[Auf IMDB öffnen]]></string>
     <string name="menu_watchable_facebook"><![CDATA[In Facebook öffnen]]></string>
-    <string name="menu_watchable_instagram"><![CDATA[In Instragram öffnen]]></string>
+    <string name="menu_watchable_instagram"><![CDATA[In Instagram öffnen]]></string>
     <string name="menu_watchable_twitter"><![CDATA[In Twitter öffnen]]></string>
     <string name="menu_watchable_share"><![CDATA[Watchable weiterleiten]]></string>
     <string name="release_date_past"><![CDATA[Erschienen am %s]]></string>
@@ -26,6 +26,7 @@
     <string name="empty_watchable_title"><![CDATA[Oh nein :(]]></string>
     <string name="empty_watchable_text"><![CDATA[Du hast noch keine Watchables hinzugefügt. Füge welche mit Hilfe der Suche hinzu!]]></string>
     <string name="more_logout"><![CDATA[Ausloggen]]></string>
+    <string name="more_report_bug"><![CDATA[Fehler melden]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
     <string name="more_licenses"><![CDATA[Open Source Lizenzen]]></string>
     <string name="more_privacy_policy"><![CDATA[Datenschutzerklärung]]></string>

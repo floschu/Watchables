@@ -2,10 +2,10 @@
     android:duration="5000"
     android:fromXScale="1"
     android:fromYScale="1"
-    android:interpolator="@android:anim/decelerate_interpolator"
+    android:interpolator="@android:anim/accelerate_decelerate_interpolator"
     android:pivotX="50%"
     android:pivotY="50%"
     android:repeatCount="infinite"
     android:repeatMode="reverse"
-    android:toXScale="0.95"
-    android:toYScale="0.95" />
+    android:toXScale="0.87"
+    android:toYScale="0.87" />
