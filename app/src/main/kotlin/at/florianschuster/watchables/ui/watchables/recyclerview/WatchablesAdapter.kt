@@ -23,7 +23,6 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.ui.watchables.WatchableContainer
 import com.jakewharton.rxrelay2.PublishRelay
-import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -38,7 +37,7 @@ sealed class WatchablesAdapterInteraction {
     data class EpisodeOptions(val seasonId: String, val seasonIndex: String, val episodeIndex: String) : WatchablesAdapterInteraction()
 }
 
-class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrollRecyclerView.SectionedAdapter {
+class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
     private val interactionRelay: PublishRelay<WatchablesAdapterInteraction> = PublishRelay.create()
     val interaction: Observable<WatchablesAdapterInteraction>
         get() = interactionRelay.hide().share()
@@ -80,9 +79,6 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>(), FastScrol
             holder.bindSeasonsPayload(data[position].seasons, interactionRelay::accept)
         }
     }
-
-    override fun getSectionName(position: Int): String =
-        "${data[position].watchable.name.firstOrNull()}"
 
     companion object {
         fun calculateDiff(

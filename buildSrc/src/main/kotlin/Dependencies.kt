@@ -1,31 +1,3 @@
-@Suppress("SpellCheckingInspection")
-object Versions {
-    const val Kotlin = "1.3.31"
-    const val Reaktor = "1.0.16"
-    const val Koordinator = "0.0.15"
-    const val androidutil = "13"
-    const val Navigation = "2.0.0"
-    const val Work = "2.0.1"
-    const val Lifecycle = "2.0.0"
-    const val Koin = "2.0.1"
-    const val RxBinding = "3.0.0-alpha2"
-    const val Retrofit = "2.6.0"
-    const val OkHttp = "3.14.1"
-    const val Leakcanary = "1.6.3"
-    const val Glide = "4.9.0"
-}
-
-@Suppress("SpellCheckingInspection", "unused")
-object BuildScriptDependencies {
-    const val BuildTools = "com.android.tools.build:gradle:3.4.1"
-    const val KotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.Kotlin}"
-    const val NavigationSafeArgs = "androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.Navigation}"
-    const val VersionsPlugin = "com.github.ben-manes:gradle-versions-plugin:0.21.0"
-    const val EasyLauncher = "com.akaita.android:easylauncher:1.3.1"
-    const val GoogleServices = "com.google.gms:google-services:4.2.0"
-    const val Fabric = "io.fabric.tools:gradle:1.29.0"
-}
-
 @Suppress("SpellCheckingInspection", "unused")
 object Dependencies {
     const val KotlinStd = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.Kotlin}"
@@ -34,111 +6,106 @@ object Dependencies {
 
     const val Koordinator = "at.florianschuster.koordinator:koordinator-android-koin:${Versions.Koordinator}"
 
-    val AndroidUtil = dependencyGroup(
-        "UI" fromRemote "com.tailoredapps.androidutil:util-ui:${Versions.androidutil}",
-        "Async" fromRemote "com.tailoredapps.androidutil:util-async:${Versions.androidutil}",
-        "network" fromRemote "com.tailoredapps.androidutil:util-network:${Versions.androidutil}",
-        "Optional" fromRemote "com.tailoredapps.androidutil:util-optional:${Versions.androidutil}",
-        "Permissions" fromRemote "com.tailoredapps.androidutil:util-permissions:${Versions.androidutil}",
-        "Validation" fromRemote "com.tailoredapps.androidutil:util-validation:${Versions.androidutil}",
-        "ViewState" fromRemote "com.tailoredapps.androidutil:util-viewstate:${Versions.androidutil}",
-        "Firebase" fromRemote "com.tailoredapps.androidutil:util-firebase:${Versions.androidutil}"
+    val AndroidUtil = mapOf(
+        "UI" to "com.tailoredapps.androidutil:util-ui:${Versions.androidutil}",
+        "Async" to "com.tailoredapps.androidutil:util-async:${Versions.androidutil}",
+        "network" to "com.tailoredapps.androidutil:util-network:${Versions.androidutil}",
+        "Optional" to "com.tailoredapps.androidutil:util-optional:${Versions.androidutil}",
+        "Permissions" to "com.tailoredapps.androidutil:util-permissions:${Versions.androidutil}",
+        "Validation" to "com.tailoredapps.androidutil:util-validation:${Versions.androidutil}",
+        "ViewState" to "com.tailoredapps.androidutil:util-viewstate:${Versions.androidutil}",
+        "Firebase" to "com.tailoredapps.androidutil:util-firebase:${Versions.androidutil}"
     )
 
-    val UI = dependencyGroup(
-        "Material" fromRemote "com.google.android.material:material:1.0.0",
-        "AppCompat" fromRemote "androidx.appcompat:appcompat:1.0.2",
-        "Fragment" fromRemote "androidx.fragment:fragment:1.0.0",
-        "Constraintlayout" fromRemote "androidx.constraintlayout:constraintlayout:1.1.3",
-        "CoreKTX" fromRemote "androidx.core:core-ktx:1.0.1",
-        "Fastscroll" fromRemote "com.simplecityapps:recyclerview-fastscroll:1.0.20"
+    val UI = mapOf(
+        "Material" to "com.google.android.material:material:1.0.0",
+        "AppCompat" to "androidx.appcompat:appcompat:1.0.2",
+        "Fragment" to "androidx.fragment:fragment:1.0.0",
+        "Constraintlayout" to "androidx.constraintlayout:constraintlayout:1.1.3",
+        "CoreKTX" to "androidx.core:core-ktx:1.0.1"
     )
 
-    val Navigation = dependencyGroup(
-        "Core" fromRemote "androidx.navigation:navigation-fragment-ktx:${Versions.Navigation}",
-        "UI" fromRemote "androidx.navigation:navigation-ui-ktx:${Versions.Navigation}"
+    val Navigation = mapOf(
+        "Core" to "androidx.navigation:navigation-fragment-ktx:${Versions.Navigation}",
+        "UI" to "androidx.navigation:navigation-ui-ktx:${Versions.Navigation}"
     )
 
-    val Lifecycle = dependencyGroup(
-        "Extensions" fromRemote "androidx.lifecycle:lifecycle-extensions:${Versions.Lifecycle}",
-        "Compiler" fromRemote "androidx.lifecycle:lifecycle-compiler:${Versions.Lifecycle}"
+    val Lifecycle = mapOf(
+        "Extensions" to "androidx.lifecycle:lifecycle-extensions:${Versions.Lifecycle}",
+        "Compiler" to "androidx.lifecycle:lifecycle-compiler:${Versions.Lifecycle}"
     )
 
-    val Koin = dependencyGroup(
-        "Core" fromRemote "org.koin:koin-core:${Versions.Koin}",
-        "Android" fromRemote "org.koin:koin-android:${Versions.Koin}",
-        "Scrop" fromRemote "org.koin:koin-androidx-scope:${Versions.Koin}",
-        "ViewModel" fromRemote "org.koin:koin-androidx-viewmodel:${Versions.Koin}"
+    val Koin = mapOf(
+        "Core" to "org.koin:koin-core:${Versions.Koin}",
+        "Android" to "org.koin:koin-android:${Versions.Koin}",
+        "Scrop" to "org.koin:koin-androidx-scope:${Versions.Koin}",
+        "ViewModel" to "org.koin:koin-androidx-viewmodel:${Versions.Koin}"
     )
 
-    val Network = dependencyGroup(
-        "Core" fromRemote "com.squareup.retrofit2:retrofit:${Versions.Retrofit}",
-        "Gson" fromRemote "com.squareup.retrofit2:converter-gson:${Versions.Retrofit}",
-        "RxJava" fromRemote "com.squareup.retrofit2:adapter-rxjava2:${Versions.Retrofit}",
-        "OkHttp" fromRemote "com.squareup.okhttp3:okhttp:${Versions.OkHttp}",
-        "OkHttpLogging" fromRemote "com.squareup.okhttp3:logging-interceptor:${Versions.OkHttp}"
+    val Network = mapOf(
+        "Core" to "com.squareup.retrofit2:retrofit:${Versions.Retrofit}",
+        "Gson" to "com.squareup.retrofit2:converter-gson:${Versions.Retrofit}",
+        "RxJava" to "com.squareup.retrofit2:adapter-rxjava2:${Versions.Retrofit}",
+        "OkHttp" to "com.squareup.okhttp3:okhttp:${Versions.OkHttp}",
+        "OkHttpLogging" to "com.squareup.okhttp3:logging-interceptor:${Versions.OkHttp}"
     )
 
-    val Local = dependencyGroup(
-        "Hawk" fromRemote "com.orhanobut:hawk:2.0.1"
+    val Local = mapOf(
+        "Hawk" to "com.orhanobut:hawk:2.0.1"
     )
 
-    val Firebase = dependencyGroup(
-        "Core" fromRemote "com.google.firebase:firebase-core:16.0.9",
-        "Auth" fromRemote "com.google.firebase:firebase-auth:17.0.0",
-        "gmsauth" fromRemote "com.google.android.gms:play-services-auth:16.0.1",
-        "Firestore" fromRemote "com.google.firebase:firebase-firestore:19.0.0",
-        "Crashlytics" fromRemote "com.crashlytics.sdk.android:crashlytics:2.9.9",
-        "Messaging" fromRemote "com.google.firebase:firebase-messaging:18.0.0",
-        "Storage" fromRemote "com.google.firebase:firebase-storage:17.0.0",
-        "Performance" fromRemote "com.google.firebase:firebase-perf:17.0.0",
-        "Invites" fromRemote "com.google.firebase:firebase-invites:17.0.0"
+    val Firebase = mapOf(
+        "Core" to "com.google.firebase:firebase-core:17.0.0",
+        "Auth" to "com.google.firebase:firebase-auth:18.0.0",
+        "gmsauth" to "com.google.android.gms:play-services-auth:17.0.0",
+        "Firestore" to "com.google.firebase:firebase-firestore:20.0.0",
+        "Crashlytics" to "com.crashlytics.sdk.android:crashlytics:2.10.1",
+        "Messaging" to "com.google.firebase:firebase-messaging:19.0.0",
+        "Performance" to "com.google.firebase:firebase-perf:18.0.0",
+        "Invites" to "com.google.firebase:firebase-invites:17.0.0"
     )
 
-    val RxJava = dependencyGroup(
-        "Core" fromRemote "io.reactivex.rxjava2:rxjava:2.2.9",
-        "Kotlin" fromRemote "io.reactivex.rxjava2:rxkotlin:2.3.0",
-        "Relay" fromRemote "com.jakewharton.rxrelay2:rxrelay:2.1.0",
-        "Android" fromRemote "io.reactivex.rxjava2:rxandroid:2.1.1"
+    val RxJava = mapOf(
+        "Core" to "io.reactivex.rxjava2:rxjava:2.2.9",
+        "Kotlin" to "io.reactivex.rxjava2:rxkotlin:2.3.0",
+        "Relay" to "com.jakewharton.rxrelay2:rxrelay:2.1.0",
+        "Android" to "io.reactivex.rxjava2:rxandroid:2.1.1"
     )
 
-    val RxBinding = dependencyGroup(
-        "Binding" fromRemote "com.jakewharton.rxbinding3:rxbinding:${Versions.RxBinding}",
-        "Core" fromRemote "com.jakewharton.rxbinding3:rxbinding-core:${Versions.RxBinding}",
-        "Appcompat" fromRemote "com.jakewharton.rxbinding3:rxbinding-appcompat:${Versions.RxBinding}",
-        "Drawerlayout" fromRemote "com.jakewharton.rxbinding3:rxbinding-drawerlayout:${Versions.RxBinding}",
-        "Recyclerview" fromRemote "com.jakewharton.rxbinding3:rxbinding-recyclerview:${Versions.RxBinding}",
-        "Swiperefreshlayout" fromRemote "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${Versions.RxBinding}",
-        "Viewpager" fromRemote "com.jakewharton.rxbinding3:rxbinding-viewpager:${Versions.RxBinding}",
-        "Material" fromRemote "com.jakewharton.rxbinding3:rxbinding-material:${Versions.RxBinding}"
+    val RxBinding = mapOf(
+        "Binding" to "com.jakewharton.rxbinding3:rxbinding:${Versions.RxBinding}",
+        "Core" to "com.jakewharton.rxbinding3:rxbinding-core:${Versions.RxBinding}",
+        "Appcompat" to "com.jakewharton.rxbinding3:rxbinding-appcompat:${Versions.RxBinding}",
+        "Drawerlayout" to "com.jakewharton.rxbinding3:rxbinding-drawerlayout:${Versions.RxBinding}",
+        "Recyclerview" to "com.jakewharton.rxbinding3:rxbinding-recyclerview:${Versions.RxBinding}",
+        "Swiperefreshlayout" to "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${Versions.RxBinding}",
+        "Viewpager" to "com.jakewharton.rxbinding3:rxbinding-viewpager:${Versions.RxBinding}",
+        "Material" to "com.jakewharton.rxbinding3:rxbinding-material:${Versions.RxBinding}"
     )
 
-    val MiscUtil = dependencyGroup(
-        "Gson" fromRemote "com.google.code.gson:gson:2.8.5",
-        "Timber" fromRemote "com.jakewharton.timber:timber:4.7.1",
-        "Threeten" fromRemote "com.jakewharton.threetenabp:threetenabp:1.2.1",
-        "Flick" fromRemote "me.saket:flick:1.4.0",
-        "Gestureviews" fromRemote "com.alexvasilkov:gesture-views:2.5.2",
-        "Aboutlibs" fromRemote "com.mikepenz:aboutlibraries:7.0.0",
-        "Customtabs" fromRemote "com.android.support:customtabs:28.0.0"
+    val MiscUtil = mapOf(
+        "Gson" to "com.google.code.gson:gson:2.8.5",
+        "Timber" to "com.jakewharton.timber:timber:4.7.1",
+        "Threeten" to "com.jakewharton.threetenabp:threetenabp:1.2.1",
+        "Flick" to "me.saket:flick:1.4.0",
+        "Gestureviews" to "com.alexvasilkov:gesture-views:2.5.2",
+        "Aboutlibs" to "com.mikepenz:aboutlibraries:7.0.0",
+        "Customtabs" to "com.android.support:customtabs:28.0.0"
     )
 
-    val LeakCanary = dependencyGroup(
-        "Op" fromRemote "com.squareup.leakcanary:leakcanary-android:${Versions.Leakcanary}",
-        "NoOp" fromRemote "com.squareup.leakcanary:leakcanary-android-no-op:${Versions.Leakcanary}"
+    val LeakCanary = mapOf(
+        "Op" to "com.squareup.leakcanary:leakcanary-android:${Versions.Leakcanary}",
+        "NoOp" to "com.squareup.leakcanary:leakcanary-android-no-op:${Versions.Leakcanary}"
     )
 
-    val Glide = dependencyGroup(
-        "Core" fromRemote "com.github.bumptech.glide:glide:${Versions.Glide}",
-        "Compiler" fromRemote "com.github.bumptech.glide:compiler:${Versions.Glide}",
-        "Transformation" fromRemote "jp.wasabeef:glide-transformations:4.0.1"
+    val Glide = mapOf(
+        "Core" to "com.github.bumptech.glide:glide:${Versions.Glide}",
+        "Compiler" to "com.github.bumptech.glide:compiler:${Versions.Glide}",
+        "Transformation" to "jp.wasabeef:glide-transformations:4.0.1"
     )
 
-    val Work = dependencyGroup(
-        "Core" fromRemote "androidx.work:work-runtime:${Versions.Work}",
-        "RxJava" fromRemote "androidx.work:work-rxjava2:${Versions.Work}"
+    val Work = mapOf(
+        "Core" to "androidx.work:work-runtime:${Versions.Work}",
+        "RxJava" to "androidx.work:work-rxjava2:${Versions.Work}"
     )
 }
-
-private fun dependencyGroup(vararg dependencies: Pair<String, String>) = mapOf(*dependencies)
-private infix fun String.fromRemote(that: String): Pair<String, String> = Pair(this, that)

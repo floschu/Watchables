@@ -138,11 +138,6 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             }
             .addTo(disposables)
 
-        reactor.state.changesFrom { it.displayWatchables.count() }
-            .map { it > 15 }
-            .bind(to = rvWatchables::setFastScrollEnabled)
-            .addTo(disposables)
-
         reactor.state.changesFrom { it.displayWatchables.isEmpty() && !it.loading }
             .bind(to = emptyLayout.visibility())
             .addTo(disposables)
