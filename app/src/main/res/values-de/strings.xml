@@ -86,6 +86,7 @@
     <string name="watchables_sorting_last_updated"><![CDATA[Nach zuletzt aktualisiert]]></string>
     <string name="watchables_sorting_name_ascending"><![CDATA[Nach Name]]></string>
     <string name="watchables_sorting_type_ascending"><![CDATA[Nach Typ]]></string>
+    <string name="tmdb_attribution"><![CDATA[This product uses the TMDb API but is not endorsed or certified by TMDb.]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>

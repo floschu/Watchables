@@ -83,7 +83,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 
         AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
-        tvSource.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposables)
+        ivPoweredBy.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposables)
         tvPolicy.clicks().subscribe { openChromeTab(getString(R.string.privacy_policy_url)) }.addTo(disposables)
 
         btnSignIn.clicks()
