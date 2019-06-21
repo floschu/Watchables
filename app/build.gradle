@@ -28,7 +28,7 @@ android {
         applicationId "at.florianschuster.watchables"
         minSdkVersion 23
         targetSdkVersion 28
-        versionCode 27
+        versionCode 28
         versionName "1.0.10"
         vectorDrawables.useSupportLibrary = true
         setProperty("archivesBaseName", "Watchables-v$versionName-b$versionCode")
