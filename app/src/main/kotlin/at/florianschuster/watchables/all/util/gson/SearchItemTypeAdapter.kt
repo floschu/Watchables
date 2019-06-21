@@ -32,6 +32,8 @@ class SearchItemTypeAdapter : TypeAdapter<Search.SearchItem>() {
         var mediaType: Search.SearchItem.Type? = null
         var image: String? = null
         var title: String? = null
+        var rating: Double? = null
+        var numberOfRatings: Int? = null
 
         reader.beginObject()
         while (reader.hasNext()) {
@@ -60,13 +62,19 @@ class SearchItemTypeAdapter : TypeAdapter<Search.SearchItem>() {
                         else -> reader.nextString()
                     }?.let { image = it }
                 }
+                "vote_count" -> {
+                    numberOfRatings = reader.nextInt()
+                }
+                "vote_average" -> {
+                    rating = reader.nextDouble()
+                }
                 else -> reader.skipValue()
             }
         }
         reader.endObject()
 
         return if (id != null && title != null && mediaType != null) {
-            Search.SearchItem(id, title, mediaType, image, false)
+            Search.SearchItem(id, title, mediaType, image, rating, numberOfRatings, false)
         } else {
             null
         }

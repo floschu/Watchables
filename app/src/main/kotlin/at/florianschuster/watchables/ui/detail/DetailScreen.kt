@@ -303,7 +303,7 @@ class DetailReactor(
             val actors: List<String> = emptyList(),
             val rating: Rating? = null
         ) {
-            data class Rating(val rating: Float, val count: Int)
+            data class Rating(val rating: Double, val count: Int)
         }
     }
 

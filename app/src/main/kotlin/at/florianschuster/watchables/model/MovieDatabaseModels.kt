@@ -25,6 +25,8 @@ data class Search(val results: List<SearchItem?> = emptyList()) {
         val title: String,
         val type: Type,
         val posterPath: String?,
+        val rating: Double?,
+        val numberOfRatings: Int?,
         val added: Boolean
     ) {
         enum class Type { movie, tv }
@@ -44,7 +46,7 @@ data class Movie(
     val videos: Videos,
     @SerializedName("external_ids") val externalIds: ExternalIds,
     val credits: Credits?,
-    @SerializedName("vote_average") val rating: Float?,
+    @SerializedName("vote_average") val rating: Double?,
     @SerializedName("vote_count") val numberOfRatings: Int?
 ) {
     enum class Status {
@@ -78,7 +80,7 @@ data class Show(
     @SerializedName("next_episode_to_air") val nextEpisode: Season.Episode?,
     @SerializedName("last_episode_to_air") val lastEpisode: Season.Episode?,
     val credits: Credits?,
-    @SerializedName("vote_average") val rating: Float?,
+    @SerializedName("vote_average") val rating: Double?,
     @SerializedName("vote_count") val numberOfRatings: Int?
 ) {
     enum class Status {
