@@ -7,14 +7,14 @@ object Dependencies {
     const val Koordinator = "at.florianschuster.koordinator:koordinator-android-koin:${Versions.Koordinator}"
 
     val AndroidUtil = mapOf(
-        "UI" to "com.tailoredapps.androidutil:util-ui:${Versions.androidutil}",
-        "Async" to "com.tailoredapps.androidutil:util-async:${Versions.androidutil}",
-        "network" to "com.tailoredapps.androidutil:util-network:${Versions.androidutil}",
-        "Optional" to "com.tailoredapps.androidutil:util-optional:${Versions.androidutil}",
-        "Permissions" to "com.tailoredapps.androidutil:util-permissions:${Versions.androidutil}",
-        "Validation" to "com.tailoredapps.androidutil:util-validation:${Versions.androidutil}",
-        "ViewState" to "com.tailoredapps.androidutil:util-viewstate:${Versions.androidutil}",
-        "Firebase" to "com.tailoredapps.androidutil:util-firebase:${Versions.androidutil}"
+        "UI" to "com.tailoredapps.androidutil:util-ui:${Versions.AndroidAppUtil}",
+        "Async" to "com.tailoredapps.androidutil:util-async:${Versions.AndroidAppUtil}",
+        "network" to "com.tailoredapps.androidutil:util-network:${Versions.AndroidAppUtil}",
+        "Optional" to "com.tailoredapps.androidutil:util-optional:${Versions.AndroidAppUtil}",
+        "Permissions" to "com.tailoredapps.androidutil:util-permissions:${Versions.AndroidAppUtil}",
+        "Validation" to "com.tailoredapps.androidutil:util-validation:${Versions.AndroidAppUtil}",
+        "ViewState" to "com.tailoredapps.androidutil:util-viewstate:${Versions.AndroidAppUtil}",
+        "Firebase" to "com.tailoredapps.androidutil:util-firebase:${Versions.AndroidAppUtil}"
     )
 
     val UI = mapOf(
