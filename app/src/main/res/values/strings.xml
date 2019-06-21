@@ -86,6 +86,7 @@
     <string name="enjoying_dialog_negative"><![CDATA[Not now]]></string>
     <string name="detail_error_additional_data"><![CDATA[Error loading additional data]]></string>
     <string name="detail_tv_actors"><![CDATA[Starring %s…]]></string>
+    <string name="detail_tv_ratings"><![CDATA[out of %d reviews]]></string>
     <string name="watchables_filter_tv_title"><![CDATA[Filter Watchables]]></string>
     <string name="watchables_filter_type_all"><![CDATA[All]]></string>
     <string name="watchables_filter_type_movies"><![CDATA[Movies]]></string>

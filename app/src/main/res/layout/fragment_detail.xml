@@ -87,31 +87,44 @@
                 android:shadowRadius="2"
                 android:text="@string/release_date_not_available"
                 android:textColor="@color/textColor"
-                app:layout_constraintBottom_toTopOf="@+id/tvSummary"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-                tools:text="Airing: 25.10.2018" />
+                tools:text="Airing: 25.10.2018"
+                tools:visibility="visible" />
+
+            <include
+                android:id="@+id/includeRating"
+                layout="@layout/fragment_detail_rating"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin_half"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvAiring"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tvSummary"
                 style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin"
-                android:layout_marginEnd="@dimen/margin"
-                android:layout_marginBottom="@dimen/margin"
+                android:layout_margin="@dimen/margin"
                 android:gravity="center_horizontal|top"
                 android:shadowColor="@color/black_opacity_50"
                 android:shadowDx="1"
                 android:shadowDy="1"
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/tvActors"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvAiring"
-                tools:text="Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond." />
+                app:layout_constraintTop_toBottomOf="@+id/includeRating"
+                tools:text="Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond."
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tvActors"
@@ -130,11 +143,13 @@
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
                 android:textSize="12sp"
+                android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/rvDetailOptions"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvSummary"
-                tools:text="Starring Jake Gyllenhaal, ..." />
+                tools:text="Starring Jake Gyllenhaal, ..."
+                tools:visibility="visible" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvDetailOptions"
@@ -150,27 +165,5 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        style="@style/Toolbar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:foreground="?selectableItemBackgroundBorderless"
-            android:padding="@dimen/padding"
-            android:src="@drawable/ic_arrow_back" />
-
-        <ProgressBar
-            android:id="@+id/loading"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:padding="@dimen/padding" />
-    </androidx.appcompat.widget.Toolbar>
+    <include layout="@layout/fragment_detail_toolbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

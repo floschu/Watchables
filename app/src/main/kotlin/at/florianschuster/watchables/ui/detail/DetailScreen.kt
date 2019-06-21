@@ -71,6 +71,8 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_detail.*
+import kotlinx.android.synthetic.main.fragment_detail_rating.*
+import kotlinx.android.synthetic.main.fragment_detail_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import org.threeten.bp.LocalDate
@@ -150,6 +152,13 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                         val actors = additionalDataAsync.element.actors
                         tvActors.isVisible = actors.isNotEmpty()
                         tvActors.text = getString(R.string.detail_tv_actors, actors.joinToString(", "))
+
+                        val rating = additionalDataAsync.element.rating
+                        includeRating.isVisible = rating != null
+                        if (rating != null) {
+                            tvRating.text = "${rating.rating}"
+                            tvNumberOfRatings.text = getString(R.string.detail_tv_ratings, rating.count)
+                        }
 
                         optionsAdapter.update()
                     }
@@ -291,8 +300,11 @@ class DetailReactor(
             val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
             val summary: String? = null,
             val airing: LocalDate? = null,
-            val actors: List<String> = emptyList()
-        )
+            val actors: List<String> = emptyList(),
+            val rating: Rating? = null
+        ) {
+            data class Rating(val rating: Float, val count: Int)
+        }
     }
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
@@ -370,7 +382,11 @@ class DetailReactor(
                     it.videos.results.mapToYoutubeVideos(),
                     it.summary,
                     it.releaseDate,
-                    it.credits?.mapToActorList() ?: emptyList()
+                    it.credits?.mapToActorList() ?: emptyList(),
+                    if (it.rating != null && it.rating > 0 &&
+                        it.numberOfRatings != null && it.numberOfRatings > 0) {
+                        State.AdditionalData.Rating(it.rating, it.numberOfRatings)
+                    } else null
                 )
             }
     }
@@ -390,7 +406,11 @@ class DetailReactor(
                     it.videos.results.mapToYoutubeVideos(),
                     it.summary,
                     it.nextEpisode?.airingDate,
-                    it.credits?.mapToActorList() ?: emptyList()
+                    it.credits?.mapToActorList() ?: emptyList(),
+                    if (it.rating != null && it.rating > 0 &&
+                        it.numberOfRatings != null && it.numberOfRatings > 0) {
+                        State.AdditionalData.Rating(it.rating, it.numberOfRatings)
+                    } else null
                 )
             }
     }

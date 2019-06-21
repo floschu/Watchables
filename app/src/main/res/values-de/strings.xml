@@ -76,6 +76,7 @@
     <string name="enjoying_dialog_negative"><![CDATA[Nicht jetzt]]></string>
     <string name="detail_error_additional_data"><![CDATA[Fehler beim laden der Daten]]></string>
     <string name="detail_tv_actors"><![CDATA[Mit %s...]]></string>
+    <string name="detail_tv_ratings"><![CDATA[von %d Bewertungen]]></string>
     <string name="watchables_filter_tv_title"><![CDATA[Watchables filtern]]></string>
     <string name="watchables_filter_type_all"><![CDATA[Alle]]></string>
     <string name="watchables_filter_type_movies"><![CDATA[Filme]]></string>

@@ -43,7 +43,9 @@ data class Movie(
     val status: Status,
     val videos: Videos,
     @SerializedName("external_ids") val externalIds: ExternalIds,
-    val credits: Credits?
+    val credits: Credits?,
+    @SerializedName("vote_average") val rating: Float?,
+    @SerializedName("vote_count") val numberOfRatings: Int?
 ) {
     enum class Status {
         @SerializedName("Rumored")
@@ -75,7 +77,9 @@ data class Show(
     val videos: Videos,
     @SerializedName("next_episode_to_air") val nextEpisode: Season.Episode?,
     @SerializedName("last_episode_to_air") val lastEpisode: Season.Episode?,
-    val credits: Credits?
+    val credits: Credits?,
+    @SerializedName("vote_average") val rating: Float?,
+    @SerializedName("vote_count") val numberOfRatings: Int?
 ) {
     enum class Status {
         @SerializedName("Returning Series")
