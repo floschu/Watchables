@@ -22,17 +22,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:alpha="0.5"
-            android:background="@drawable/bg_fade_bottom"
-            app:layout_constraintBottom_toBottomOf="@id/ivBackground"
-            app:layout_constraintEnd_toEndOf="@id/ivBackground"
-            app:layout_constraintStart_toStartOf="@id/ivBackground"
-            app:layout_constraintTop_toTopOf="@id/ivBackground" />
-
-
         <TextView
             android:id="@+id/tvHello"
             style="@style/TextAppearance.MaterialComponents.Headline5"

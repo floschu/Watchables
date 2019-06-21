@@ -39,7 +39,7 @@
 
 
     <!-- Dialog -->
-    <style name="DialogTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
+    <style name="DialogTheme" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="android:windowBackground">@drawable/bg_dialog</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorSecondary">@color/colorAccent</item>

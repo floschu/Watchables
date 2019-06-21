@@ -89,7 +89,7 @@ object Dependencies {
         "Threeten" to "com.jakewharton.threetenabp:threetenabp:1.2.1",
         "Flick" to "me.saket:flick:1.4.0",
         "Gestureviews" to "com.alexvasilkov:gesture-views:2.5.2",
-        "Aboutlibs" to "com.mikepenz:aboutlibraries:7.0.0",
+        "Aboutlibs" to "com.mikepenz:aboutlibraries:6.2.1", //do not update this.. causes color errors?
         "Customtabs" to "com.android.support:customtabs:28.0.0"
     )
 
