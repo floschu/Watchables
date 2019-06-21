@@ -13,13 +13,6 @@ platform :android do
       )
   end
 
-  desc "Builds a new version and pushes it to repository"
-  lane :build do
-    gradle(task: "test ktlintFormat clean")
-    increment_version_code_and_commit lane:self.runner.current_lane
-    gradle(task: ":app:bundleRelease")
-  end
-
   desc "Builds a new version, pushes it to repository and deploys it to beta track"
     lane :beta do
       gradle(task: "test ktlintFormat")
@@ -32,6 +25,7 @@ platform :android do
         skip_upload_images: true,
         skip_upload_screenshots: true
       )
+      push_to_git_remote(remote_branch: git_branch)
     end
 end
 
@@ -44,7 +38,6 @@ def increment_version_code_and_commit(options)
   android_set_version_code
   git_commit(path: ".", message: "New Version: " + get_tag_name(options))
   tagCurrentVersion options
-  push_to_git_remote(remote_branch: git_branch)
 end
 
 def get_tag_name(options)
