@@ -28,6 +28,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import at.florianschuster.watchables.R
+import com.tailoredapps.androidutil.permissions.Permission
+import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.Single
 
 @SuppressLint("CheckResult")
 fun main(afterMillis: Long = 0, block: () -> Unit) {
@@ -55,4 +58,10 @@ fun Fragment.openChromeTab(url: String) {
     val activity = this.activity
         ?: throw RuntimeException("No Activity attached to Fragment. Cannot show Dialog.")
     activity.openChromeTab(url)
+}
+
+fun RxPermissions.request(permission: Permission): Single<Boolean> {
+    return request(permission.manifestPermission)
+        .first(false)
+        .onErrorReturn { false }
 }

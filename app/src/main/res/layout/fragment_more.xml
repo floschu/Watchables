@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivBackground"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -22,7 +22,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvHello"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
             tools:itemCount="7"
             tools:listitem="@layout/item_option" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvUserId"
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="match_parent"
@@ -61,7 +61,7 @@
             app:layout_constraintTop_toBottomOf="@id/rvMoreOptions"
             tools:text="User ID: 1238r397r8236e823r" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvVersion"
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="match_parent"
@@ -73,7 +73,7 @@
             app:layout_constraintTop_toBottomOf="@id/tvUserId"
             tools:text="App Version 1.2.0" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivPoweredBy"
             android:layout_width="56dp"
             android:layout_height="38dp"
@@ -83,7 +83,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAttribution"
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="0dp"

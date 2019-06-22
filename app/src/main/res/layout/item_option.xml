@@ -9,18 +9,18 @@
     android:background="@color/blackTransparent"
     android:padding="@dimen/padding">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:tint="#fff"
+        android:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_person_outline" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="0dp"
@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Account" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivChevron"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -19,7 +19,7 @@ object Dependencies {
 
     val UI = mapOf(
         "Material" to "com.google.android.material:material:1.0.0",
-        "AppCompat" to "androidx.appcompat:appcompat:1.0.2",
+        "AppCompat" to "androidx.appcompat:appcompat:1.1.0-beta01",
         "Fragment" to "androidx.fragment:fragment:1.0.0",
         "Constraintlayout" to "androidx.constraintlayout:constraintlayout:1.1.3",
         "CoreKTX" to "androidx.core:core-ktx:1.0.1"
@@ -54,19 +54,25 @@ object Dependencies {
         "Hawk" to "com.orhanobut:hawk:2.0.1"
     )
 
+    val CameraX = mapOf(
+        "Core" to "androidx.camera:camera-core:${Versions.CameraX}",
+        "Camera2" to "androidx.camera:camera-camera2:${Versions.CameraX}"
+    )
+
     val Firebase = mapOf(
         "Core" to "com.google.firebase:firebase-core:17.0.0",
         "Auth" to "com.google.firebase:firebase-auth:18.0.0",
         "gmsauth" to "com.google.android.gms:play-services-auth:17.0.0",
-        "Firestore" to "com.google.firebase:firebase-firestore:20.0.0",
+        "Firestore" to "com.google.firebase:firebase-firestore:20.1.0",
         "Crashlytics" to "com.crashlytics.sdk.android:crashlytics:2.10.1",
-        "Messaging" to "com.google.firebase:firebase-messaging:19.0.0",
-        "Performance" to "com.google.firebase:firebase-perf:18.0.0",
-        "Invites" to "com.google.firebase:firebase-invites:17.0.0"
+        "Messaging" to "com.google.firebase:firebase-messaging:19.0.1",
+        "Performance" to "com.google.firebase:firebase-perf:18.0.1",
+        "Invites" to "com.google.firebase:firebase-invites:17.0.0",
+        "MLKit" to "com.google.firebase:firebase-ml-vision:21.0.0"
     )
 
     val RxJava = mapOf(
-        "Core" to "io.reactivex.rxjava2:rxjava:2.2.9",
+        "Core" to "io.reactivex.rxjava2:rxjava:2.2.10",
         "Kotlin" to "io.reactivex.rxjava2:rxkotlin:2.3.0",
         "Relay" to "com.jakewharton.rxrelay2:rxrelay:2.1.0",
         "Android" to "io.reactivex.rxjava2:rxandroid:2.1.1"
@@ -90,7 +96,8 @@ object Dependencies {
         "Flick" to "me.saket:flick:1.4.0",
         "Gestureviews" to "com.alexvasilkov:gesture-views:2.5.2",
         "Aboutlibs" to "com.mikepenz:aboutlibraries:6.2.1", //do not update this.. causes color errors?
-        "Customtabs" to "com.android.support:customtabs:28.0.0"
+        "Customtabs" to "com.android.support:customtabs:28.0.0",
+        "RxPermissions" to "com.github.tbruyelle:rxpermissions:0.10.2"
     )
 
     val LeakCanary = mapOf(

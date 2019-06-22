@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".WatchablesApp"
         android:allowBackup="false"
@@ -34,10 +36,12 @@
         </activity>
 
         <activity
-            android:name="at.florianschuster.watchables.all.util.photodetail.PhotoDetailActivity"
+            android:name=".all.util.photodetail.PhotoDetailActivity"
             android:theme="@style/AppTheme.TransparentFullscreen" />
 
-        <service android:name=".service.remote.FbMessagingService">
+        <service
+            android:name=".service.remote.FbMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -52,5 +56,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
+
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="barcode,qrcode" />
     </application>
 </manifest>

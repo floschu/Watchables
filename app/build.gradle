@@ -107,6 +107,11 @@ dependencies {
     implementation Dependencies.Local.Hawk
 
     /**
+     * Camera
+     */
+    implementation Dependencies.CameraX.values()
+
+    /**
      * Firebase
      */
     implementation Dependencies.Firebase.values()

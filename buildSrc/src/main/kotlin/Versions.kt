@@ -13,4 +13,5 @@ object Versions {
     const val OkHttp = "3.14.1"
     const val Leakcanary = "1.6.3"
     const val Glide = "4.9.0"
+    const val CameraX = "1.0.0-alpha02"
 }

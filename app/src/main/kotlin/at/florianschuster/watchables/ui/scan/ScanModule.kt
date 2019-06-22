@@ -13,21 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package at.florianschuster.watchables.ui.scan
 
-package at.florianschuster.watchables.ui.main
+import at.florianschuster.reaktor.android.koin.reactor
+import org.koin.dsl.module
 
-import android.view.MenuItem
-import androidx.fragment.app.Fragment
-import com.jakewharton.rxrelay2.PublishRelay
-import io.reactivex.Observable
-import java.lang.IllegalStateException
-
-interface MainScreenInteractions {
-    val bnvReselectRelay: PublishRelay<MenuItem>
+internal val scanModule = module {
+    reactor { ScanReactor() }
 }
-
-val Fragment.bnvReselects: Observable<MenuItem>
-    get() {
-        val activity = activity as? MainScreenInteractions ?: throw IllegalStateException()
-        return activity.bnvReselectRelay.hide()
-    }

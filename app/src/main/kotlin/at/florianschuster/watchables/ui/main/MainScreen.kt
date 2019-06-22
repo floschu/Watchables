@@ -19,7 +19,6 @@ package at.florianschuster.watchables.ui.main
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.core.view.isVisible
-import androidx.core.view.iterator
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
@@ -35,10 +34,8 @@ import at.florianschuster.watchables.ui.base.BaseActivity
 import at.florianschuster.watchables.all.util.Utils
 import at.florianschuster.watchables.all.util.extensions.main
 import at.florianschuster.watchables.ui.base.BaseReactor
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
-import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
@@ -55,8 +52,6 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 
     override val reactor: MainReactor by reactor()
 
-    override val mainFab: FloatingActionButton get() = fabScrollDown
-    override val mainFabClickRelay: PublishRelay<Unit> = PublishRelay.create()
     override val bnvReselectRelay: PublishRelay<MenuItem> = PublishRelay.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +61,7 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
             when (it.itemId) {
                 R.id.watchables -> MainDirections.toWatchables()
                 R.id.search -> MainDirections.toSearch()
+                R.id.scan -> MainDirections.toScan()
                 else -> MainDirections.toMore()
             }.let(navController::navigate)
             true
@@ -74,11 +70,9 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
         bnv.setOnNavigationItemReselectedListener(bnvReselectRelay::accept)
 
         navController.addOnDestinationChangedListener { _, dest, _ ->
-            main { mainFab.isVisible = false }
             val bnvShouldBeVisible = dest.id !in noSessionNeededDestinations
             if (bnv.isVisible != bnvShouldBeVisible) main { bnv.isVisible = bnvShouldBeVisible }
         }
-        fabScrollDown.clicks().subscribe(mainFabClickRelay).addTo(disposables)
 
         bind(reactor)
     }

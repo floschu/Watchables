@@ -6,7 +6,7 @@
     android:layout_height="@dimen/detail_media_height"
     android:layout_margin="@dimen/margin_half">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivThumbnail"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -32,7 +32,7 @@
         app:layout_constraintStart_toStartOf="@id/ivThumbnail"
         app:layout_constraintTop_toTopOf="@id/ivThumbnail" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:layout_width="56dp"
         android:layout_height="0dp"
         android:src="@drawable/ic_youtube"
@@ -41,7 +41,7 @@
         app:layout_constraintStart_toStartOf="@id/ivThumbnail"
         app:layout_constraintTop_toTopOf="@id/ivThumbnail" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/videoType"
         style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="wrap_content"

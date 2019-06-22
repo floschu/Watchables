@@ -19,7 +19,7 @@
             app:layout_constraintStart_toStartOf="@id/ivSearch"
             app:layout_constraintTop_toTopOf="@id/ivSearch" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivSearch"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -27,7 +27,7 @@
             android:paddingStart="@dimen/padding"
             android:paddingEnd="@dimen/padding"
             android:src="@drawable/ic_search"
-            android:tint="#fff"
+            android:tint="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -51,7 +51,7 @@
             app:layout_constraintStart_toEndOf="@+id/ivSearch"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivClear"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
@@ -59,7 +59,7 @@
             android:paddingStart="@dimen/padding"
             android:paddingEnd="@dimen/padding"
             android:src="@drawable/ic_close"
-            android:tint="#fff"
+            android:tint="@color/white"
             android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

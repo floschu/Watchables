@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -53,7 +53,7 @@
                 tools:itemCount="4"
                 tools:listitem="@layout/item_detail_video" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTitle"
                 style="@style/TextAppearance.MaterialComponents.Headline5"
                 android:layout_width="0dp"
@@ -72,7 +72,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/rvMedia"
                 tools:text="Avengers" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvAiring"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="0dp"
@@ -106,7 +106,7 @@
                 app:layout_constraintTop_toBottomOf="@id/tvAiring"
                 tools:visibility="visible" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvSummary"
                 style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="0dp"
@@ -126,7 +126,7 @@
                 tools:text="Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond."
                 tools:visibility="visible" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvActors"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"

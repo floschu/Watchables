@@ -8,7 +8,7 @@
     android:clipChildren="false"
     android:foreground="?attr/selectableItemBackground">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivImage"
         android:layout_width="56dp"
         android:layout_height="56dp"
@@ -42,7 +42,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_logo" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="0dp"
@@ -61,7 +61,7 @@
         app:layout_constraintTop_toTopOf="@+id/ivImage"
         tools:text="Avengers" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvType"
         style="@style/TextAppearance.MaterialComponents.Body2"
         android:layout_width="0dp"
@@ -78,7 +78,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tvTitle"
         tools:text="Movie" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivAdd"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -86,7 +86,7 @@
         android:paddingStart="@dimen/padding_button"
         android:paddingEnd="@dimen/padding_button"
         android:src="@drawable/ic_add"
-        android:tint="#fff"
+        android:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -5,7 +5,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivRating"
         android:layout_width="@dimen/rating_star_size"
         android:layout_height="@dimen/rating_star_size"
@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toStartOf="@id/tvRating"
         app:layout_constraintTop_toTopOf="@id/tvRating" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvRating"
         style="@style/TextAppearance.MaterialComponents.Headline5"
         android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="6.8" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvRatingTotal"
         style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
         app:layout_constraintStart_toEndOf="@id/tvRating"
         tools:ignore="HardcodedText" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvNumberOfRatings"
         style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="wrap_content"
