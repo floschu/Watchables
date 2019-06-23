@@ -96,6 +96,13 @@
             app:exitAnim="@anim/slide_out_start"
             app:popEnterAnim="@anim/slide_in_start"
             app:popExitAnim="@anim/slide_out_end" />
+        <action
+            android:id="@+id/action_search_to_scan"
+            app:destination="@id/scan"
+            app:enterAnim="@anim/slide_in_end"
+            app:exitAnim="@anim/slide_out_start"
+            app:popEnterAnim="@anim/slide_in_start"
+            app:popExitAnim="@anim/slide_out_end" />
     </fragment>
 
     <action
@@ -111,6 +118,14 @@
         android:name="at.florianschuster.watchables.ui.more.MoreFragment"
         tools:layout="@layout/fragment_more" />
 
+    <action
+        android:id="@+id/to_detail"
+        app:destination="@id/detail"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
+
     <fragment
         android:id="@+id/detail"
         android:name="at.florianschuster.watchables.ui.detail.DetailFragment"
@@ -123,24 +138,17 @@
             app:argType="at.florianschuster.watchables.model.Watchable$Type" />
     </fragment>
 
-
-    <action
-        android:id="@+id/to_scan"
-        app:destination="@id/scan"
-        app:enterAnim="@anim/fade_in"
-        app:exitAnim="@anim/fade_out"
-        app:popEnterAnim="@anim/fade_in"
-        app:popExitAnim="@anim/fade_out" />
-
     <fragment
         android:id="@+id/scan"
-        android:name="at.florianschuster.watchables.ui.scan.ScanScreen">
+        android:name="at.florianschuster.watchables.ui.scan.ScanScreen"
+        tools:layout="@layout/fragment_scan">
         <action
             android:id="@+id/action_scan_to_detail"
             app:destination="@id/detail"
             app:enterAnim="@anim/slide_in_end"
             app:exitAnim="@anim/slide_out_start"
             app:popEnterAnim="@anim/slide_in_start"
-            app:popExitAnim="@anim/slide_out_end" />
+            app:popExitAnim="@anim/slide_out_end"
+            app:popUpTo="@+id/search" />
     </fragment>
 </navigation>

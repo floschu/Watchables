@@ -42,6 +42,11 @@ object Dependencies {
         "ViewModel" to "org.koin:koin-androidx-viewmodel:${Versions.Koin}"
     )
 
+    val Zxing = mapOf(
+        "Core" to "com.google.zxing:core:3.3.3",
+        "Android" to "com.journeyapps:zxing-android-embedded:3.6.0@aar"
+    )
+
     val Network = mapOf(
         "Core" to "com.squareup.retrofit2:retrofit:${Versions.Retrofit}",
         "Gson" to "com.squareup.retrofit2:converter-gson:${Versions.Retrofit}",
@@ -52,11 +57,6 @@ object Dependencies {
 
     val Local = mapOf(
         "Hawk" to "com.orhanobut:hawk:2.0.1"
-    )
-
-    val CameraX = mapOf(
-        "Core" to "androidx.camera:camera-core:${Versions.CameraX}",
-        "Camera2" to "androidx.camera:camera-camera2:${Versions.CameraX}"
     )
 
     val Firebase = mapOf(

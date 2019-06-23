@@ -61,7 +61,6 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
             when (it.itemId) {
                 R.id.watchables -> MainDirections.toWatchables()
                 R.id.search -> MainDirections.toSearch()
-                R.id.scan -> MainDirections.toScan()
                 else -> MainDirections.toMore()
             }.let(navController::navigate)
             true

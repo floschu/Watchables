@@ -107,9 +107,9 @@ dependencies {
     implementation Dependencies.Local.Hawk
 
     /**
-     * Camera
+     * QR
      */
-    implementation Dependencies.CameraX.values()
+    implementation Dependencies.Zxing.values()
 
     /**
      * Firebase

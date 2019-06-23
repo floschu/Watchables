@@ -98,7 +98,8 @@
     <string name="tmdb_attribution"><![CDATA[This product uses the TMDb API but is not endorsed or certified by TMDb.]]></string>
     <string name="scan_tv_permission_title"><![CDATA[For this feature, you have to give us permission to use your camera.]]></string>
     <string name="scan_btn_permission"><![CDATA[Show permission dialog]]></string>
-    <string name="scan_tv_description"><![CDATA[Point your camera on barcodes or QR codes of Movies or TV shows to display them in the app!]]></string>
+    <string name="scan_tv_description"><![CDATA[Scan barcodes or QR codes of Watchable Movies or TV shows to display them in the app!]]></string>
+    <string name="scan_error"><![CDATA[Unfortunately the code could not be processed]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchables Add Notifications]]></string>
     <string name="notification_add_channel_description"><![CDATA[These notifications are displayed when a Watchable is being added to your list.]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Sorry!]]></string>

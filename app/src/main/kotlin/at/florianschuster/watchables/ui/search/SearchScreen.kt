@@ -38,7 +38,6 @@ import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
-import at.florianschuster.watchables.model.convertToWatchableType
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.main.bnvReselects
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
@@ -56,6 +55,7 @@ import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.model.convertToWatchableType
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -69,14 +69,19 @@ import java.util.concurrent.TimeUnit
 
 sealed class SearchRoute : CoordinatorRoute {
     data class OnAddedItemSelected(val id: Int, val type: Search.SearchItem.Type) : SearchRoute()
+    object OnScan : SearchRoute()
 }
 
 class SearchCoordinator : BaseCoordinator<SearchRoute, NavController>() {
     override fun navigate(route: SearchRoute, handler: NavController) {
         when (route) {
             is SearchRoute.OnAddedItemSelected -> {
-                SearchFragmentDirections.actionSearchToDetail("${route.id}", route.type.convertToWatchableType())
+                SearchFragmentDirections.actionSearchToDetail(
+                    "${route.id}",
+                    route.type.convertToWatchableType()
+                )
             }
+            is SearchRoute.OnScan -> SearchFragmentDirections.actionSearchToScan()
         }.also(handler::navigate)
     }
 }
@@ -102,12 +107,17 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
 
-        bnvReselects.filter { it.itemId == R.id.search }
+        Observable.merge(ivSearch.clicks(), bnvReselects.filter { it.itemId == R.id.search })
             .bind {
                 if (etSearch.text.isNotEmpty()) etSearch.setText("")
                 etSearch.showKeyBoard()
                 rvSearch.smoothScrollUp()
             }
+            .addTo(disposables)
+
+        ivScan.clicks()
+            .map { SearchRoute.OnScan }
+            .bind(to = Router::follow)
             .addTo(disposables)
 
         ivClear.clicks()
@@ -157,7 +167,10 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         reactor.state.changesFrom { it.query }
             .map { it.isNotEmpty() }
-            .bind(to = ivClear.visibility())
+            .bind { queryNotEmpty ->
+                ivClear.isVisible = queryNotEmpty
+                ivScan.isVisible = !queryNotEmpty
+            }
             .addTo(disposables)
 
         reactor.state.changesFrom { it.allItems }
