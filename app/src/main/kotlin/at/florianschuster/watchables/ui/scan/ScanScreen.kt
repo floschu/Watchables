@@ -15,16 +15,8 @@
  */
 package at.florianschuster.watchables.ui.scan
 
-import android.graphics.Matrix
 import android.os.Bundle
-import android.util.Rational
-import android.util.Size
-import android.view.Surface
 import android.view.View
-import android.view.ViewGroup
-import androidx.camera.core.CameraX
-import androidx.camera.core.Preview
-import androidx.camera.core.PreviewConfig
 import androidx.core.view.isVisible
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
@@ -33,12 +25,13 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.extensions.request
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.watchables.ui.scan.camera.ScanService
 import com.jakewharton.rxbinding3.view.clicks
 import com.tailoredapps.androidutil.permissions.Permission
 import com.tailoredapps.androidutil.permissions.queryState
 import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_scan.*
 import kotlinx.android.synthetic.main.fragment_scan_permission.*
 import org.koin.android.ext.android.inject
@@ -48,91 +41,68 @@ class ScanScreen : BaseFragment(R.layout.fragment_scan), ReactorView<ScanReactor
     override val reactor: ScanReactor by reactor()
 
     private val rxPermissions: RxPermissions by inject { parametersOf(this) }
+    private val scanService: ScanService by inject { parametersOf(this) }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        bind(reactor)
-    }
-
-    override fun bind(reactor: ScanReactor) {
-        Permission.Camera.queryState(this).granted.let {
-            layoutPermission.isVisible = !it
-            if (it) cameraPreview.post { startCamera() }
-        }
 
         btnQueryPermission.clicks()
             .flatMapSingle { rxPermissions.request(Permission.Camera) }
             .filter { it }
+            .bind(::handleCameraPermission)
+            .addTo(disposables)
+
+        btnTorch.clicks()
+            .filter { scanService.initialized }
             .bind {
-                layoutPermission.isVisible = false
-                cameraPreview.post { startCamera() }
+                scanService.torch = !scanService.torch
+                updateTorchImage()
             }
             .addTo(disposables)
 
-        btnCapture.clicks()
-            .subscribe()
+        bind(reactor)
+
+        Permission.Camera.queryState(this).granted.let(::handleCameraPermission)
+    }
+
+    override fun bind(reactor: ScanReactor) {
+        val scanOutput = scanService.output.publish()
+
+        scanOutput.firstElement()
+            .subscribe { updateTorchImage() }
+            .addTo(disposables)
+
+        scanOutput.ofType<ScanService.Output.Data>()
+            .map { ScanReactor.Action.DataDetected(it.barcodes) }
+            .bind(to = reactor.action)
             .addTo(disposables)
     }
 
-    private fun startCamera() {
-        val previewConfig = PreviewConfig.Builder().apply {
-            setTargetAspectRatio(Rational(1, 1))
-            setTargetResolution(
-                Size(resources.displayMetrics.widthPixels, resources.displayMetrics.heightPixels)
-            )
-        }.build()
-
-        val preview = Preview(previewConfig)
-        preview.setOnPreviewOutputUpdateListener {
-            val parent = cameraPreview.parent as ViewGroup
-            parent.removeView(cameraPreview)
-            parent.addView(cameraPreview, 0)
-
-            cameraPreview.surfaceTexture = it.surfaceTexture
-            updateTransform()
-        }
-
-        CameraX.bindToLifecycle(this, preview)
+    private fun updateTorchImage() {
+        when {
+            scanService.torch -> R.drawable.ic_flash_off
+            else -> R.drawable.ic_flash_on
+        }.let(btnTorch::setImageResource)
     }
 
-    private fun updateTransform() {
-        val matrix = Matrix()
-        val centerX = cameraPreview.width / 2f
-        val centerY = cameraPreview.height / 2f
-        val rotationDegrees = when (cameraPreview.display.rotation) {
-            Surface.ROTATION_0 -> 0
-            Surface.ROTATION_90 -> 90
-            Surface.ROTATION_180 -> 180
-            Surface.ROTATION_270 -> 270
-            else -> return
-        }
-        matrix.postRotate(-rotationDegrees.toFloat(), centerX, centerY)
-        cameraPreview.setTransform(matrix)
+    private fun handleCameraPermission(granted: Boolean) {
+        layoutPermission.isVisible = !granted
+        if (granted) scanService.startOutput(cameraPreview)
     }
 }
 
 class ScanReactor(
-
 ) : BaseReactor<ScanReactor.Action, ScanReactor.Mutation, ScanReactor.State>(
     initialState = State()
 ) {
     sealed class Action {
-
+        data class DataDetected(val barcodes: List<String>) : Action()
     }
 
     sealed class Mutation {
-
     }
 
     data class State(
-        val model: Unit = Unit
+        val result: List<String> = emptyList()
     )
-
-    override fun mutate(action: Action): Observable<out Mutation> {
-        return super.mutate(action)
-    }
-
-    override fun reduce(previousState: State, mutation: Mutation): State {
-        return super.reduce(previousState, mutation)
-    }
 }

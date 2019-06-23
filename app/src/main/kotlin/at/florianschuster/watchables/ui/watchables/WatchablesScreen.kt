@@ -147,7 +147,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             .filter { it }
             .take(1) // only show this once
             .bind {
-                rootLayout.snack(
+                bnvSpace.snack(
                     R.string.onboarding_snack,
                     Snackbar.LENGTH_INDEFINITE,
                     R.string.dialog_ok

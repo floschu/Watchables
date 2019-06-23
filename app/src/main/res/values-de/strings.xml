@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="login_text_src"><![CDATA[Diese App benutzt "The Movie Database (TMDb)" als Datenquelle.]]></string>
     <string name="login_text_privacy"><![CDATA[Mit der Anmeldung stimmst du zu, dass du die Datenschutzbestimmungen gelesen und akzeptiert hast. Klicke hier, um sie anzuzeigen.]]></string>
     <string name="search_hint"><![CDATA[Suche nach Filmen oder Serien...]]></string>
     <string name="search_empty"><![CDATA[Die Suche hat keine Ergebnisse geliefert.]]></string>
@@ -87,6 +86,9 @@
     <string name="watchables_sorting_name_ascending"><![CDATA[Nach Name]]></string>
     <string name="watchables_sorting_type_ascending"><![CDATA[Nach Typ]]></string>
     <string name="tmdb_attribution"><![CDATA[This product uses the TMDb API but is not endorsed or certified by TMDb.]]></string>
+    <string name="scan_tv_permission_title"><![CDATA[Um dieses Feature benutzen zu können, gib uns die Erlaubnis deine Kamera zu benutzen.]]></string>
+    <string name="scan_btn_permission"><![CDATA[Berechtigungsdialog anzeigen]]></string>
+    <string name="scan_tv_description"><![CDATA[Richte deine Kamera auf Barcodes oder QR-Codes von Filmen um sie in der App anzuzeigen!]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>

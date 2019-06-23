@@ -13,6 +13,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bnv_height"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/bg_fade_top"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_description"
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:gravity="center"
+        android:shadowColor="@color/black_opacity_50"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:text="@string/scan_tv_description"
+        android:textColor="@color/textColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Space
         android:id="@+id/bnvSpace"
         android:layout_width="match_parent"
@@ -20,12 +43,16 @@
         android:layout_marginBottom="@dimen/bnv_height"
         app:layout_constraintBottom_toBottomOf="parent" />
 
+    <!-- FIXME: selectableItemBackgroundBorderless not visible-->
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/btnCapture"
-        android:layout_width="@dimen/capture_button_size"
-        android:layout_height="@dimen/capture_button_size"
+        android:id="@+id/btnTorch"
+        android:layout_width="@dimen/torch_button_size"
+        android:layout_height="@dimen/torch_button_size"
         android:layout_margin="@dimen/margin"
-        android:background="@drawable/selector_btn_camera"
+        android:background="?selectableItemBackgroundBorderless"
+        android:padding="@dimen/padding"
+        android:src="@drawable/ic_flash_on"
+        android:tint="@color/white"
         app:layout_constraintBottom_toTopOf="@id/bnvSpace"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

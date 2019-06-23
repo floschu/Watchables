@@ -15,9 +15,17 @@
  */
 package at.florianschuster.watchables.ui.scan
 
+import androidx.lifecycle.LifecycleOwner
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.ui.scan.camera.ScanService
+import at.florianschuster.watchables.ui.scan.camera.FirebaseScanService
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 internal val scanModule = module {
+    factory<ScanService> { (lifecycleOwner: LifecycleOwner) ->
+        FirebaseScanService(lifecycleOwner, androidContext().resources)
+    }
+
     reactor { ScanReactor() }
 }
