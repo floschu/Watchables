@@ -46,7 +46,7 @@ class ActivityShareService(
     private val tempFile: File by lazy { File(activity.cacheDir, "shareimage.jpg") }
 
     override fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.originalPoster)
-        .flatMap {
+        .flatMap { // todo use deeplink
             val chooserText = when (watchable.type) {
                 Watchable.Type.show -> resources.getString(R.string.share_watchable_chooser_text_show, watchable.name)
                 Watchable.Type.movie -> resources.getString(R.string.share_watchable_chooser_text_movie, watchable.name)
@@ -56,9 +56,11 @@ class ActivityShareService(
         .doOnSuccess(activity::startActivity)
         .ignoreElement()
 
-    override fun shareApp(): Completable = chooserIntent(resources.getString(R.string.share_app_chooser_title), resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.app_link)), null)
-        .doOnSuccess(activity::startActivity)
-        .ignoreElement()
+    override fun shareApp(): Completable = chooserIntent(
+        resources.getString(R.string.share_app_chooser_title),
+        resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.dynamic_app_link)),
+        null
+    ).doOnSuccess(activity::startActivity).ignoreElement()
 
     private fun downloadImageToShare(imageUrl: String?): Single<Uri> = Single
         .fromCallable { GlideApp.with(activity).asBitmap().load(imageUrl).submit().get() }

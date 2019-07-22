@@ -43,7 +43,7 @@ object Dependencies {
     )
 
     val Zxing = mapOf(
-        "Core" to "com.google.zxing:core:3.3.3",
+        "Core" to "com.google.zxing:core:3.4.0",
         "Android" to "com.journeyapps:zxing-android-embedded:3.6.0@aar"
     )
 
@@ -60,7 +60,7 @@ object Dependencies {
     )
 
     val Firebase = mapOf(
-        "Core" to "com.google.firebase:firebase-core:17.0.0",
+        "Core" to "com.google.firebase:firebase-core:17.0.1",
         "Auth" to "com.google.firebase:firebase-auth:18.0.0",
         "gmsauth" to "com.google.android.gms:play-services-auth:17.0.0",
         "Firestore" to "com.google.firebase:firebase-firestore:20.1.0",
@@ -97,7 +97,8 @@ object Dependencies {
         "Gestureviews" to "com.alexvasilkov:gesture-views:2.5.2",
         "Aboutlibs" to "com.mikepenz:aboutlibraries:6.2.1", //do not update this.. causes color errors?
         "Customtabs" to "com.android.support:customtabs:28.0.0",
-        "RxPermissions" to "com.github.tbruyelle:rxpermissions:0.10.2"
+        "RxPermissions" to "com.github.tbruyelle:rxpermissions:0.10.2",
+        "Shimmer" to "com.facebook.shimmer:shimmer:0.4.0"
     )
 
     val LeakCanary = mapOf(

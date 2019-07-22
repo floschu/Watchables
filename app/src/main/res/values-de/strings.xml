@@ -90,6 +90,8 @@
     <string name="scan_btn_permission"><![CDATA[Berechtigungsdialog anzeigen]]></string>
     <string name="scan_tv_description"><![CDATA[Richte deine Kamera auf Watchable Barcodes oder QR-Codes von Filmen oder Serien um diese in der App anzuzeigen!]]></string>
     <string name="scan_error"><![CDATA[Der Code wurde leider nicht erkannt]]></string>
+    <string name="scan_flash_on"><![CDATA[Blitz An]]></string>
+    <string name="scan_flash_off"><![CDATA[Blitz Aus]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>
@@ -108,8 +110,9 @@
     <string name="developer_url"><![CDATA[https://florianschuster.at/]]></string>
     <string name="youtube_url"><![CDATA[https://www.youtube.com/watch?v=%s]]></string>
     <string name="youtube_thumbnail"><![CDATA[https://img.youtube.com/vi/%s/sddefault.jpg]]></string>
-    <string name="app_link"><![CDATA[https://watchables.page.link/app]]></string>
-    <string name="deeplink_domain"><![CDATA[https://watchables.page.link]]></string>
+    <string name="dynamic_app_link"><![CDATA[https://watchables.page.link/app]]></string>
+    <string name="dynamic_deeplink_domain"><![CDATA[https://watchables.page.link]]></string>
+    <string name="dynamic_watchable_link_prefix"><![CDATA[https://florianschuster.at/watchables/]]></string>
     <string name="facebook_id_url"><![CDATA[https://www.facebook.com/%s/]]></string>
     <string name="instagram_id_url"><![CDATA[https://www.instagram.com/%s/]]></string>
     <string name="twitter_id_url"><![CDATA[https://twitter.com/%s/]]></string>

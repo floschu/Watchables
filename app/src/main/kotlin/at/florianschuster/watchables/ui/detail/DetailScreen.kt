@@ -24,6 +24,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.SnapHelper
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
 import at.florianschuster.koordinator.android.koin.coordinator
@@ -61,14 +62,14 @@ import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
-import at.florianschuster.watchables.model.Search
+import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.model.convertToSearchType
+import com.tailoredapps.androidutil.async.mapToAsync
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
-import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_detail.*
 import kotlinx.android.synthetic.main.fragment_detail_rating.*
 import kotlinx.android.synthetic.main.fragment_detail_toolbar.*
@@ -95,7 +96,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     private val args: DetailFragmentArgs by navArgs()
     override val reactor: DetailReactor by reactor { parametersOf(args.id, args.type) }
     private val coordinator: DetailCoordinator by coordinator()
-    private val detailMediaAdapter: DetailMediaAdapter by inject()
+    private val detailHeaderAdapter: DetailHeaderAdapter by inject()
     private val optionsAdapter: OptionsAdapter by inject()
     private val shareService: ShareService by inject { parametersOf(activity) }
 
@@ -110,9 +111,18 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             .bind(to = Router::follow)
             .addTo(disposables)
 
-        with(rvMedia) {
+        with(rvDetailHeader) {
             snapHelper.attachToRecyclerView(this)
-            adapter = detailMediaAdapter
+            adapter = detailHeaderAdapter
+
+            var previousSnappedPosition = RecyclerView.NO_POSITION
+            onSnappedPositionChanged(snapHelper) { position ->
+                (rvDetailHeader.findViewHolderForLayoutPosition(previousSnappedPosition) as? DetailHeaderViewHolder)
+                    ?.apply(DetailHeaderViewHolder.FocusState.None)
+                (rvDetailHeader.findViewHolderForLayoutPosition(position) as? DetailHeaderViewHolder)
+                    ?.apply(DetailHeaderViewHolder.FocusState.Highlighted)
+                previousSnappedPosition = position
+            }
         }
 
         rvDetailOptions.adapter = optionsAdapter
@@ -169,17 +179,17 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             }
             .addTo(disposables)
 
-        val snapToFirstItemObservable = rvMedia.globalLayouts()
-            .map { rvMedia.calculateDistanceToPosition(snapHelper, 0) }
-            .doOnNext { rvMedia.scrollBy(it.first, it.second) }
+        val snapToFirstItemObservable = rvDetailHeader.globalLayouts() // todo
+            .map { rvDetailHeader.calculateDistanceToPosition(snapHelper, 1) }
+            .doOnNext { rvDetailHeader.scrollBy(it.first, it.second) }
             .debounce(200, TimeUnit.MILLISECONDS)
             .takeUntil { it.first == 0 && it.second == 0 }
 
-        reactor.state.changesFrom { it.additionalData }
-            .ofType<Async.Success<DetailReactor.State.AdditionalData>>()
-            .map { listOf(DetailMediaItem.Poster(it.element.thumbnailPoster, it.element.originalPoster)) + it.element.videos }
+        reactor.state.changesFrom { it.headerItems }
             .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext(detailMediaAdapter::submitList)
+            .doOnNext(detailHeaderAdapter::submitList)
+            .map { items -> items.indexOfFirst { it is DetailHeaderItem.Poster } }
+            .map { if (it >= 0) it else 0 }
             .switchMap { snapToFirstItemObservable }
             .bind()
             .addTo(disposables)
@@ -257,6 +267,31 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             ?: return 0 to 0
         return distances[0] to distances[1]
     }
+
+    private fun RecyclerView.onSnappedPositionChanged(
+        snapHelper: SnapHelper,
+        onSnap: (position: Int) -> Unit
+    ): RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
+        private var oldSnapPosition = RecyclerView.NO_POSITION
+
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+
+            val snapPosition = snapHelper.getSnapPosition(recyclerView)
+            if (oldSnapPosition != snapPosition) {
+                onSnap(snapPosition)
+                oldSnapPosition = snapPosition
+            }
+        }
+
+        fun SnapHelper.getSnapPosition(recyclerView: RecyclerView): Int {
+            val layoutManager = recyclerView.layoutManager
+                ?: return RecyclerView.NO_POSITION
+            val snapView = findSnapView(layoutManager)
+                ?: return RecyclerView.NO_POSITION
+            return layoutManager.getPosition(snapView)
+        }
+    }.also(::addOnScrollListener)
 }
 
 class DetailReactor(
@@ -264,7 +299,8 @@ class DetailReactor(
     private val type: Watchable.Type,
     private val movieDatabaseApi: MovieDatabaseApi,
     private val watchablesDataSource: WatchablesDataSource,
-    private val analyticsService: AnalyticsService
+    private val analyticsService: AnalyticsService,
+    private val deepLinkService: DeepLinkService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
     initialState = State(),
     initialAction = Action.InitialLoad
@@ -283,10 +319,13 @@ class DetailReactor(
         data class DeleteWatchableResult(val deleteResult: Async<Unit>) : Mutation()
         data class SetWatchable(val watchable: Watchable?) : Mutation()
         data class SetAdditionalData(val additionalData: Async<State.AdditionalData>) : Mutation()
+        data class SetVideoHeaderItems(val videos: List<DetailHeaderItem.YoutubeVideo>) : Mutation()
+        data class SetPosterHeadItem(val poster: DetailHeaderItem.Poster) : Mutation()
     }
 
     data class State(
         val watchable: Watchable? = null,
+        val headerItems: List<DetailHeaderItem> = emptyList(),
         val additionalData: Async<AdditionalData> = Async.Uninitialized,
         val deleteResult: Async<Unit> = Async.Uninitialized
     ) {
@@ -294,12 +333,12 @@ class DetailReactor(
             val name: String? = null,
             val thumbnailPoster: String? = null,
             val originalPoster: String? = null,
+            val videos: List<Videos.Video> = emptyList(),
             val website: String? = null,
             val imdbId: String? = null,
             val facebookId: String? = null,
             val instagramId: String? = null,
             val twitterId: String? = null,
-            val videos: List<DetailMediaItem.YoutubeVideo> = emptyList(),
             val summary: String? = null,
             val airing: LocalDate? = null,
             val actors: List<String> = emptyList(),
@@ -321,7 +360,7 @@ class DetailReactor(
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.InitialLoad -> {
-            watchablesDataSource.watchable(itemId)
+            watchablesDataSource.watchable(itemId) // todo why do i need this?
                 .ignoreElement()
                 .toObservable<Mutation>()
                 .onErrorResumeNext { t: Throwable ->
@@ -336,11 +375,24 @@ class DetailReactor(
                 Watchable.Type.movie -> loadAdditionalInfoFromMovie()
                 else -> loadAdditionalInfoFromShow()
             }
+
             val load = additionalDataLoad
-                .map { Mutation.SetAdditionalData(Async.Success(it)) }
                 .doOnError(Timber::e)
-                .onErrorReturn { Mutation.SetAdditionalData(Async.Error(it)) }
+                .mapToAsync()
                 .toObservable()
+                .flatMap {
+                    val posterMutation = if (it is Async.Success) {
+                        Mutation.SetPosterHeadItem(DetailHeaderItem.Poster(
+                            it.element.thumbnailPoster,
+                            it.element.originalPoster
+                        )).observable
+                    } else Observable.empty()
+
+                    val videosMutation = if (it is Async.Success) {
+                        Mutation.SetVideoHeaderItems(it.element.videos.mapToYoutubeVideos()).observable
+                    } else Observable.empty()
+                    Observable.concat(Mutation.SetAdditionalData(it).observable, posterMutation, videosMutation)
+                }
 
             Observable.concat(loading, load)
         }
@@ -371,8 +423,32 @@ class DetailReactor(
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.DeleteWatchableResult -> previousState.copy(deleteResult = mutation.deleteResult)
-        is Mutation.SetWatchable -> previousState.copy(watchable = mutation.watchable)
+        is Mutation.SetWatchable -> {
+            if (mutation.watchable != null) {
+                val newHeaderItems = previousState.headerItems
+                    .filter { it !is DetailHeaderItem.QRCode }
+                    .plus(DetailHeaderItem.QRCode(deepLinkService.createDeepLink(mutation.watchable)))
+                    .sorted()
+                previousState.copy(watchable = mutation.watchable, headerItems = newHeaderItems)
+            } else {
+                previousState.copy(watchable = mutation.watchable)
+            }
+        }
         is Mutation.SetAdditionalData -> previousState.copy(additionalData = mutation.additionalData)
+        is Mutation.SetVideoHeaderItems -> {
+            val newHeaderItems = previousState.headerItems
+                .filter { it !is DetailHeaderItem.YoutubeVideo }
+                .plus(mutation.videos)
+                .sorted()
+            previousState.copy(headerItems = newHeaderItems)
+        }
+        is Mutation.SetPosterHeadItem -> {
+            val newHeaderItems = previousState.headerItems
+                .filter { it !is DetailHeaderItem.Poster }
+                .plus(mutation.poster)
+                .sorted()
+            previousState.copy(headerItems = newHeaderItems)
+        }
     }
 
     private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {
@@ -382,12 +458,12 @@ class DetailReactor(
                     it.name,
                     Images.thumbnail.from(it.image),
                     Images.original.from(it.image),
+                    it.videos.results,
                     it.website,
                     it.externalIds.imdbId,
                     it.externalIds.facebookId,
                     it.externalIds.instagramId,
                     it.externalIds.twitterId,
-                    it.videos.results.mapToYoutubeVideos(),
                     it.summary,
                     it.releaseDate,
                     it.credits?.mapToActorList() ?: emptyList(),
@@ -406,12 +482,12 @@ class DetailReactor(
                     it.name,
                     Images.thumbnail.from(it.image),
                     Images.original.from(it.image),
+                    it.videos.results,
                     it.website,
                     it.externalIds.imdbId,
                     it.externalIds.facebookId,
                     it.externalIds.instagramId,
                     it.externalIds.twitterId,
-                    it.videos.results.mapToYoutubeVideos(),
                     it.summary,
                     it.nextEpisode?.airingDate,
                     it.credits?.mapToActorList() ?: emptyList(),
@@ -423,11 +499,11 @@ class DetailReactor(
             }
     }
 
-    private fun List<Videos.Video>.mapToYoutubeVideos(): List<DetailMediaItem.YoutubeVideo> {
+    private fun List<Videos.Video>.mapToYoutubeVideos(): List<DetailHeaderItem.YoutubeVideo> {
         return asSequence()
             .filter { it.isYoutube }
             .sortedBy { it.type }
-            .map { DetailMediaItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
+            .map { DetailHeaderItem.YoutubeVideo(it.id, it.name, it.key, it.type) }
             .toList()
     }
 

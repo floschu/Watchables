@@ -19,5 +19,5 @@ import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 internal val scanModule = module {
-    reactor { ScanReactor() }
+    reactor { ScanReactor(deepLinkService = get()) }
 }

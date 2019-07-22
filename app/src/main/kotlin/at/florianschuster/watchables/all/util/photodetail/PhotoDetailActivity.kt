@@ -1,6 +1,7 @@
 package at.florianschuster.watchables.all.util.photodetail
 
 import android.animation.ObjectAnimator
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -34,34 +35,64 @@ import me.saket.flick.ContentSizeProvider
 import me.saket.flick.FlickCallbacks
 import me.saket.flick.FlickGestureListener
 import me.saket.flick.InterceptResult
+import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 
 private const val ARG_PHOTO_URL = "photo.url"
+private const val ARG_BITMAP = "bitmap"
 
 val Context.photoDetailConsumer: Consumer<String>
     get() = Consumer {
         Intent(this, PhotoDetailActivity::class.java)
-                .extras(ARG_PHOTO_URL to it)
-                .let(::startActivity)
+            .extras(ARG_PHOTO_URL to it)
+            .let(::startActivity)
+    }
+
+val Context.bitmapDetailConsumer: Consumer<Bitmap>
+    get() = Consumer { bitmap ->
+        val array = ByteArrayOutputStream().also {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }.toByteArray()
+
+        Intent(this, PhotoDetailActivity::class.java)
+            .extras(ARG_BITMAP to array)
+            .let(::startActivity)
     }
 
 // https://github.com/saket/Flick/
 class PhotoDetailActivity : AppCompatActivity() {
-
-    private val url: String by extra(ARG_PHOTO_URL, "")
+    private val url: String? by extra(ARG_PHOTO_URL)
+    private val bitmapBytes: ByteArray? by extra(ARG_BITMAP)
 
     private lateinit var systemUiHelper: SystemUiHelper
     private lateinit var activityBackgroundDrawable: Drawable
+
+    private val target by lazy { TargetWithEntryAnimation(imageView, progress) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
 
         super.onCreate(savedInstanceState)
+
+        if (url == null && bitmapBytes == null) {
+            finish()
+            return
+        }
+
         overridePendingTransition(0, 0)
         setContentView(R.layout.activity_photo_detail)
 
         animateDimmingOnEntry()
-        loadImage()
+
+        GlideApp.with(this)
+            .asBitmap()
+            .apply {
+                if (url != null) load(url)
+                else if (bitmapBytes != null) load(bitmapBytes)
+            }
+            .transform(PaddingTransformation(1F, Color.TRANSPARENT))
+            .priority(Priority.IMMEDIATE)
+            .into(target)
 
         flickDismissLayout.gestureListener = flickGestureListener()
 
@@ -80,22 +111,6 @@ class PhotoDetailActivity : AppCompatActivity() {
 
     private fun finishInMillis(millis: Long) {
         rootLayout.postDelayed({ finish() }, millis)
-    }
-
-    private val target by lazy { TargetWithEntryAnimation(imageView, progress) }
-
-    private fun loadImage() {
-
-        // Adding a 1px transparent border improves anti-aliasing
-        // when the thumbnailImage rotates while being dragged.
-        val paddingTransformation = PaddingTransformation(1F, Color.TRANSPARENT)
-
-        GlideApp.with(this)
-                .asBitmap()
-                .load(url)
-                .transform(paddingTransformation)
-                .priority(Priority.IMMEDIATE)
-                .into(target)
     }
 
     private fun flickGestureListener(): FlickGestureListener {
@@ -156,13 +171,13 @@ class PhotoDetailActivity : AppCompatActivity() {
     private fun animateExit(onEndAction: () -> Unit) {
         val animDuration: Long = 200
         flickDismissLayout.animate()
-                .alpha(0f)
-                .translationY(flickDismissLayout.height / 20F)
-                .rotation(-2F)
-                .setDuration(animDuration)
-                .setInterpolator(FastOutSlowInInterpolator())
-                .withEndAction(onEndAction)
-                .start()
+            .alpha(0f)
+            .translationY(flickDismissLayout.height / 20F)
+            .rotation(-2F)
+            .setDuration(animDuration)
+            .setInterpolator(FastOutSlowInInterpolator())
+            .withEndAction(onEndAction)
+            .start()
 
         ObjectAnimator.ofFloat(0F, 1F).apply {
             duration = animDuration
@@ -200,11 +215,11 @@ class TargetWithEntryAnimation(private val imageView: ImageView, private val pro
         imageView.setImageBitmap(resource)
 
         imageView.animate()
-                .alpha(1F)
-                .translationY(0F)
-                .rotation(0F)
-                .setInterpolator(FlickGestureListener.ANIM_INTERPOLATOR)
-                .start()
+            .alpha(1F)
+            .translationY(0F)
+            .rotation(0F)
+            .setInterpolator(FlickGestureListener.ANIM_INTERPOLATOR)
+            .start()
     }
 }
 

@@ -55,9 +55,7 @@ fun FragmentActivity.openChromeTab(url: String) {
 }
 
 fun Fragment.openChromeTab(url: String) {
-    val activity = this.activity
-        ?: throw RuntimeException("No Activity attached to Fragment. Cannot show Dialog.")
-    activity.openChromeTab(url)
+    requireActivity().openChromeTab(url)
 }
 
 fun RxPermissions.request(permission: Permission): Single<Boolean> {

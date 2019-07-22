@@ -20,7 +20,11 @@ import android.content.res.Resources
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import at.florianschuster.watchables.service.DeepLinkService
+import at.florianschuster.watchables.service.FirebaseDeepLinkService
 import at.florianschuster.watchables.all.OptionsAdapter
+import at.florianschuster.watchables.all.util.QrCodeService
+import at.florianschuster.watchables.all.util.ZXingQrCodeService
 import at.florianschuster.watchables.service.ActivityShareService
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.AndroidNotificationService
@@ -50,6 +54,8 @@ val appModule = module {
     single<NotificationService> { AndroidNotificationService(androidContext()) }
     single<WatchablesDataSource> { FirebaseWatchablesDataSource(get()) }
     single<WatchablesFilterService> { RxWatchablesFilterService(get()) }
+    single<DeepLinkService> { FirebaseDeepLinkService(androidContext().resources) }
+    single<QrCodeService> { ZXingQrCodeService(androidContext()) }
 
     factory<ShareService> { (activity: AppCompatActivity) -> ActivityShareService(activity) }
     factory { OptionsAdapter() }
