@@ -35,7 +35,6 @@ import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.async.mapToAsync
 import com.tailoredapps.androidutil.permissions.Permission
 import com.tailoredapps.androidutil.permissions.queryState
-import com.tailoredapps.androidutil.ui.extensions.afterMeasured
 import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable

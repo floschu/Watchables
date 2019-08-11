@@ -25,6 +25,7 @@ import androidx.work.Operation
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import at.florianschuster.watchables.WatchablesApp
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.convertToWatchable
@@ -120,7 +121,7 @@ class AddWatchableWorker(context: Context, workerParams: WorkerParameters) : Wor
                         putString(EXTRA_NAME, title)
                     }.build()
                     setInputData(inputData)
-                }.build().let(WorkManager.getInstance()::enqueue)
+                }.build().let(WorkManager.getInstance(WatchablesApp.instance)::enqueue)
 
         private const val EXTRA_ID = "AddWatchableWorker.EXTRA_ID"
         private const val EXTRA_TYPE = "AddWatchableWorker.EXTRA_TYPE"

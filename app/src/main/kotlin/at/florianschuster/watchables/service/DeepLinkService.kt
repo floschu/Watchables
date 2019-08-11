@@ -1,39 +1,83 @@
 package at.florianschuster.watchables.service
 
-import android.content.res.Resources
+import android.content.Intent
 import android.net.Uri
 import android.webkit.URLUtil
-import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Watchable
 import com.google.firebase.dynamiclinks.DynamicLink
 import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.google.firebase.dynamiclinks.PendingDynamicLinkData
 import com.tailoredapps.androidutil.firebase.RxTasks
 import io.reactivex.Maybe
+import io.reactivex.Single
 
 interface DeepLinkService {
-    sealed class Link {
-        data class ToWatchable(val id: String, val type: Watchable.Type) : Link()
-        object None : Link()
+    sealed class Link(val link: Uri) {
+        object App : Link(Uri.parse("$domain/app"))
+
+        data class ToWatchable(
+            val id: String,
+            val type: Watchable.Type
+        ) : Link(Uri.parse("$prefix/${type.name}/$id")) {
+            companion object {
+                const val prefix = "https://florianschuster.at/watchables"
+            }
+        }
+
+        object None : Link(Uri.EMPTY)
+
+        companion object {
+            const val domain = "https://watchables.page.link"
+        }
     }
 
-    fun createDeepLink(watchable: Watchable): String
+    fun handleIntent(intent: Intent): Maybe<Link>
     fun parseDeepLink(url: String): Maybe<Link>
+
+    fun createDeepLinkUrl(watchable: Watchable, short: Boolean = true): Maybe<String>
 }
 
-class FirebaseDeepLinkService(
-    resources: Resources
-) : DeepLinkService {
-    private val deepLinkDomain = resources.getString(R.string.dynamic_deeplink_domain)
-    private val watchableLinkPrefix = resources.getString(R.string.dynamic_watchable_link_prefix)
-
-    override fun createDeepLink(watchable: Watchable): String {
-        return createWatchableDeepLink(watchable).buildDynamicLink().uri.toString()
+class FirebaseDeepLinkService : DeepLinkService {
+    override fun handleIntent(intent: Intent): Maybe<DeepLinkService.Link> {
+        return RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
+            .map { it.mapToDeepLink() }
     }
 
-    private fun createWatchableDeepLink(watchable: Watchable): DynamicLink.Builder {
+    override fun parseDeepLink(url: String): Maybe<DeepLinkService.Link> {
+        if (!URLUtil.isValidUrl(url)) return Maybe.empty()
+        return Single.fromCallable { Uri.parse(url) }
+            .flatMapMaybe { RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(it) } }
+            .map { it.mapToDeepLink() }
+    }
+
+    private fun PendingDynamicLinkData.mapToDeepLink(): DeepLinkService.Link {
+        val link = link.toString()
+        return when {
+            link.startsWith(DeepLinkService.Link.ToWatchable.prefix) -> {
+                val parts = link.removePrefix(DeepLinkService.Link.ToWatchable.prefix)
+                    .split("/")
+                if (parts.count() == 3) {
+                    DeepLinkService.Link.ToWatchable(parts[2], enumValueOf(parts[1]))
+                } else DeepLinkService.Link.None
+            }
+            else -> DeepLinkService.Link.None
+        }
+    }
+
+    override fun createDeepLinkUrl(watchable: Watchable, short: Boolean): Maybe<String> {
+        return if (short) {
+            RxTasks.maybe { createFirebaseDynamicLinkBuilder(watchable).buildShortDynamicLink() }
+                .map { it.shortLink.toString() }
+        } else {
+            Maybe.just(createFirebaseDynamicLinkBuilder(watchable).buildDynamicLink())
+                .map { it.uri.toString() }
+        }
+    }
+
+    private fun createFirebaseDynamicLinkBuilder(watchable: Watchable): DynamicLink.Builder {
         return FirebaseDynamicLinks.getInstance().createDynamicLink().apply {
-            setDomainUriPrefix(deepLinkDomain)
-            setLink(Uri.parse("$watchableLinkPrefix${watchable.type.name}/${watchable.id}"))
+            setDomainUriPrefix(DeepLinkService.Link.domain)
+            setLink(DeepLinkService.Link.ToWatchable(watchable.id, watchable.type).link)
             setAndroidParameters(DynamicLink.AndroidParameters.Builder().apply {
                 setMinimumVersion(30) // todo
             }.build())
@@ -41,22 +85,5 @@ class FirebaseDeepLinkService(
                 setTitle(watchable.name)
             }.build())
         }
-    }
-
-    override fun parseDeepLink(url: String): Maybe<DeepLinkService.Link> {
-        if (!URLUtil.isValidUrl(url)) return Maybe.empty()
-        return RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(Uri.parse(url)) }
-            .map { it.link.toString() }
-            .map {
-                when {
-                    it.startsWith(watchableLinkPrefix) -> {
-                        val parts = it.removePrefix(watchableLinkPrefix).split("/")
-                        if (parts.count() == 2) {
-                            DeepLinkService.Link.ToWatchable(parts[1], enumValueOf(parts[0]))
-                        } else DeepLinkService.Link.None
-                    }
-                    else -> DeepLinkService.Link.None
-                }
-            }
     }
 }

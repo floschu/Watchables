@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.srcConsumer
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
@@ -33,23 +32,14 @@ import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_detail_poster.*
-import kotlinx.android.synthetic.main.item_detail_qr.*
 import kotlinx.android.synthetic.main.item_detail_video.*
-import com.tailoredapps.androidutil.ui.extensions.afterMeasured
-import androidx.core.view.isVisible
-import at.florianschuster.watchables.all.util.GlideApp
-import at.florianschuster.watchables.all.util.QrCodeService
-import at.florianschuster.watchables.all.util.photodetail.bitmapDetailConsumer
 import org.koin.core.KoinComponent
-import org.koin.core.inject
 
 sealed class DetailHeaderItem(
     open val id: String,
     @LayoutRes val layout: Int,
     private val ordinal: Int
 ) : Comparable<DetailHeaderItem> {
-    data class QRCode(val deepLink: String) : DetailHeaderItem("-1", R.layout.item_detail_qr, 0)
-
     data class Poster(
         val thumbnail: String?,
         val original: String?
@@ -81,14 +71,14 @@ class DetailHeaderAdapter : ListAdapter<DetailHeaderItem, DetailHeaderViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailHeaderViewHolder = when (viewType) {
         R.layout.item_detail_poster -> DetailHeaderViewHolder.Poster(parent.inflate(viewType))
-        R.layout.item_detail_qr -> DetailHeaderViewHolder.QRCode(parent.inflate(viewType))
         else -> DetailHeaderViewHolder.Video(parent.inflate(viewType))
     }
 
-    override fun onBindViewHolder(holder: DetailHeaderViewHolder, position: Int) = when (holder) {
-        is DetailHeaderViewHolder.Poster -> holder.bind(getItem(position) as DetailHeaderItem.Poster)
-        is DetailHeaderViewHolder.Video -> holder.bind(getItem(position) as DetailHeaderItem.YoutubeVideo)
-        is DetailHeaderViewHolder.QRCode -> holder.bind(getItem(position) as DetailHeaderItem.QRCode)
+    override fun onBindViewHolder(holder: DetailHeaderViewHolder, position: Int) {
+        when (holder) {
+            is DetailHeaderViewHolder.Poster -> holder.bind(getItem(position) as DetailHeaderItem.Poster)
+            is DetailHeaderViewHolder.Video -> holder.bind(getItem(position) as DetailHeaderItem.YoutubeVideo)
+        }
     }
 }
 
@@ -97,43 +87,11 @@ private val detailHeaderItemDiff = object : DiffUtil.ItemCallback<DetailHeaderIt
     override fun areContentsTheSame(oldItem: DetailHeaderItem, newItem: DetailHeaderItem): Boolean = oldItem == newItem
 }
 
-sealed class DetailHeaderViewHolder(final override val containerView: View) :
-    RecyclerView.ViewHolder(containerView), LayoutContainer, KoinComponent {
+sealed class DetailHeaderViewHolder(
+    containerView: View
+) : RecyclerView.ViewHolder(containerView), LayoutContainer, KoinComponent {
 
-    protected val qrCodeService: QrCodeService by inject()
-
-    enum class FocusState(val alpha: Float) {
-        Highlighted(1f),
-        None(0.33f)
-    }
-
-    init {
-        apply(FocusState.None)
-    }
-
-    fun apply(focusState: FocusState) {
-        containerView.alpha = focusState.alpha
-    }
-
-    class QRCode(containerView: View) : DetailHeaderViewHolder(containerView) {
-        fun bind(qr: DetailHeaderItem.QRCode) {
-            ivQR.clipToOutline = true
-            ivQR.afterMeasured {
-                val bitmap = qrCodeService.generate(qr.deepLink, width, height)
-
-                if (bitmap != null) {
-                    GlideApp.with(ivQR).load(bitmap).into(ivQR)
-                    ivQR.setOnClickListener {
-                        containerView.context.bitmapDetailConsumer.accept(bitmap)
-                    }
-                } else {
-                    containerView.isVisible = false
-                }
-            }
-        }
-    }
-
-    class Poster(containerView: View) : DetailHeaderViewHolder(containerView) {
+    class Poster(override val containerView: View) : DetailHeaderViewHolder(containerView) {
         fun bind(poster: DetailHeaderItem.Poster) {
             ivImage.clipToOutline = true
             ivImage.srcConsumer(R.drawable.ic_logo).accept(poster.thumbnail)
@@ -145,7 +103,7 @@ sealed class DetailHeaderViewHolder(final override val containerView: View) :
         }
     }
 
-    class Video(containerView: View) : DetailHeaderViewHolder(containerView) {
+    class Video(override val containerView: View) : DetailHeaderViewHolder(containerView) {
         fun bind(video: DetailHeaderItem.YoutubeVideo) {
             val resources = containerView.context
             ivThumbnail.clipToOutline = true

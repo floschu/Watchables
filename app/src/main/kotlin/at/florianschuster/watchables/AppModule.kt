@@ -54,10 +54,10 @@ val appModule = module {
     single<NotificationService> { AndroidNotificationService(androidContext()) }
     single<WatchablesDataSource> { FirebaseWatchablesDataSource(get()) }
     single<WatchablesFilterService> { RxWatchablesFilterService(get()) }
-    single<DeepLinkService> { FirebaseDeepLinkService(androidContext().resources) }
+    single<DeepLinkService> { FirebaseDeepLinkService() }
     single<QrCodeService> { ZXingQrCodeService(androidContext()) }
 
-    factory<ShareService> { (activity: AppCompatActivity) -> ActivityShareService(activity) }
+    factory<ShareService> { (activity: AppCompatActivity) -> ActivityShareService(activity, get()) }
     factory { OptionsAdapter() }
     factory { (fragment: Fragment) -> RxPermissions(fragment) }
 }

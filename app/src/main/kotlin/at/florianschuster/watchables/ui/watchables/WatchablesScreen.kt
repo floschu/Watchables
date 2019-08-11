@@ -41,7 +41,6 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
-import at.florianschuster.watchables.ui.main.bnvReselects
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterBottomSheetDialogFragment
@@ -109,10 +108,6 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
         }
 
         fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)
-
-        bnvReselects.filter { it.itemId == R.id.watchables }
-            .bind { rvWatchables.smoothScrollToPosition(0) }
-            .addTo(disposables)
 
         adapter.interaction.ofType<WatchablesAdapterInteraction.PhotoDetail>()
             .map { it.url.asOptional }

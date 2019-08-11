@@ -33,6 +33,7 @@ import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_search.*
+import kotlinx.android.synthetic.main.item_search_rating.*
 
 sealed class SearchAdapterInteraction {
     data class AddItemClick(val item: Search.SearchItem) : SearchAdapterInteraction()
@@ -76,5 +77,7 @@ class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHold
         if (!item.added) {
             ivAdd.setOnClickListener { interaction(SearchAdapterInteraction.AddItemClick(item)) }
         }
+
+        tvRating.text = "${item.rating}"
     }
 }

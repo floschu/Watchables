@@ -110,7 +110,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
     private fun Context.copyTextToClipBoard(label: String, text: String) {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.primaryClip = ClipData.newPlainText(label, text)
+        clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
     }
 
     private val rateOption: Option

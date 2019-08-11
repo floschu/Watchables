@@ -24,12 +24,22 @@ import com.google.zxing.WriterException
 import com.google.zxing.qrcode.QRCodeWriter
 
 interface QrCodeService {
+    fun generateFullScreen(content: String): Bitmap?
     fun generate(content: String, width: Int, height: Int): Bitmap?
 }
 
 class ZXingQrCodeService(
     private val context: Context
 ) : QrCodeService {
+    override fun generateFullScreen(content: String): Bitmap? {
+        val metrics = context.resources.displayMetrics
+        val size = when {
+            metrics.widthPixels < metrics.heightPixels -> metrics.widthPixels * 0.4
+            else -> metrics.heightPixels * 0.4
+        }.toInt()
+        return generate(content, size, size)
+    }
+
     override fun generate(content: String, width: Int, height: Int): Bitmap? {
         return try {
             val bitMatrix = QRCodeWriter()

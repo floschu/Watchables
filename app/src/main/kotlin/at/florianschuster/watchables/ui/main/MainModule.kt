@@ -1,5 +1,6 @@
 package at.florianschuster.watchables.ui.main
 
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
@@ -9,5 +10,6 @@ import org.koin.dsl.module
  */
 
 internal val mainModule = module {
-    reactor { MainReactor(get(), get()) }
+    coordinator { MainCoordinator() }
+    reactor { MainReactor(get(), get(), get()) }
 }

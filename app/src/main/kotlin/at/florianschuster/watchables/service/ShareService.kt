@@ -39,26 +39,36 @@ interface ShareService {
 }
 
 class ActivityShareService(
-    private val activity: AppCompatActivity
+    private val activity: AppCompatActivity,
+    private val deepLinkService: DeepLinkService
 ) : ShareService {
     private val resources = activity.resources
 
     private val tempFile: File by lazy { File(activity.cacheDir, "shareimage.jpg") }
 
     override fun share(watchable: Watchable): Completable = downloadImageToShare(watchable.originalPoster)
-        .flatMap { // todo use deeplink
+        .flatMap { poster ->
+            deepLinkService.createDeepLinkUrl(watchable)
+                .map { poster to it }
+                .toSingle(poster to "")
+        }
+        .flatMap { (poster, deepLink) ->
             val chooserText = when (watchable.type) {
-                Watchable.Type.show -> resources.getString(R.string.share_watchable_chooser_text_show, watchable.name)
-                Watchable.Type.movie -> resources.getString(R.string.share_watchable_chooser_text_movie, watchable.name)
+                Watchable.Type.show -> {
+                    resources.getString(R.string.share_watchable_chooser_text_show, watchable.name, deepLink)
+                }
+                Watchable.Type.movie -> {
+                    resources.getString(R.string.share_watchable_chooser_text_movie, watchable.name, deepLink)
+                }
             }
-            chooserIntent(resources.getString(R.string.share_watchable_chooser_title, watchable.name), chooserText, it)
+            chooserIntent(resources.getString(R.string.share_watchable_chooser_title, watchable.name), chooserText, poster)
         }
         .doOnSuccess(activity::startActivity)
         .ignoreElement()
 
     override fun shareApp(): Completable = chooserIntent(
         resources.getString(R.string.share_app_chooser_title),
-        resources.getString(R.string.share_app_chooser_text, resources.getString(R.string.dynamic_app_link)),
+        resources.getString(R.string.share_app_chooser_text, DeepLinkService.Link.App.link),
         null
     ).doOnSuccess(activity::startActivity).ignoreElement()
 

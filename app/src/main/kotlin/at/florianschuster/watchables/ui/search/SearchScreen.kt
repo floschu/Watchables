@@ -39,7 +39,6 @@ import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
 import at.florianschuster.watchables.ui.base.BaseCoordinator
-import at.florianschuster.watchables.ui.main.bnvReselects
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -52,10 +51,10 @@ import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
-import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.watchables.model.convertToWatchableType
+import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -107,7 +106,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 
         fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
 
-        Observable.merge(ivSearch.clicks(), bnvReselects.filter { it.itemId == R.id.search })
+        ivSearch.clicks()
             .bind {
                 if (etSearch.text.isNotEmpty()) etSearch.setText("")
                 etSearch.showKeyBoard()

@@ -16,15 +16,15 @@
 
 package at.florianschuster.watchables.ui.detail
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
-import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.SnapHelper
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
 import at.florianschuster.koordinator.android.koin.coordinator
@@ -62,10 +62,19 @@ import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.all.util.QrCodeService
+import at.florianschuster.watchables.all.util.photodetail.bitmapDetailConsumer
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.model.convertToSearchType
+import com.jakewharton.rxbinding3.recyclerview.scrollEvents
+import com.jakewharton.rxbinding3.view.scrollChangeEvents
+import com.jakewharton.rxbinding3.view.touches
+import com.jakewharton.rxrelay2.BehaviorRelay
 import com.tailoredapps.androidutil.async.mapToAsync
+import com.tailoredapps.androidutil.optional.asOptional
+import com.tailoredapps.androidutil.optional.filterSome
 import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -80,14 +89,18 @@ import org.threeten.bp.ZonedDateTime
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-enum class DetailRoute : CoordinatorRoute {
-    Pop
+sealed class DetailRoute : CoordinatorRoute {
+    object Pop : DetailRoute()
+    data class ShowQrCode(val qrCode: Bitmap) : DetailRoute()
 }
 
-class DetailCoordinator : BaseCoordinator<DetailRoute, NavController>() {
-    override fun navigate(route: DetailRoute, handler: NavController) {
+class DetailCoordinator : BaseCoordinator<DetailRoute, DetailFragment>() {
+    override fun navigate(route: DetailRoute, handler: DetailFragment) {
         when (route) {
-            DetailRoute.Pop -> handler.navigateUp()
+            is DetailRoute.Pop -> handler.findNavController().navigateUp()
+            is DetailRoute.ShowQrCode -> {
+                handler.context?.bitmapDetailConsumer?.accept(route.qrCode)
+            }
         }
     }
 }
@@ -101,10 +114,11 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     private val shareService: ShareService by inject { parametersOf(activity) }
 
     private val snapHelper = LinearSnapHelper()
+    private var rvDetailHeaderScrolledRelay = BehaviorRelay.createDefault(false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        coordinator.provideNavigationHandler(navController)
+        coordinator.provideNavigationHandler(this)
 
         btnBack.clicks()
             .map { DetailRoute.Pop }
@@ -114,19 +128,16 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         with(rvDetailHeader) {
             snapHelper.attachToRecyclerView(this)
             adapter = detailHeaderAdapter
-
-            var previousSnappedPosition = RecyclerView.NO_POSITION
-            onSnappedPositionChanged(snapHelper) { position ->
-                (rvDetailHeader.findViewHolderForLayoutPosition(previousSnappedPosition) as? DetailHeaderViewHolder)
-                    ?.apply(DetailHeaderViewHolder.FocusState.None)
-                (rvDetailHeader.findViewHolderForLayoutPosition(position) as? DetailHeaderViewHolder)
-                    ?.apply(DetailHeaderViewHolder.FocusState.Highlighted)
-                previousSnappedPosition = position
-            }
         }
 
         rvDetailOptions.adapter = optionsAdapter
         optionsAdapter.update()
+
+        rvDetailHeader.touches()
+            .take(1)
+            .map { true }
+            .subscribe(rvDetailHeaderScrolledRelay)
+            .addTo(disposables)
 
         bind(reactor)
     }
@@ -149,11 +160,13 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                         ivBackground.srcBlurConsumer(R.drawable.ic_logo)
                             .accept(additionalDataAsync.element.thumbnailPoster)
 
-                        additionalDataAsync.element.airing?.let { airingDate ->
-                            tvAiring.text = if (airingDate.isBefore(ZonedDateTime.now().toLocalDate())) {
-                                getString(R.string.release_date_past, airingDate.asFormattedString)
+                        val airing = additionalDataAsync.element.airing
+                        tvAiring.isVisible = airing != null
+                        if (airing != null) {
+                            tvAiring.text = if (airing.isBefore(ZonedDateTime.now().toLocalDate())) {
+                                getString(R.string.release_date_past, airing.asFormattedString)
                             } else {
-                                getString(R.string.release_date_future, airingDate.asFormattedString)
+                                getString(R.string.release_date_future, airing.asFormattedString)
                             }
                         }
 
@@ -179,19 +192,25 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             }
             .addTo(disposables)
 
-        val snapToFirstItemObservable = rvDetailHeader.globalLayouts() // todo
-            .map { rvDetailHeader.calculateDistanceToPosition(snapHelper, 1) }
-            .doOnNext { rvDetailHeader.scrollBy(it.first, it.second) }
-            .debounce(200, TimeUnit.MILLISECONDS)
-            .takeUntil { it.first == 0 && it.second == 0 }
-
         reactor.state.changesFrom { it.headerItems }
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext(detailHeaderAdapter::submitList)
             .map { items -> items.indexOfFirst { it is DetailHeaderItem.Poster } }
             .map { if (it >= 0) it else 0 }
-            .switchMap { snapToFirstItemObservable }
+            .switchMap { position -> // todo...
+                rvDetailHeader.globalLayouts()
+                    .map { rvDetailHeader.calculateDistanceToPosition(snapHelper, position) }
+                    .doOnNext { rvDetailHeader.scrollBy(it.first, it.second) }
+                    .debounce(200, TimeUnit.MILLISECONDS)
+                    .takeUntil { it.first == 0 && it.second == 0 }
+                    .takeUntil(rvDetailHeaderScrolledRelay.filter { it })
+            }
             .bind()
+            .addTo(disposables)
+
+        btnQr.clicks()
+            .map { DetailReactor.Action.ShowQrCode }
+            .bind(to = reactor.action)
             .addTo(disposables)
     }
 
@@ -260,38 +279,16 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 .addTo(disposables)
         }
 
-    private fun RecyclerView.calculateDistanceToPosition(snapHelper: LinearSnapHelper, position: Int): Pair<Int, Int> {
+    private fun RecyclerView.calculateDistanceToPosition(
+        snapHelper: LinearSnapHelper,
+        position: Int
+    ): Pair<Int, Int> {
         val layoutManager = layoutManager as? LinearLayoutManager ?: return 0 to 0
         val child = layoutManager.findViewByPosition(position) ?: return 0 to 0
         val distances = snapHelper.calculateDistanceToFinalSnap(layoutManager, child)
             ?: return 0 to 0
         return distances[0] to distances[1]
     }
-
-    private fun RecyclerView.onSnappedPositionChanged(
-        snapHelper: SnapHelper,
-        onSnap: (position: Int) -> Unit
-    ): RecyclerView.OnScrollListener = object : RecyclerView.OnScrollListener() {
-        private var oldSnapPosition = RecyclerView.NO_POSITION
-
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-
-            val snapPosition = snapHelper.getSnapPosition(recyclerView)
-            if (oldSnapPosition != snapPosition) {
-                onSnap(snapPosition)
-                oldSnapPosition = snapPosition
-            }
-        }
-
-        fun SnapHelper.getSnapPosition(recyclerView: RecyclerView): Int {
-            val layoutManager = recyclerView.layoutManager
-                ?: return RecyclerView.NO_POSITION
-            val snapView = findSnapView(layoutManager)
-                ?: return RecyclerView.NO_POSITION
-            return layoutManager.getPosition(snapView)
-        }
-    }.also(::addOnScrollListener)
 }
 
 class DetailReactor(
@@ -300,7 +297,8 @@ class DetailReactor(
     private val movieDatabaseApi: MovieDatabaseApi,
     private val watchablesDataSource: WatchablesDataSource,
     private val analyticsService: AnalyticsService,
-    private val deepLinkService: DeepLinkService
+    private val deepLinkService: DeepLinkService,
+    private val qrCodeService: QrCodeService
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
     initialState = State(),
     initialAction = Action.InitialLoad
@@ -313,6 +311,7 @@ class DetailReactor(
         data class SetWatched(val watched: Boolean) : Action()
         object Dismiss : Action()
         object AddWatchable : Action()
+        object ShowQrCode : Action()
     }
 
     sealed class Mutation {
@@ -360,7 +359,7 @@ class DetailReactor(
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.InitialLoad -> {
-            watchablesDataSource.watchable(itemId) // todo why do i need this?
+            watchablesDataSource.watchable(itemId)
                 .ignoreElement()
                 .toObservable<Mutation>()
                 .onErrorResumeNext { t: Throwable ->
@@ -419,21 +418,20 @@ class DetailReactor(
                 )
             }
         }
+        is Action.ShowQrCode -> {
+            Maybe.fromCallable { currentState.watchable }
+                .flatMap { deepLinkService.createDeepLinkUrl(it) }
+                .map { qrCodeService.generateFullScreen(it).asOptional }
+                .filterSome()
+                .doOnSuccess { Router follow DetailRoute.ShowQrCode(it) }
+                .ignoreElement()
+                .toObservable()
+        }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.DeleteWatchableResult -> previousState.copy(deleteResult = mutation.deleteResult)
-        is Mutation.SetWatchable -> {
-            if (mutation.watchable != null) {
-                val newHeaderItems = previousState.headerItems
-                    .filter { it !is DetailHeaderItem.QRCode }
-                    .plus(DetailHeaderItem.QRCode(deepLinkService.createDeepLink(mutation.watchable)))
-                    .sorted()
-                previousState.copy(watchable = mutation.watchable, headerItems = newHeaderItems)
-            } else {
-                previousState.copy(watchable = mutation.watchable)
-            }
-        }
+        is Mutation.SetWatchable -> previousState.copy(watchable = mutation.watchable)
         is Mutation.SetAdditionalData -> previousState.copy(additionalData = mutation.additionalData)
         is Mutation.SetVideoHeaderItems -> {
             val newHeaderItems = previousState.headerItems

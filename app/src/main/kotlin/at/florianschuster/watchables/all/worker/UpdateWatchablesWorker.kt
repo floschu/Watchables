@@ -20,10 +20,13 @@ import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import at.florianschuster.watchables.WatchablesApp
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Season
 import at.florianschuster.watchables.model.Watchable
@@ -43,60 +46,64 @@ import org.koin.core.inject
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
+class UpdateWatchablesWorker(
+    context: Context,
+    workerParams: WorkerParameters
+) : Worker(context, workerParams), KoinComponent {
+
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
     private val notificationService: NotificationService by inject()
     private val movieDatabaseApi: MovieDatabaseApi by inject()
     private val watchablesDataSource: WatchablesDataSource by inject()
 
     override fun doWork(): Result =
-            if (sessionService.user.ignoreElement().blockingGet() != null) {
-                Result.failure()
-            } else {
-                val error = watchablesDataSource.watchablesToUpdate
-                        .toFlowable()
-                        .flatMapIterable { it }
-                        .flatMapCompletable {
-                            if (it.type == Watchable.Type.movie) updateMovie(it)
-                            else updateShowSeasons(it)
-                        }
-                        .doOnError(Timber::e)
-                        .blockingGet()
+        if (sessionService.user.ignoreElement().blockingGet() != null) {
+            Result.failure()
+        } else {
+            val error = watchablesDataSource.watchablesToUpdate
+                .toFlowable()
+                .flatMapIterable { it }
+                .flatMapCompletable {
+                    if (it.type == Watchable.Type.movie) updateMovie(it)
+                    else updateShowSeasons(it)
+                }
+                .doOnError(Timber::e)
+                .blockingGet()
 
-                if (error != null) Result.failure() else Result.success()
-            }
+            if (error != null) Result.failure() else Result.success()
+        }
 
     private fun updateMovie(watchable: Watchable): Completable = movieDatabaseApi
-            .movie(watchable.id.toInt())
-            .doOnSuccess { notificationService.movieUpdate(watchable, it) }
-            .map(Movie::convertToWatchable)
-            .map { it.apply { watched = watchable.watched } }
-            .flatMap(watchablesDataSource::createWatchable)
-            .ignoreElement()
+        .movie(watchable.id.toInt())
+        .doOnSuccess { notificationService.movieUpdate(watchable, it) }
+        .map(Movie::convertToWatchable)
+        .map { it.apply { watched = watchable.watched } }
+        .flatMap(watchablesDataSource::createWatchable)
+        .ignoreElement()
 
     private fun updateShowSeasons(watchable: Watchable): Completable = movieDatabaseApi
-            .show(watchable.id.toInt())
-            .map { it to it.convertToWatchable() }
-            .flatMapCompletable { (show, updatedWatchable) ->
-                watchablesDataSource.createWatchable(updatedWatchable)
+        .show(watchable.id.toInt())
+        .map { it to it.convertToWatchable() }
+        .flatMapCompletable { (show, updatedWatchable) ->
+            watchablesDataSource.createWatchable(updatedWatchable)
+                .ignoreElement()
+                .andThen((1..show.seasons).reversed().toFlowable())
+                .flatMapSingle { movieDatabaseApi.season(show.id, it) }
+                .flatMapCompletable { season ->
+                    watchablesDataSource.season("${season.id}")
                         .ignoreElement()
-                        .andThen((1..show.seasons).reversed().toFlowable())
-                        .flatMapSingle { movieDatabaseApi.season(show.id, it) }
-                        .flatMapCompletable { season ->
-                            watchablesDataSource.season("${season.id}")
-                                    .ignoreElement()
-                                    .onErrorResumeNext {
-                                        if (it is NoSuchElementException) addSeason(updatedWatchable.id, season)
-                                                .doOnComplete { notificationService.showUpdate(updatedWatchable, show.name, season) }
-                                        else Completable.error(it)
-                                    }
+                        .onErrorResumeNext {
+                            if (it is NoSuchElementException) addSeason(updatedWatchable.id, season)
+                                .doOnComplete { notificationService.showUpdate(updatedWatchable, show.name, season) }
+                            else Completable.error(it)
                         }
-            }
+                }
+        }
 
     private fun addSeason(watchableId: String, season: Season): Completable =
-            Single.just(season.convertToWatchableSeason(watchableId))
-                    .flatMap(watchablesDataSource::createSeason)
-                    .ignoreElement()
+        Single.just(season.convertToWatchableSeason(watchableId))
+            .flatMap(watchablesDataSource::createSeason)
+            .ignoreElement()
 
     companion object {
         fun start() = PeriodicWorkRequest.Builder(UpdateWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {
@@ -108,10 +115,23 @@ class UpdateWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             }.build()
             setConstraints(constraints)
         }.build().let {
-            WorkManager.getInstance().enqueueUniquePeriodicWork(WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, it)
+            WorkManager.getInstance(WatchablesApp.instance)
+                .enqueueUniquePeriodicWork(WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, it)
         }
 
-        fun stop() = WorkManager.getInstance().cancelUniqueWork(WORKER_NAME)
+        // fun once() = OneTimeWorkRequest.Builder(UpdateWatchablesWorker::class.java).apply {
+        //     val constraints = Constraints.Builder().apply {
+        //         setRequiresCharging(true)
+        //         setRequiredNetworkType(NetworkType.CONNECTED)
+        //         setRequiresStorageNotLow(false)
+        //         setRequiresBatteryNotLow(false)
+        //     }.build()
+        //     setConstraints(constraints)
+        // }.build().let {
+        //     WorkManager.getInstance(WatchablesApp.instance).enqueue(it)
+        // }
+
+        fun stop() = WorkManager.getInstance(WatchablesApp.instance).cancelUniqueWork(WORKER_NAME)
 
         private const val WORKER_NAME = "at.florianschuster.watchables.all.worker.UpdateWatchablesWorker"
     }
