@@ -66,8 +66,6 @@ import at.florianschuster.watchables.all.util.QrCodeService
 import at.florianschuster.watchables.all.util.photodetail.bitmapDetailConsumer
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.model.convertToSearchType
-import com.jakewharton.rxbinding3.recyclerview.scrollEvents
-import com.jakewharton.rxbinding3.view.scrollChangeEvents
 import com.jakewharton.rxbinding3.view.touches
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.tailoredapps.androidutil.async.mapToAsync
@@ -145,7 +143,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
     override fun bind(reactor: DetailReactor) {
         reactor.state.changesFrom { it.deleteResult }
             .bind { deleteAsync ->
-                loading.isVisible = deleteAsync.loading
+                pbLoading.isVisible = deleteAsync.loading
                 if (deleteAsync is Async.Error) {
                     toast(deleteAsync.error.asCauseTranslation(resources))
                 }
@@ -197,7 +195,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             .doOnNext(detailHeaderAdapter::submitList)
             .map { items -> items.indexOfFirst { it is DetailHeaderItem.Poster } }
             .map { if (it >= 0) it else 0 }
-            .switchMap { position -> // todo...
+            .switchMap { position ->
                 rvDetailHeader.globalLayouts()
                     .map { rvDetailHeader.calculateDistanceToPosition(snapHelper, position) }
                     .doOnNext { rvDetailHeader.scrollBy(it.first, it.second) }
@@ -206,6 +204,13 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                     .takeUntil(rvDetailHeaderScrolledRelay.filter { it })
             }
             .bind()
+            .addTo(disposables)
+
+        reactor.state.changesFrom { it.qrLoading }
+            .bind { loading ->
+                btnQr.isVisible = !loading
+                pbLoading.isVisible = loading
+            }
             .addTo(disposables)
 
         btnQr.clicks()
@@ -320,13 +325,15 @@ class DetailReactor(
         data class SetAdditionalData(val additionalData: Async<State.AdditionalData>) : Mutation()
         data class SetVideoHeaderItems(val videos: List<DetailHeaderItem.YoutubeVideo>) : Mutation()
         data class SetPosterHeadItem(val poster: DetailHeaderItem.Poster) : Mutation()
+        data class SetQrLoading(val loading: Boolean) : Mutation()
     }
 
     data class State(
         val watchable: Watchable? = null,
         val headerItems: List<DetailHeaderItem> = emptyList(),
         val additionalData: Async<AdditionalData> = Async.Uninitialized,
-        val deleteResult: Async<Unit> = Async.Uninitialized
+        val deleteResult: Async<Unit> = Async.Uninitialized,
+        val qrLoading: Boolean = false
     ) {
         data class AdditionalData(
             val name: String? = null,
@@ -419,13 +426,18 @@ class DetailReactor(
             }
         }
         is Action.ShowQrCode -> {
-            Maybe.fromCallable { currentState.watchable }
+            val qrLoad = Maybe.fromCallable { currentState.watchable }
                 .flatMap { deepLinkService.createDeepLinkUrl(it) }
                 .map { qrCodeService.generateFullScreen(it).asOptional }
                 .filterSome()
                 .doOnSuccess { Router follow DetailRoute.ShowQrCode(it) }
                 .ignoreElement()
-                .toObservable()
+                .toObservable<Mutation>()
+            Observable.concat(
+                Mutation.SetQrLoading(true).observable,
+                qrLoad,
+                Mutation.SetQrLoading(false).observable
+            )
         }
     }
 
@@ -447,6 +459,7 @@ class DetailReactor(
                 .sorted()
             previousState.copy(headerItems = newHeaderItems)
         }
+        is Mutation.SetQrLoading -> previousState.copy(qrLoading = mutation.loading)
     }
 
     private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {

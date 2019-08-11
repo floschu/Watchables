@@ -22,7 +22,7 @@
         android:src="@drawable/ic_qr" />
 
     <ProgressBar
-        android:id="@+id/loading"
+        android:id="@+id/pbLoading"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"
