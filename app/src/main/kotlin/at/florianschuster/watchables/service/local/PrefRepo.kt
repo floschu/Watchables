@@ -29,6 +29,7 @@ interface PrefRepo {
     var rated: Boolean
     var watchableContainerFilterType: WatchableContainerFilterType
     var watchableContainerSortingType: WatchableContainerSortingType
+    var watchableRatingsEnabled: Boolean
 }
 
 class HawkPrefRepo(context: Context) : PrefRepo {
@@ -88,6 +89,12 @@ class HawkPrefRepo(context: Context) : PrefRepo {
             Hawk.put(WATCHABLES_CONTAINER_FILTER_TYPE, value.ordinal)
         }
 
+    override var watchableRatingsEnabled: Boolean
+        get() = Hawk.get(WATCHABLE_RATINGS, true)
+        set(value) {
+            Hawk.put(WATCHABLE_RATINGS, value)
+        }
+
     companion object {
         private const val ANALYTICS_ENABLED = "analytics_enabled"
         private const val ONBOARDING_SNACK = "onboarding_snack"
@@ -95,5 +102,6 @@ class HawkPrefRepo(context: Context) : PrefRepo {
         private const val RATED = "rated_app"
         private const val WATCHABLES_CONTAINER_SORTING_TYPE = "watchables_container_sorting_type"
         private const val WATCHABLES_CONTAINER_FILTER_TYPE = "watchables_container_filter_type"
+        private const val WATCHABLE_RATINGS = "watchable_ratings"
     }
 }

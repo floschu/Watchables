@@ -21,6 +21,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.GridLayoutManager
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.changesFrom
@@ -45,7 +46,9 @@ import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.BuildConfig
+import at.florianschuster.watchables.service.local.PrefRepo
 import com.jakewharton.rxbinding3.view.clicks
 import com.tailoredapps.androidutil.ui.IntentUtil
 import com.tailoredapps.androidutil.ui.extensions.toast
@@ -65,6 +68,13 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        rvMoreOptions.layoutManager = GridLayoutManager(requireContext(), 2).apply {
+            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                override fun getSpanSize(position: Int): Int = if (position < 2) 1 else 2
+            }
+        }
+
         tvVersion.text = getString(R.string.more_app_version, "${BuildConfig.VERSION_NAME}-b${BuildConfig.VERSION_CODE}")
         bind(reactor)
     }
@@ -74,6 +84,8 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
         listOf(
             rateOption,
             shareOption,
+            updateWatchablesOption,
+            ratingsOption,
             privacyOption,
             licensesOption,
             analyticsOption,
@@ -114,13 +126,23 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
     }
 
     private val rateOption: Option
-        get() = Option.Action(R.string.settings_rate_app, R.drawable.ic_star) {
+        get() = Option.SquareAction(R.string.settings_rate_app, R.drawable.ic_rate_review) {
             startActivity(Utils.rateApp(requireContext()))
         }
 
     private val shareOption: Option
-        get() = Option.Action(R.string.more_share_app, R.drawable.ic_share) {
+        get() = Option.SquareAction(R.string.more_share_app, R.drawable.ic_share) {
             shareService.shareApp().subscribe().addTo(disposables)
+        }
+
+    private val updateWatchablesOption: Option
+        get() = Option.Action(R.string.more_updage_watchables, R.drawable.ic_update) {
+            reactor.action.accept(MoreReactor.Action.UpdateWatchables)
+        }
+
+    private val ratingsOption: Option
+        get() = Option.Toggle(R.string.more_ratings_toggle, R.drawable.ic_star, reactor.currentState.watchableRatingsEnabled) {
+            reactor.action.accept(MoreReactor.Action.SetWatchableRatings(it))
         }
 
     private val devInfoOption: Option
@@ -164,22 +186,27 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
 class MoreReactor(
     private val sessionService: SessionService<FirebaseUser, AuthCredential>,
-    private val analyticsService: AnalyticsService
+    private val analyticsService: AnalyticsService,
+    private val prefRepo: PrefRepo
 ) : BaseReactor<MoreReactor.Action, MoreReactor.Mutation, MoreReactor.State>(
-    State(analyticsService.analyticsEnabled)
+    State(analyticsService.analyticsEnabled, prefRepo.watchableRatingsEnabled)
 ) {
     sealed class Action {
         object Logout : Action()
         data class SetAnalytics(val enabled: Boolean) : Action()
+        data class SetWatchableRatings(val enabled: Boolean) : Action()
+        object UpdateWatchables : Action()
     }
 
     sealed class Mutation {
         data class SetUser(val id: String?, val name: String?) : Mutation()
         data class SetAnalyticsEnabled(val enabled: Boolean) : Mutation()
+        data class SetWatchableRatingsEnabled(val enabled: Boolean) : Mutation()
     }
 
     data class State(
         val analyticsEnabled: Boolean,
+        val watchableRatingsEnabled: Boolean,
         val userName: String? = null,
         val userId: String? = null
     )
@@ -200,11 +227,21 @@ class MoreReactor(
                 .map { Mutation.SetAnalyticsEnabled(it) }
                 .toObservable()
         }
+        is Action.SetWatchableRatings -> {
+            Single.just(action.enabled)
+                .doOnSuccess { prefRepo.watchableRatingsEnabled = it }
+                .map { Mutation.SetWatchableRatingsEnabled(it) }
+                .toObservable()
+        }
+        is Action.UpdateWatchables -> {
+            emptyMutation { UpdateWatchablesWorker.once() }
+        }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.SetAnalyticsEnabled -> previousState.copy(analyticsEnabled = mutation.enabled)
         is Mutation.SetUser -> previousState.copy(userId = mutation.id, userName = mutation.name)
+        is Mutation.SetWatchableRatingsEnabled -> previousState.copy(watchableRatingsEnabled = mutation.enabled)
     }
 
     private val userNameMutation: Observable<out Mutation>

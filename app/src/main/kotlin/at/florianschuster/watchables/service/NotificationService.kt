@@ -48,8 +48,8 @@ import java.util.concurrent.TimeUnit
 interface NotificationService {
     fun addWatchableError(id: Int, name: String?)
     fun push(remote: RemoteMessage.Notification)
-    fun movieUpdate(watchable: Watchable, movie: Movie)
-    fun showUpdate(watchable: Watchable, showName: String, season: Season)
+    fun pushMovieUpdate(watchable: Watchable, movie: Movie)
+    fun pushShowUpdate(watchable: Watchable, showName: String, season: Season)
 }
 
 class AndroidNotificationService(
@@ -100,14 +100,16 @@ class AndroidNotificationService(
 
     // update
 
-    override fun movieUpdate(watchable: Watchable, movie: Movie) {
+    override fun pushMovieUpdate(watchable: Watchable, movie: Movie) {
         val date = movie.releaseDate ?: return
-        update(movie.id, movie.name, date, watchable)
+        val shortName = if (movie.name.length <= 25) movie.name else "${movie.name.substring(0, 26)}..."
+        update(movie.id, shortName, date, watchable)
     }
 
-    override fun showUpdate(watchable: Watchable, showName: String, season: Season) {
+    override fun pushShowUpdate(watchable: Watchable, showName: String, season: Season) {
         val date = season.airingDate ?: return
-        update(season.id, context.getString(R.string.notification_update_title_show_name, showName, season.index), date, watchable)
+        val shortName = if (showName.length <= 25) showName else "${showName.substring(0, 26)}..."
+        update(season.id, context.getString(R.string.notification_update_title_show_name, shortName, season.index), date, watchable)
     }
 
     private fun update(notificationId: Int, name: String, date: LocalDate, watchable: Watchable) {

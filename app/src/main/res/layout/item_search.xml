@@ -59,6 +59,7 @@
         app:layout_constraintEnd_toStartOf="@+id/ivAdd"
         app:layout_constraintStart_toEndOf="@+id/ivImage"
         app:layout_constraintTop_toTopOf="@+id/ivImage"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="Avengers" />
 
     <androidx.appcompat.widget.AppCompatTextView

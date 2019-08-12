@@ -23,24 +23,15 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import at.florianschuster.watchables.WatchablesApp
-import at.florianschuster.watchables.model.Movie
-import at.florianschuster.watchables.model.Season
-import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.model.convertToWatchable
-import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
-import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.service.WatchablesDataSource
+import at.florianschuster.watchables.service.WatchablesUpdateService
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.Completable
-import io.reactivex.Single
-import io.reactivex.rxkotlin.toFlowable
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
@@ -52,61 +43,37 @@ class UpdateWatchablesWorker(
 ) : Worker(context, workerParams), KoinComponent {
 
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()
+    private val watchablesUpdateService: WatchablesUpdateService by inject()
     private val notificationService: NotificationService by inject()
-    private val movieDatabaseApi: MovieDatabaseApi by inject()
-    private val watchablesDataSource: WatchablesDataSource by inject()
 
     override fun doWork(): Result =
         if (sessionService.user.ignoreElement().blockingGet() != null) {
             Result.failure()
         } else {
-            val error = watchablesDataSource.watchablesToUpdate
-                .toFlowable()
-                .flatMapIterable { it }
-                .flatMapCompletable {
-                    if (it.type == Watchable.Type.movie) updateMovie(it)
-                    else updateShowSeasons(it)
-                }
+            val error = Completable
+                .mergeArrayDelayError(updateMoviesAndShowPush(), updateShowsAndShowPush())
                 .doOnError(Timber::e)
                 .blockingGet()
 
             if (error != null) Result.failure() else Result.success()
         }
 
-    private fun updateMovie(watchable: Watchable): Completable = movieDatabaseApi
-        .movie(watchable.id.toInt())
-        .doOnSuccess { notificationService.movieUpdate(watchable, it) }
-        .map(Movie::convertToWatchable)
-        .map { it.apply { watched = watchable.watched } }
-        .flatMap(watchablesDataSource::createWatchable)
-        .ignoreElement()
-
-    private fun updateShowSeasons(watchable: Watchable): Completable = movieDatabaseApi
-        .show(watchable.id.toInt())
-        .map { it to it.convertToWatchable() }
-        .flatMapCompletable { (show, updatedWatchable) ->
-            watchablesDataSource.createWatchable(updatedWatchable)
-                .ignoreElement()
-                .andThen((1..show.seasons).reversed().toFlowable())
-                .flatMapSingle { movieDatabaseApi.season(show.id, it) }
-                .flatMapCompletable { season ->
-                    watchablesDataSource.season("${season.id}")
-                        .ignoreElement()
-                        .onErrorResumeNext {
-                            if (it is NoSuchElementException) addSeason(updatedWatchable.id, season)
-                                .doOnComplete { notificationService.showUpdate(updatedWatchable, show.name, season) }
-                            else Completable.error(it)
-                        }
-                }
+    private fun updateMoviesAndShowPush(): Completable = watchablesUpdateService.updateMovies()
+        .flattenAsObservable { it }
+        .doOnNext { (watchable, movie) ->
+            notificationService.pushMovieUpdate(watchable, movie)
         }
+        .ignoreElements()
 
-    private fun addSeason(watchableId: String, season: Season): Completable =
-        Single.just(season.convertToWatchableSeason(watchableId))
-            .flatMap(watchablesDataSource::createSeason)
-            .ignoreElement()
+    private fun updateShowsAndShowPush(): Completable = watchablesUpdateService.updateShows()
+        .flattenAsObservable { it }
+        .doOnNext { (watchable, show, season) ->
+            notificationService.pushShowUpdate(watchable, show.name, season)
+        }
+        .ignoreElements()
 
     companion object {
-        fun start() = PeriodicWorkRequest.Builder(UpdateWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {
+        fun enqueue() = PeriodicWorkRequest.Builder(UpdateWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {
             val constraints = Constraints.Builder().apply {
                 setRequiresCharging(true)
                 setRequiredNetworkType(NetworkType.CONNECTED)
@@ -119,17 +86,14 @@ class UpdateWatchablesWorker(
                 .enqueueUniquePeriodicWork(WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, it)
         }
 
-        // fun once() = OneTimeWorkRequest.Builder(UpdateWatchablesWorker::class.java).apply {
-        //     val constraints = Constraints.Builder().apply {
-        //         setRequiresCharging(true)
-        //         setRequiredNetworkType(NetworkType.CONNECTED)
-        //         setRequiresStorageNotLow(false)
-        //         setRequiresBatteryNotLow(false)
-        //     }.build()
-        //     setConstraints(constraints)
-        // }.build().let {
-        //     WorkManager.getInstance(WatchablesApp.instance).enqueue(it)
-        // }
+        fun once() = OneTimeWorkRequest.Builder(UpdateWatchablesWorker::class.java).apply {
+            val constraints = Constraints.Builder().apply {
+                setRequiredNetworkType(NetworkType.CONNECTED)
+                setRequiresStorageNotLow(false)
+                setRequiresBatteryNotLow(false)
+            }.build()
+            setConstraints(constraints)
+        }.build().let { WorkManager.getInstance(WatchablesApp.instance).enqueue(it) }
 
         fun stop() = WorkManager.getInstance(WatchablesApp.instance).cancelUniqueWork(WORKER_NAME)
 

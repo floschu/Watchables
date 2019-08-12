@@ -29,12 +29,14 @@ import at.florianschuster.watchables.service.ActivityShareService
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.AndroidNotificationService
 import at.florianschuster.watchables.service.FirebaseAnalyticsService
+import at.florianschuster.watchables.service.TMDBWatchablesUpdateService
 import at.florianschuster.watchables.service.FirebaseSessionService
 import at.florianschuster.watchables.service.FirebaseWatchablesDataSource
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.WatchablesDataSource
+import at.florianschuster.watchables.service.WatchablesUpdateService
 import at.florianschuster.watchables.ui.watchables.filter.RxWatchablesFilterService
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
 import com.google.firebase.auth.AuthCredential
@@ -56,6 +58,7 @@ val appModule = module {
     single<WatchablesFilterService> { RxWatchablesFilterService(get()) }
     single<DeepLinkService> { FirebaseDeepLinkService() }
     single<QrCodeService> { ZXingQrCodeService(androidContext()) }
+    single<WatchablesUpdateService> { TMDBWatchablesUpdateService(get(), get()) }
 
     factory<ShareService> { (activity: AppCompatActivity) -> ActivityShareService(activity, get()) }
     factory { OptionsAdapter() }

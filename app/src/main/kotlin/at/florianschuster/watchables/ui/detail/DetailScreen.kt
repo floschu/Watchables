@@ -66,6 +66,7 @@ import at.florianschuster.watchables.all.util.QrCodeService
 import at.florianschuster.watchables.all.util.photodetail.bitmapDetailConsumer
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.model.convertToSearchType
+import at.florianschuster.watchables.service.local.PrefRepo
 import com.jakewharton.rxbinding3.view.touches
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.tailoredapps.androidutil.async.mapToAsync
@@ -177,7 +178,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                         tvActors.text = getString(R.string.detail_tv_actors, actors.joinToString(", "))
 
                         val rating = additionalDataAsync.element.rating
-                        includeRating.isVisible = rating != null
+                        includeRating.isVisible = reactor.currentState.watchableRatingsEnabled && rating != null
                         if (rating != null) {
                             tvRating.text = "${rating.rating}"
                             tvNumberOfRatings.text = getString(R.string.detail_tv_ratings, rating.count)
@@ -303,9 +304,10 @@ class DetailReactor(
     private val watchablesDataSource: WatchablesDataSource,
     private val analyticsService: AnalyticsService,
     private val deepLinkService: DeepLinkService,
-    private val qrCodeService: QrCodeService
+    private val qrCodeService: QrCodeService,
+    prefRepo: PrefRepo
 ) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
-    initialState = State(),
+    initialState = State(prefRepo.watchableRatingsEnabled),
     initialAction = Action.InitialLoad
 ) {
 
@@ -329,6 +331,7 @@ class DetailReactor(
     }
 
     data class State(
+        val watchableRatingsEnabled: Boolean,
         val watchable: Watchable? = null,
         val headerItems: List<DetailHeaderItem> = emptyList(),
         val additionalData: Async<AdditionalData> = Async.Uninitialized,
@@ -405,7 +408,7 @@ class DetailReactor(
         is Action.DeleteWatchable -> {
             watchablesDataSource.setWatchableDeleted(itemId)
                 .doOnComplete { currentState.watchable?.let(analyticsService::logWatchableDelete) }
-                .doOnComplete { DeleteWatchablesWorker.startSingle() }
+                .doOnComplete { DeleteWatchablesWorker.once() }
                 .toObservableDefault(Mutation.DeleteWatchableResult(Async.Success(Unit)))
                 .onErrorReturn { Mutation.DeleteWatchableResult(Async.Error(it)) }
                 .doOnComplete { Router follow DetailRoute.Pop }

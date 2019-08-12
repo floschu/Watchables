@@ -24,6 +24,7 @@
     <string name="watchable_not_watched"><![CDATA[Nicht gesehen]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh nein :(]]></string>
     <string name="empty_watchable_text"><![CDATA[Du hast noch keine Watchables hinzugefügt. Füge welche mit Hilfe der Suche hinzu!]]></string>
+    <string name="more_updage_watchables"><![CDATA[Watchables updaten]]></string>
     <string name="more_logout"><![CDATA[Ausloggen]]></string>
     <string name="more_report_bug"><![CDATA[Fehler melden]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
@@ -92,6 +93,7 @@
     <string name="scan_error"><![CDATA[Der Code wurde leider nicht erkannt]]></string>
     <string name="scan_flash_on"><![CDATA[Blitz An]]></string>
     <string name="scan_flash_off"><![CDATA[Blitz Aus]]></string>
+    <string name="more_ratings_toggle"><![CDATA[Bewertungen]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>

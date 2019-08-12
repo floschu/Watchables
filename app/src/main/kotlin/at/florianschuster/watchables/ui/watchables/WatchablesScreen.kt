@@ -129,8 +129,8 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
                 WatchablesAdapter.calculateDiff(adapter.data, newData)
                     .map { newData to it }
             }
-            .bind { (watchableContainer, diffResult) ->
-                adapter.setData(watchableContainer, diffResult)
+            .bind { (watchableContainerList, diffResult) ->
+                adapter.setData(watchableContainerList, diffResult)
             }
             .addTo(disposables)
 
@@ -298,7 +298,7 @@ class WatchablesReactor(
             watchablesDataSource
                 .setWatchableDeleted(action.watchable.id)
                 .doOnComplete { analyticsService.logWatchableDelete(action.watchable) }
-                .doOnComplete { DeleteWatchablesWorker.startSingle() }
+                .doOnComplete { DeleteWatchablesWorker.once() }
                 .toObservable()
         }
         is Action.SelectWatchable -> {

@@ -24,6 +24,7 @@
     <string name="watchable_not_watched"><![CDATA[Not yet Watched]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh no :(]]></string>
     <string name="empty_watchable_text"><![CDATA[You have not added any Watchables yet. Add some by using the Search!]]></string>
+    <string name="more_updage_watchables"><![CDATA[Update Watchables]]></string>
     <string name="more_logout"><![CDATA[Logout]]></string>
     <string name="more_report_bug"><![CDATA[Report a bug]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
@@ -102,6 +103,7 @@
     <string name="scan_error"><![CDATA[Unfortunately the code could not be processed]]></string>
     <string name="scan_flash_on"><![CDATA[Flash On]]></string>
     <string name="scan_flash_off"><![CDATA[Flash Off]]></string>
+    <string name="more_ratings_toggle"><![CDATA[Ratings]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchables Add Notifications]]></string>
     <string name="notification_add_channel_description"><![CDATA[These notifications are displayed when a Watchable is being added to your list.]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Sorry!]]></string>

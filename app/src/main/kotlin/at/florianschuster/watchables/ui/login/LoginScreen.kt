@@ -147,7 +147,7 @@ class LoginReactor(
             val loginMutation = sessionService.login(action.credential)
                     .andThen(sessionService.user)
                     .flatMapCompletable(::createWatchableUserIfNeeded)
-                    .doOnComplete { UpdateWatchablesWorker.start() }
+                    .doOnComplete { UpdateWatchablesWorker.enqueue() }
                     .doOnComplete { DeleteWatchablesWorker.enqueue() }
                     .toSingleDefault(Mutation.Login(Async.Success(Unit)))
                     .toObservable()

@@ -29,6 +29,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import at.florianschuster.watchables.R
 import com.tailoredapps.androidutil.permissions.Permission
+import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Single
 
@@ -50,7 +51,12 @@ fun FragmentActivity.openChromeTab(url: String) {
         tabsIntent.launchUrl(this, Uri.parse(url))
     } catch (throwable: Throwable) {
         Timber.w(throwable)
-        startActivity(IntentUtil.web(url)) // fallback of chrome not installed -> open default browser
+        try {
+            startActivity(IntentUtil.web(url)) // fallback of chrome not installed -> open default browser
+        } catch (anotherOne: Throwable) {
+            Timber.w(anotherOne)
+            toast(R.string.error_other)
+        }
     }
 }
 

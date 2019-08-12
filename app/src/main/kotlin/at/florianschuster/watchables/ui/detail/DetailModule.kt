@@ -24,7 +24,7 @@ import org.koin.dsl.module
 internal val detailModule = module {
     coordinator { DetailCoordinator() }
     reactor { (itemId: String, type: Watchable.Type) ->
-        DetailReactor(itemId, type, get(), get(), get(), get(), get())
+        DetailReactor(itemId, type, get(), get(), get(), get(), get(), get())
     }
     factory { DetailHeaderAdapter() }
 }

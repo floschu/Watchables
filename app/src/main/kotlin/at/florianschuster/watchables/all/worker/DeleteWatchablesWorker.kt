@@ -66,7 +66,7 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             }
 
     companion object {
-        fun startSingle() {
+        fun once() {
             OneTimeWorkRequest.Builder(DeleteWatchablesWorker::class.java).apply {
                 val constraints = Constraints.Builder().apply {
                     setRequiresCharging(true)

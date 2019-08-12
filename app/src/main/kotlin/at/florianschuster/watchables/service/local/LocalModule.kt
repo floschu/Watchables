@@ -20,5 +20,5 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val localModule = module {
-    single { HawkPrefRepo(androidContext()) as PrefRepo }
+    single<PrefRepo> { HawkPrefRepo(androidContext()) }
 }
