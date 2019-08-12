@@ -13,13 +13,13 @@ platform :android do
       )
   end
 
-  desc "Builds a new version, pushes it to repository and deploys it to beta track"
-    lane :beta do
+  desc "Builds a new version, pushes it to repository and deploys it to internal track"
+    lane :publish do
       gradle(task: "test ktlintFormat")
       increment_version_code_and_commit lane:self.runner.current_lane
       gradle(task: "clean bundleRelease")
       upload_to_play_store(
-        track: "beta",
+        track: "internal",
         skip_upload_apk: true,
         skip_upload_metadata: true,
         skip_upload_images: true,
