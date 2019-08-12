@@ -19,6 +19,7 @@ package at.florianschuster.watchables.ui.search
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
@@ -37,11 +38,7 @@ import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.AddWatchableWorker
-import at.florianschuster.watchables.model.convertToWatchableType
 import at.florianschuster.watchables.ui.base.BaseCoordinator
-import at.florianschuster.watchables.ui.main.bnvReselects
-import at.florianschuster.watchables.ui.main.mainFabClicks
-import at.florianschuster.watchables.ui.main.setMainScreenFabVisibility
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -54,9 +51,10 @@ import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
-import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.model.convertToWatchableType
+import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
@@ -70,14 +68,19 @@ import java.util.concurrent.TimeUnit
 
 sealed class SearchRoute : CoordinatorRoute {
     data class OnAddedItemSelected(val id: Int, val type: Search.SearchItem.Type) : SearchRoute()
+    object OnScan : SearchRoute()
 }
 
 class SearchCoordinator : BaseCoordinator<SearchRoute, NavController>() {
     override fun navigate(route: SearchRoute, handler: NavController) {
         when (route) {
             is SearchRoute.OnAddedItemSelected -> {
-                SearchFragmentDirections.actionSearchToDetail("${route.id}", route.type.convertToWatchableType())
+                SearchFragmentDirections.actionSearchToDetail(
+                    "${route.id}",
+                    route.type.convertToWatchableType()
+                )
             }
+            is SearchRoute.OnScan -> SearchFragmentDirections.actionSearchToScan()
         }.also(handler::navigate)
     }
 }
@@ -98,85 +101,93 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
         with(rvSearch) {
             adapter = this@SearchFragment.adapter
             setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
-            addScrolledPastItemListener { setMainScreenFabVisibility(it) }
+            addScrolledPastItemListener { fabScroll.isVisible = it }
         }
 
-        mainFabClicks.subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
+        fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)
 
-        bnvReselects.filter { it.itemId == R.id.search }
-                .bind {
-                    if (etSearch.text.isNotEmpty()) etSearch.setText("")
-                    etSearch.showKeyBoard()
-                    rvSearch.smoothScrollUp()
-                }
-                .addTo(disposables)
+        ivSearch.clicks()
+            .bind {
+                if (etSearch.text.isNotEmpty()) etSearch.setText("")
+                etSearch.showKeyBoard()
+                rvSearch.smoothScrollUp()
+            }
+            .addTo(disposables)
+
+        ivScan.clicks()
+            .map { SearchRoute.OnScan }
+            .bind(to = Router::follow)
+            .addTo(disposables)
 
         ivClear.clicks()
-                .bind {
-                    etSearch.setText("")
-                    etSearch.hideKeyboard()
-                    rvSearch.smoothScrollUp()
-                }
-                .addTo(disposables)
+            .bind {
+                etSearch.setText("")
+                etSearch.hideKeyboard()
+                rvSearch.smoothScrollUp()
+            }
+            .addTo(disposables)
 
         etSearch.editorActions()
-                .filter { it == EditorInfo.IME_ACTION_DONE }
-                .subscribe { etSearch.hideKeyboard() }
-                .addTo(disposables)
+            .filter { it == EditorInfo.IME_ACTION_DONE }
+            .subscribe { etSearch.hideKeyboard() }
+            .addTo(disposables)
 
         adapter.interaction
-                .ofType<SearchAdapterInteraction.ImageClick>()
-                .map { it.imageUrl.asOptional }
-                .filterSome()
-                .bind(to = requireContext().photoDetailConsumer)
-                .addTo(disposables)
+            .ofType<SearchAdapterInteraction.ImageClick>()
+            .map { it.imageUrl.asOptional }
+            .filterSome()
+            .bind(to = requireContext().photoDetailConsumer)
+            .addTo(disposables)
 
         etSearch.textChanges()
-                .debounce(300, TimeUnit.MILLISECONDS)
-                .map { SearchReactor.Action.UpdateQuery(it.toString()) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .debounce(300, TimeUnit.MILLISECONDS)
+            .map { SearchReactor.Action.UpdateQuery(it.toString()) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         rvSearch.scrollEvents()
-                .sample(500, TimeUnit.MILLISECONDS)
-                .filter { it.view.shouldLoadMore() }
-                .map { SearchReactor.Action.LoadNextPage }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .sample(500, TimeUnit.MILLISECONDS)
+            .filter { it.view.shouldLoadMore() }
+            .map { SearchReactor.Action.LoadNextPage }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         adapter.interaction
-                .ofType<SearchAdapterInteraction.AddItemClick>()
-                .map { SearchReactor.Action.AddItemToWatchables(it.item) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .ofType<SearchAdapterInteraction.AddItemClick>()
+            .map { SearchReactor.Action.AddItemToWatchables(it.item) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         adapter.interaction
-                .ofType<SearchAdapterInteraction.OpenItemClick>()
-                .map { SearchReactor.Action.OnItemSelect(it.item.id, it.item.type) }
-                .bind(to = reactor.action)
-                .addTo(disposables)
+            .ofType<SearchAdapterInteraction.OpenItemClick>()
+            .map { SearchReactor.Action.OnItemSelect(it.item.id, it.item.type) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.query }
-                .map { it.isNotEmpty() }
-                .bind(to = ivClear.visibility())
-                .addTo(disposables)
+            .map { it.isNotEmpty() }
+            .bind { queryNotEmpty ->
+                ivClear.isVisible = queryNotEmpty
+                ivScan.isVisible = !queryNotEmpty
+            }
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.allItems }
-                .doOnNext(adapter::submitList)
-                .skip(1) // initial state always empty
-                .map { it.isEmpty() }
-                .bind(to = emptyLayout.visibility())
-                .addTo(disposables)
+            .doOnNext(adapter::submitList)
+            .skip(1) // initial state always empty
+            .map { it.isEmpty() }
+            .bind(to = emptyLayout.visibility())
+            .addTo(disposables)
 
         reactor.state.changesFrom { it.loading }
-                .bind(to = progressSearch.visibility())
-                .addTo(disposables)
+            .bind(to = progressSearch.visibility())
+            .addTo(disposables)
 
         reactor.state.map { it.loadingError.asOptional }
-                .distinctUntilChanged()
-                .filterSome()
-                .bind { toast(it.asCauseTranslation(resources)) }
-                .addTo(disposables)
+            .distinctUntilChanged()
+            .filterSome()
+            .bind { toast(it.asCauseTranslation(resources)) }
+            .addTo(disposables)
     }
 }
 
@@ -213,10 +224,10 @@ class SearchReactor(
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val watchablesMutation = watchablesDataSource.watchablesObservable
-                .doOnError(Timber::e).onErrorReturn { emptyList() }
-                .map { it.map(Watchable::id) }
-                .map(Mutation::SetAddedWatchableIds)
-                .toObservable()
+            .doOnError(Timber::e).onErrorReturn { emptyList() }
+            .map { it.map(Watchable::id) }
+            .map(Mutation::SetAddedWatchableIds)
+            .toObservable()
         return Observable.merge(watchablesMutation, mutation)
     }
 
@@ -225,8 +236,8 @@ class SearchReactor(
             val queryMutation = Observable.just(Mutation.SetQuery(action.query))
             val loadMutation = Observable.just(Mutation.SetLoading(true))
             val firstPageMutation = loadPage(action.query, 1)
-                    .map<Mutation>(Mutation::SetSearchItems)
-                    .onErrorReturn { Mutation.SetLoadingError(it) }
+                .map<Mutation>(Mutation::SetSearchItems)
+                .onErrorReturn { Mutation.SetLoadingError(it) }
             val endLoadMutation = Observable.just(Mutation.SetLoading(false))
             Observable.concat(queryMutation, loadMutation, firstPageMutation, endLoadMutation)
         }
@@ -235,16 +246,16 @@ class SearchReactor(
             else {
                 val loadMutation = Observable.just(Mutation.SetLoading(true))
                 val nextPageMutation = loadPage(currentState.query, currentState.page + 1)
-                        .map<Mutation>(Mutation::AppendSearchItems)
-                        .onErrorReturn { Mutation.SetLoadingError(it) }
+                    .map<Mutation>(Mutation::AppendSearchItems)
+                    .onErrorReturn { Mutation.SetLoadingError(it) }
                 val endLoadMutation = Observable.just(Mutation.SetLoading(false))
                 Observable.concat(loadMutation, nextPageMutation, endLoadMutation)
             }
         }
         is Action.AddItemToWatchables -> {
             Completable.fromAction { AddWatchableWorker.start(action.item) }
-                    .toObservableDefault("${action.item.id}")
-                    .map(Mutation::AddCurrentlyAddingWatchableId)
+                .toObservableDefault("${action.item.id}")
+                .map(Mutation::AddCurrentlyAddingWatchableId)
         }
         is Action.OnItemSelect -> {
             emptyMutation { Router follow SearchRoute.OnAddedItemSelected(action.id, action.type) }
@@ -280,9 +291,9 @@ class SearchReactor(
             else -> movieDatabaseApi.search(query, page)
         }
         return loadPageSingle
-                .map { it.results.filterNotNull() }
-                .toObservable()
-                .takeUntil(this.action.filter { it is Action.UpdateQuery })
+            .map { it.results.filterNotNull() }
+            .toObservable()
+            .takeUntil(this.action.filter { it is Action.UpdateQuery })
     }
 
     private fun List<Search.SearchItem>.mapAdded(addedIds: List<String>): List<Search.SearchItem> = map { item ->

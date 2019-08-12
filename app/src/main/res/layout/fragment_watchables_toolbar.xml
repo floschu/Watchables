@@ -18,7 +18,7 @@
             android:layout_gravity="start"
             android:layout_margin="@dimen/margin_half" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/btnFilter"
             android:layout_width="wrap_content"
             android:layout_height="?actionBarSize"
@@ -27,6 +27,6 @@
             android:paddingStart="@dimen/padding"
             android:paddingEnd="@dimen/padding"
             android:src="@drawable/ic_filter_list"
-            android:tint="#fff" />
+            android:tint="@color/white" />
     </FrameLayout>
 </androidx.appcompat.widget.Toolbar>

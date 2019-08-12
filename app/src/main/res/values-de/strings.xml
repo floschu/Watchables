@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="login_text_src"><![CDATA[Diese App benutzt "The Movie Database (TMDb)" als Datenquelle.]]></string>
     <string name="login_text_privacy"><![CDATA[Mit der Anmeldung stimmst du zu, dass du die Datenschutzbestimmungen gelesen und akzeptiert hast. Klicke hier, um sie anzuzeigen.]]></string>
     <string name="search_hint"><![CDATA[Suche nach Filmen oder Serien...]]></string>
     <string name="search_empty"><![CDATA[Die Suche hat keine Ergebnisse geliefert.]]></string>
@@ -25,6 +24,7 @@
     <string name="watchable_not_watched"><![CDATA[Nicht gesehen]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh nein :(]]></string>
     <string name="empty_watchable_text"><![CDATA[Du hast noch keine Watchables hinzugefügt. Füge welche mit Hilfe der Suche hinzu!]]></string>
+    <string name="more_updage_watchables"><![CDATA[Watchables updaten]]></string>
     <string name="more_logout"><![CDATA[Ausloggen]]></string>
     <string name="more_report_bug"><![CDATA[Fehler melden]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
@@ -66,10 +66,10 @@
     <string name="onboarding_snack"><![CDATA[Durch langes drücken auf Watchables und Episoden erhältst du mehr Optionen!]]></string>
     <string name="settings_rate_app"><![CDATA[App im Play Store bewerten]]></string>
     <string name="share_app_chooser_title"><![CDATA[App weiterempfehlen]]></string>
-    <string name="share_app_chooser_text"><![CDATA[Check out Watchables: %s]]></string>
+    <string name="share_app_chooser_text"><![CDATA[Hast du den Überblick verloren, über die Filme und Serien die du ansehen willst? Dann erstell dir deine gratis Liste mit Watchables: %s]]></string>
     <string name="share_watchable_chooser_title"><![CDATA[%s weiterleiten]]></string>
-    <string name="share_watchable_chooser_text_movie"><![CDATA[Schau dir diesen Film an: %s]]></string>
-    <string name="share_watchable_chooser_text_show"><![CDATA[Schau dir diese Serie an: %s]]></string>
+    <string name="share_watchable_chooser_text_movie"><![CDATA[Schau dir diesen Film an: %1$s\n%2$s]]></string>
+    <string name="share_watchable_chooser_text_show"><![CDATA[Schau dir diese Serie an: %1$s\n%2$s]]></string>
     <string name="enjoying_dialog_title"><![CDATA[Gefällt dir Watchables?]]></string>
     <string name="enjoying_dialog_message"><![CDATA[Bewerte die App doch bitte im Play Store!]]></string>
     <string name="enjoying_dialog_positive"><![CDATA[Jetzt bewerten]]></string>
@@ -87,6 +87,15 @@
     <string name="watchables_sorting_name_ascending"><![CDATA[Nach Name]]></string>
     <string name="watchables_sorting_type_ascending"><![CDATA[Nach Typ]]></string>
     <string name="tmdb_attribution"><![CDATA[This product uses the TMDb API but is not endorsed or certified by TMDb.]]></string>
+    <string name="scan_tv_permission_title"><![CDATA[Um dieses Feature benutzen zu können, gib uns die Erlaubnis deine Kamera zu benutzen.]]></string>
+    <string name="scan_btn_permission"><![CDATA[Berechtigungsdialog anzeigen]]></string>
+    <string name="scan_tv_description"><![CDATA[Richte deine Kamera auf Watchable Barcodes oder QR-Codes von Filmen oder Serien um diese in der App anzuzeigen!]]></string>
+    <string name="scan_error"><![CDATA[Der Code wurde leider nicht erkannt]]></string>
+    <string name="scan_flash_on"><![CDATA[Blitz An]]></string>
+    <string name="scan_flash_off"><![CDATA[Blitz Aus]]></string>
+    <string name="more_ratings_toggle"><![CDATA[Watchable Bewertungen]]></string>
+    <string name="detail_iv_cd_qr"><![CDATA[Der Qr Code des Watchable]]></string>
+    <string name="detail_error_qr"><![CDATA[Qr Code konnte nicht erstellt werden]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>
@@ -105,8 +114,6 @@
     <string name="developer_url"><![CDATA[https://florianschuster.at/]]></string>
     <string name="youtube_url"><![CDATA[https://www.youtube.com/watch?v=%s]]></string>
     <string name="youtube_thumbnail"><![CDATA[https://img.youtube.com/vi/%s/sddefault.jpg]]></string>
-    <string name="app_link"><![CDATA[https://watchables.page.link/app]]></string>
-    <string name="deeplink_domain"><![CDATA[https://watchables.page.link]]></string>
     <string name="facebook_id_url"><![CDATA[https://www.facebook.com/%s/]]></string>
     <string name="instagram_id_url"><![CDATA[https://www.instagram.com/%s/]]></string>
     <string name="twitter_id_url"><![CDATA[https://twitter.com/%s/]]></string>

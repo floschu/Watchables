@@ -8,7 +8,7 @@
     android:clipChildren="false"
     android:foreground="?attr/selectableItemBackground">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivBackground"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivImage"
         android:layout_width="56dp"
         android:layout_height="56dp"
@@ -42,11 +42,11 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_logo" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvTitle"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:ellipsize="end"
         android:gravity="start|bottom"
         android:lines="1"
@@ -59,11 +59,12 @@
         app:layout_constraintEnd_toStartOf="@+id/ivAdd"
         app:layout_constraintStart_toEndOf="@+id/ivImage"
         app:layout_constraintTop_toTopOf="@+id/ivImage"
+        app:layout_constraintVertical_chainStyle="packed"
         tools:text="Avengers" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvType"
-        style="@style/TextAppearance.MaterialComponents.Body2"
+        style="@style/TextAppearance.MaterialComponents.Caption"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
@@ -72,13 +73,24 @@
         android:paddingStart="@dimen/padding"
         android:paddingEnd="@dimen/padding"
         android:textColor="@color/textColor"
-        app:layout_constraintBottom_toBottomOf="@+id/ivImage"
-        app:layout_constraintEnd_toStartOf="@+id/ivAdd"
+        app:layout_constraintBottom_toTopOf="@id/includeRating"
+        app:layout_constraintEnd_toStartOf="@id/ivAdd"
         app:layout_constraintStart_toEndOf="@+id/ivImage"
         app:layout_constraintTop_toBottomOf="@+id/tvTitle"
         tools:text="Movie" />
 
-    <ImageView
+    <include
+        android:id="@+id/includeRating"
+        layout="@layout/item_search_rating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/ivImage"
+        app:layout_constraintEnd_toStartOf="@id/ivAdd"
+        app:layout_constraintHorizontal_bias="0"
+        app:layout_constraintStart_toEndOf="@id/ivImage"
+        app:layout_constraintTop_toBottomOf="@id/tvType" />
+
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivAdd"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
@@ -86,7 +98,7 @@
         android:paddingStart="@dimen/padding_button"
         android:paddingEnd="@dimen/padding_button"
         android:src="@drawable/ic_add"
-        android:tint="#fff"
+        android:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

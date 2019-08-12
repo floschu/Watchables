@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.journeyapps.barcodescanner.BarcodeView
+        android:id="@+id/scanView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:zxing_preview_scaling_strategy="centerCrop"
+        app:zxing_use_texture_view="true" />
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.75"
+        app:shimmer_auto_start="true"
+        app:shimmer_duration="2500"
+        app:shimmer_repeat_delay="250">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_scan_frame" />
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <Space
+        android:id="@+id/bnvSpace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/bnv_height"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnTorch"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:paddingStart="@dimen/padding"
+        android:paddingEnd="@dimen/padding"
+        android:text="@string/scan_flash_on"
+        android:textAllCaps="false"
+        android:textColor="@color/textLightPrimary"
+        app:icon="@drawable/ic_flash_on"
+        app:iconPadding="@dimen/padding"
+        app:iconTint="@color/textLightPrimary"
+        app:layout_constraintBottom_toTopOf="@id/bnvSpace"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="@color/white_opacity_40"
+        app:strokeColor="@color/textLightPrimary" />
+
+    <include
+        android:id="@+id/layoutPermission"
+        layout="@layout/fragment_scan_permission"
+        android:visibility="gone" />
+
+    <include
+        android:id="@+id/includeToolbar"
+        layout="@layout/fragment_scan_toolbar" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_description"
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/margin"
+        android:layout_marginEnd="@dimen/margin"
+        android:gravity="center"
+        android:shadowColor="@color/black_opacity_50"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:text="@string/scan_tv_description"
+        android:textColor="@color/textColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/includeToolbar" />
+</androidx.constraintlayout.widget.ConstraintLayout>

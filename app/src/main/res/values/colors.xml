@@ -8,12 +8,15 @@
     <color name="colorAccentDark">@color/red_900</color>
 
     <color name="textColor">@color/textLightPrimary</color>
+    <color name="textColorSecondary">@color/textLightSecondary</color>
     <color name="textColorDisabled">@color/textLightDisabled</color>
 
     <color name="blackTransparent">@color/black_opacity_20</color>
     <color name="blackTransparentDark">@color/black_opacity_50</color>
 
     <color name="dialogBackground">#212121</color>
+
+    <color name="rating">@color/yellow_700</color>
 
     <!--
     text colors

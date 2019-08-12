@@ -22,6 +22,16 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withC
 import com.bumptech.glide.request.RequestOptions
 import io.reactivex.functions.Consumer
 import jp.wasabeef.glide.transformations.BlurTransformation
+import java.io.File
+
+fun ImageView.srcFileConsumer(@DrawableRes fallback: Int? = null): Consumer<in File?> =
+    Consumer {
+        GlideApp.with(this)
+            .load(it)
+            .apply { fallback?.let(::error) }
+            .transition(withCrossFade())
+            .into(this)
+    }
 
 fun ImageView.srcConsumer(@DrawableRes fallback: Int? = null): Consumer<in String?> =
         Consumer {

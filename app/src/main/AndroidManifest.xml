@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".WatchablesApp"
         android:allowBackup="false"
@@ -16,11 +18,14 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan">
+            android:windowSoftInputMode="adjustPan"
+            android:theme="@style/AppTheme.Launcher">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
@@ -31,13 +36,19 @@
                     android:host="watchables.page.link"
                     android:scheme="https" />
             </intent-filter>
+
+            <!--suppress AndroidElementNotAllowed -> This works... -->
+            <nav-graph android:value="@navigation/main" />
+
         </activity>
 
         <activity
-            android:name="at.florianschuster.watchables.all.util.photodetail.PhotoDetailActivity"
+            android:name=".all.util.photodetail.PhotoDetailActivity"
             android:theme="@style/AppTheme.TransparentFullscreen" />
 
-        <service android:name=".service.remote.FbMessagingService">
+        <service
+            android:name=".service.remote.FbMessagingService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
@@ -52,5 +63,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_provider_paths" />
         </provider>
+
+        <meta-data
+            android:name="com.google.firebase.ml.vision.DEPENDENCIES"
+            android:value="barcode,qrcode" />
     </application>
 </manifest>

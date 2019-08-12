@@ -12,7 +12,7 @@ def keystorePropertiesFile = rootProject.file("secret.properties")
 def keystoreProperties = new Properties()
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     signingConfigs {
         if (keystorePropertiesFile.exists()) {
             keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -27,9 +27,9 @@ android {
     defaultConfig {
         applicationId "at.florianschuster.watchables"
         minSdkVersion 23
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 29
-        versionName "1.0.10"
+        versionName "1.0.11"
         vectorDrawables.useSupportLibrary = true
         setProperty("archivesBaseName", "Watchables-v$versionName-b$versionCode")
 
@@ -59,10 +59,15 @@ android {
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
     }
     packagingOptions {
         exclude 'META-INF/library-core_release.kotlin_module'
@@ -107,6 +112,11 @@ dependencies {
     implementation Dependencies.Local.Hawk
 
     /**
+     * QR
+     */
+    implementation Dependencies.Zxing.values()
+
+    /**
      * Firebase
      */
     implementation Dependencies.Firebase.values()
@@ -127,6 +137,8 @@ dependencies {
     implementation Dependencies.Glide.Transformation
     kapt Dependencies.Glide.Compiler
     implementation Dependencies.Work.values()
+
+    androidTestImplementation Dependencies.AndroidTest.values()
 }
 
 

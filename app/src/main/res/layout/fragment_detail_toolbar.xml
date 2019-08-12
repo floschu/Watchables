@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/toolbar"
-    style="@style/Toolbar"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent">
+    style="@style/Toolbar">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -16,8 +12,17 @@
         android:padding="@dimen/padding"
         android:src="@drawable/ic_arrow_back" />
 
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/btnQr"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end"
+        android:foreground="?selectableItemBackgroundBorderless"
+        android:padding="@dimen/padding"
+        android:src="@drawable/ic_qr" />
+
     <ProgressBar
-        android:id="@+id/loading"
+        android:id="@+id/pbLoading"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="end"

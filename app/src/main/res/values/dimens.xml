@@ -12,7 +12,8 @@
     <dimen name="bnv_height">56dp</dimen>
     <dimen name="bnv_height_rv_padding">112dp</dimen>
     <dimen name="watchables_filter_chip_height">42dp</dimen>
-    <dimen name="rating_star_size">32dp</dimen>
+    <dimen name="rating_star_size">30dp</dimen>
+    <dimen name="torch_button_size">56dp</dimen>
 
     <dimen name="padding_button">20dp</dimen>
 

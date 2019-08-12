@@ -20,5 +20,5 @@ import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 internal val moreModule = module {
-    reactor { MoreReactor(get(), get()) }
+    reactor { MoreReactor(get(), get(), get()) }
 }

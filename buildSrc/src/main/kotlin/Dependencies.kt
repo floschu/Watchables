@@ -19,7 +19,7 @@ object Dependencies {
 
     val UI = mapOf(
         "Material" to "com.google.android.material:material:1.0.0",
-        "AppCompat" to "androidx.appcompat:appcompat:1.0.2",
+        "AppCompat" to "androidx.appcompat:appcompat:1.1.0-beta01",
         "Fragment" to "androidx.fragment:fragment:1.0.0",
         "Constraintlayout" to "androidx.constraintlayout:constraintlayout:1.1.3",
         "CoreKTX" to "androidx.core:core-ktx:1.0.1"
@@ -42,6 +42,11 @@ object Dependencies {
         "ViewModel" to "org.koin:koin-androidx-viewmodel:${Versions.Koin}"
     )
 
+    val Zxing = mapOf(
+        "Core" to "com.google.zxing:core:3.4.0",
+        "Android" to "com.journeyapps:zxing-android-embedded:3.6.0@aar"
+    )
+
     val Network = mapOf(
         "Core" to "com.squareup.retrofit2:retrofit:${Versions.Retrofit}",
         "Gson" to "com.squareup.retrofit2:converter-gson:${Versions.Retrofit}",
@@ -55,19 +60,19 @@ object Dependencies {
     )
 
     val Firebase = mapOf(
-        "Core" to "com.google.firebase:firebase-core:17.0.0",
+        "Core" to "com.google.firebase:firebase-core:17.0.1",
         "Auth" to "com.google.firebase:firebase-auth:18.0.0",
         "gmsauth" to "com.google.android.gms:play-services-auth:17.0.0",
-        "Firestore" to "com.google.firebase:firebase-firestore:20.0.0",
+        "Firestore" to "com.google.firebase:firebase-firestore:20.1.0",
         "Crashlytics" to "com.crashlytics.sdk.android:crashlytics:2.10.1",
-        "Messaging" to "com.google.firebase:firebase-messaging:19.0.0",
-        "Performance" to "com.google.firebase:firebase-perf:18.0.0",
+        "Messaging" to "com.google.firebase:firebase-messaging:19.0.1",
+        "Performance" to "com.google.firebase:firebase-perf:18.0.1",
         "Invites" to "com.google.firebase:firebase-invites:17.0.0"
     )
 
     val RxJava = mapOf(
-        "Core" to "io.reactivex.rxjava2:rxjava:2.2.9",
-        "Kotlin" to "io.reactivex.rxjava2:rxkotlin:2.3.0",
+        "Core" to "io.reactivex.rxjava2:rxjava:2.2.11",
+        "Kotlin" to "io.reactivex.rxjava2:rxkotlin:2.4.0",
         "Relay" to "com.jakewharton.rxrelay2:rxrelay:2.1.0",
         "Android" to "io.reactivex.rxjava2:rxandroid:2.1.1"
     )
@@ -90,7 +95,9 @@ object Dependencies {
         "Flick" to "me.saket:flick:1.4.0",
         "Gestureviews" to "com.alexvasilkov:gesture-views:2.5.2",
         "Aboutlibs" to "com.mikepenz:aboutlibraries:6.2.1", //do not update this.. causes color errors?
-        "Customtabs" to "com.android.support:customtabs:28.0.0"
+        "Customtabs" to "com.android.support:customtabs:28.0.0",
+        "RxPermissions" to "com.github.tbruyelle:rxpermissions:0.10.2",
+        "Shimmer" to "com.facebook.shimmer:shimmer:0.5.0"
     )
 
     val LeakCanary = mapOf(
@@ -107,5 +114,15 @@ object Dependencies {
     val Work = mapOf(
         "Core" to "androidx.work:work-runtime:${Versions.Work}",
         "RxJava" to "androidx.work:work-rxjava2:${Versions.Work}"
+    )
+
+    val AndroidTest = mapOf(
+        "Core" to "androidx.test:core:1.0.0",
+        "Runner" to "androidx.test:runner:1.1.0",
+        "Rules" to "androidx.test:rules:1.1.0",
+        "JUnitExt" to "androidx.test.ext:junit:1.0.0",
+        "Espresso" to "androidx.test.espresso:espresso-core:3.1.0",
+        "Work" to "androidx.work:work-testing:${Versions.Work}",
+        "Kluent" to "org.amshove.kluent:kluent-android:1.52"
     )
 }

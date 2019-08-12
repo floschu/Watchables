@@ -6,7 +6,7 @@
     android:layout_height="@dimen/episode_height"
     android:layout_margin="@dimen/margin_half">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvEpisode"
         style="@style/TextAppearance.MaterialComponents.Chip"
         android:layout_width="match_parent"
@@ -17,7 +17,7 @@
         android:textColor="@color/textColorDisabled"
         tools:text="S1E1" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivWatched"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

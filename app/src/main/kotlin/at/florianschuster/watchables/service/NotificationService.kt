@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavDeepLinkBuilder
+import at.florianschuster.watchables.MainDirections
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Season
@@ -47,8 +48,8 @@ import java.util.concurrent.TimeUnit
 interface NotificationService {
     fun addWatchableError(id: Int, name: String?)
     fun push(remote: RemoteMessage.Notification)
-    fun movieUpdate(watchable: Watchable, movie: Movie)
-    fun showUpdate(watchable: Watchable, showName: String, season: Season)
+    fun pushMovieUpdate(watchable: Watchable, movie: Movie)
+    fun pushShowUpdate(watchable: Watchable, showName: String, season: Season)
 }
 
 class AndroidNotificationService(
@@ -99,33 +100,36 @@ class AndroidNotificationService(
 
     // update
 
-    override fun movieUpdate(watchable: Watchable, movie: Movie) {
+    override fun pushMovieUpdate(watchable: Watchable, movie: Movie) {
         val date = movie.releaseDate ?: return
-        update(movie.id, movie.name, date, watchable)
+        val shortName = if (movie.name.length <= 25) movie.name else "${movie.name.substring(0, 26)}..."
+        update(movie.id, shortName, date, watchable)
     }
 
-    override fun showUpdate(watchable: Watchable, showName: String, season: Season) {
+    override fun pushShowUpdate(watchable: Watchable, showName: String, season: Season) {
         val date = season.airingDate ?: return
-        update(season.id, context.getString(R.string.notification_update_title_show_name, showName, season.index), date, watchable)
+        val shortName = if (showName.length <= 25) showName else "${showName.substring(0, 26)}..."
+        update(season.id, context.getString(R.string.notification_update_title_show_name, shortName, season.index), date, watchable)
     }
 
     private fun update(notificationId: Int, name: String, date: LocalDate, watchable: Watchable) {
         val pendingIntent = NavDeepLinkBuilder(context).apply {
             setGraph(R.navigation.main)
             setDestination(R.id.detail)
-            setArguments(WatchablesFragmentDirections.actionWatchablesToDetail(watchable.id, watchable.type).arguments)
+            setArguments(MainDirections.toDetail(watchable.id, watchable.type).arguments)
         }.createPendingIntent()
 
-        val pushNotificationBuilder = NotificationCompat.Builder(context, UPDATE_CHANNEL_ID).apply {
-            setSmallIcon(R.drawable.ic_notification)
-            setContentTitle(context.getString(R.string.notification_update_title, name, date.asFormattedString))
-            setContentText(context.getString(R.string.notification_update_text))
-            setContentIntent(pendingIntent)
-            setShowWhen(true)
-            setAutoCancel(true)
-            setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
-            setGroup(UPDATE_NOTIFICATION_GROUP)
-        }
+        val pushNotificationBuilder = NotificationCompat
+            .Builder(context, UPDATE_CHANNEL_ID).apply {
+                setSmallIcon(R.drawable.ic_notification)
+                setContentTitle(context.getString(R.string.notification_update_title, name, date.asFormattedString))
+                setContentText(context.getString(R.string.notification_update_text))
+                setContentIntent(pendingIntent)
+                setShowWhen(true)
+                setAutoCancel(true)
+                setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
+                setGroup(UPDATE_NOTIFICATION_GROUP)
+            }
 
         val image = watchable.thumbnailPoster
 
@@ -147,13 +151,13 @@ class AndroidNotificationService(
 
         @Suppress("UNUSED_VARIABLE")
         val ignore = Single.fromFuture(futureTarget)
-                .timeout(10, TimeUnit.SECONDS)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnSuccess(::showNotification)
-                .doOnError(Timber::e)
-                .doOnError { showNotification(null) }
-                .subscribe()
+            .timeout(10, TimeUnit.SECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnSuccess(::showNotification)
+            .doOnError(Timber::e)
+            .doOnError { showNotification(null) }
+            .subscribe()
     }
 
     // channels
@@ -163,9 +167,9 @@ class AndroidNotificationService(
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         NotificationChannel(
-                ADD_CHANNEL_ID,
-                context.getString(R.string.notification_add_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
+            ADD_CHANNEL_ID,
+            context.getString(R.string.notification_add_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = context.getString(R.string.notification_add_channel_description)
             enableVibration(false)
@@ -173,9 +177,9 @@ class AndroidNotificationService(
         }.also(notificationManager::createNotificationChannel)
 
         NotificationChannel(
-                MESSAGE_CHANNEL_ID,
-                context.getString(R.string.notification_message_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
+            MESSAGE_CHANNEL_ID,
+            context.getString(R.string.notification_message_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = context.getString(R.string.notification_message_channel_description)
             enableVibration(true)
@@ -183,9 +187,9 @@ class AndroidNotificationService(
         }.also(notificationManager::createNotificationChannel)
 
         NotificationChannel(
-                UPDATE_CHANNEL_ID,
-                context.getString(R.string.notification_update_channel_name),
-                NotificationManager.IMPORTANCE_DEFAULT
+            UPDATE_CHANNEL_ID,
+            context.getString(R.string.notification_update_channel_name),
+            NotificationManager.IMPORTANCE_DEFAULT
         ).apply {
             description = context.getString(R.string.notification_update_channel_description)
             enableVibration(true)

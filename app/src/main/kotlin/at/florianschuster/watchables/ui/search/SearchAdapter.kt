@@ -19,6 +19,7 @@ package at.florianschuster.watchables.ui.search
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -28,11 +29,15 @@ import at.florianschuster.watchables.model.thumbnailPoster
 import at.florianschuster.watchables.all.util.srcBlurConsumer
 import at.florianschuster.watchables.all.util.srcConsumer
 import at.florianschuster.watchables.model.originalPoster
+import at.florianschuster.watchables.service.local.PrefRepo
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_search.*
+import kotlinx.android.synthetic.main.item_search_rating.*
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 sealed class SearchAdapterInteraction {
     data class AddItemClick(val item: Search.SearchItem) : SearchAdapterInteraction()
@@ -54,7 +59,11 @@ private val searchDiff = object : DiffUtil.ItemCallback<Search.SearchItem>() {
     override fun areContentsTheSame(oldItem: Search.SearchItem, newItem: Search.SearchItem): Boolean = oldItem == newItem
 }
 
-class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+class SearchViewHolder(
+    override val containerView: View
+) : RecyclerView.ViewHolder(containerView), LayoutContainer, KoinComponent {
+    private val prefRepo: PrefRepo by inject()
+
     fun bind(item: Search.SearchItem, interaction: (SearchAdapterInteraction) -> Unit) {
         containerView.setOnClickListener { interaction(SearchAdapterInteraction.OpenItemClick(item)) }
         tvTitle.text = item.title
@@ -76,5 +85,8 @@ class SearchViewHolder(override val containerView: View) : RecyclerView.ViewHold
         if (!item.added) {
             ivAdd.setOnClickListener { interaction(SearchAdapterInteraction.AddItemClick(item)) }
         }
+
+        includeRating.isVisible = prefRepo.watchableRatingsEnabled
+        tvRating.text = "${item.rating}"
     }
 }

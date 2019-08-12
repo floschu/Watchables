@@ -1,8 +1,5 @@
 <resources>
-
-    <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -19,6 +16,10 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
+    </style>
+
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
 
@@ -72,10 +73,12 @@
         <item name="android:textSize">@dimen/text_size_regular</item>
     </style>
 
+
     <!-- popup -->
     <style name="PopupMenu" parent="@android:style/Widget.PopupMenu">
         <item name="android:popupBackground">@drawable/bg_dialog</item>
     </style>
+
 
     <!-- BottomSheetDialogFragment -->
     <style name="AppBottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">
@@ -86,6 +89,7 @@
         <item name="android:background">@drawable/bg_bottomsheet</item>
     </style>
 
+    <!-- Chips -->
     <style name="FilterChip" parent="@style/Widget.MaterialComponents.Chip.Choice">
         <item name="chipBackgroundColor">@drawable/bg_filter_chip</item>
         <item name="chipCornerRadius">@dimen/item_outer_corners</item>

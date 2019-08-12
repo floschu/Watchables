@@ -25,6 +25,7 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import at.florianschuster.watchables.WatchablesApp
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.WatchablesDataSource
@@ -65,7 +66,7 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             }
 
     companion object {
-        fun startSingle() {
+        fun once() {
             OneTimeWorkRequest.Builder(DeleteWatchablesWorker::class.java).apply {
                 val constraints = Constraints.Builder().apply {
                     setRequiresCharging(true)
@@ -74,7 +75,7 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
                     setRequiresBatteryNotLow(false)
                 }.build()
                 setConstraints(constraints)
-            }.build().let(WorkManager.getInstance()::enqueue)
+            }.build().let(WorkManager.getInstance(WatchablesApp.instance)::enqueue)
         }
 
         fun enqueue() = PeriodicWorkRequest.Builder(DeleteWatchablesWorker::class.java, 24, TimeUnit.HOURS).apply {
@@ -86,10 +87,11 @@ class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) :
             }.build()
             setConstraints(constraints)
         }.build().let {
-            WorkManager.getInstance().enqueueUniquePeriodicWork(WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, it)
+            WorkManager.getInstance(WatchablesApp.instance)
+                .enqueueUniquePeriodicWork(WORKER_NAME, ExistingPeriodicWorkPolicy.REPLACE, it)
         }
 
-        fun cancel() = WorkManager.getInstance().cancelUniqueWork(WORKER_NAME)
+        fun cancel() = WorkManager.getInstance(WatchablesApp.instance).cancelUniqueWork(WORKER_NAME)
 
         private const val WORKER_NAME = "at.florianschuster.watchables.all.worker.DeleteWatchablesWorker"
     }

@@ -26,8 +26,10 @@ interface PrefRepo {
     var analyticsEnabled: Boolean
     var onboardingSnackShown: Boolean
     var enjoyingAppDialogShownDate: LocalDate
+    var rated: Boolean
     var watchableContainerFilterType: WatchableContainerFilterType
     var watchableContainerSortingType: WatchableContainerSortingType
+    var watchableRatingsEnabled: Boolean
 }
 
 class HawkPrefRepo(context: Context) : PrefRepo {
@@ -51,6 +53,12 @@ class HawkPrefRepo(context: Context) : PrefRepo {
         get() = LocalDate.ofEpochDay(Hawk.get(ENJOYING_DIALOG_DATE, LocalDate.now().plusDays(7).toEpochDay()))
         set(value) {
             Hawk.put(ENJOYING_DIALOG_DATE, value.toEpochDay())
+        }
+
+    override var rated: Boolean
+        get() = Hawk.get(RATED, false)
+        set(value) {
+            Hawk.put(RATED, value)
         }
 
     override var watchableContainerSortingType: WatchableContainerSortingType
@@ -81,11 +89,19 @@ class HawkPrefRepo(context: Context) : PrefRepo {
             Hawk.put(WATCHABLES_CONTAINER_FILTER_TYPE, value.ordinal)
         }
 
+    override var watchableRatingsEnabled: Boolean
+        get() = Hawk.get(WATCHABLE_RATINGS, true)
+        set(value) {
+            Hawk.put(WATCHABLE_RATINGS, value)
+        }
+
     companion object {
         private const val ANALYTICS_ENABLED = "analytics_enabled"
         private const val ONBOARDING_SNACK = "onboarding_snack"
         private const val ENJOYING_DIALOG_DATE = "enjoying_dialog_date"
+        private const val RATED = "rated_app"
         private const val WATCHABLES_CONTAINER_SORTING_TYPE = "watchables_container_sorting_type"
         private const val WATCHABLES_CONTAINER_FILTER_TYPE = "watchables_container_filter_type"
+        private const val WATCHABLE_RATINGS = "watchable_ratings"
     }
 }

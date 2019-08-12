@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     tools:background="@color/dialogBackground">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvFilter"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"
@@ -61,7 +61,7 @@
         android:background="@color/white_opacity_20"
         app:layout_constraintTop_toBottomOf="@id/cgFilter" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvSort"
         style="@style/TextAppearance.MaterialComponents.Headline6"
         android:layout_width="wrap_content"

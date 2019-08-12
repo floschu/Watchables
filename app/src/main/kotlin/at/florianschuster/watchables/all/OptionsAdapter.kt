@@ -27,14 +27,18 @@ import at.florianschuster.watchables.R
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_option.*
+import kotlinx.android.synthetic.main.item_option_square.*
 import kotlinx.android.synthetic.main.item_option_toggle.*
 
 sealed class Option(val title: Int, val icon: Int?, val layout: Int) {
     class Action(@StringRes title: Int, @DrawableRes icon: Int?, val action: () -> Unit) :
-            Option(title, icon, R.layout.item_option)
+        Option(title, icon, R.layout.item_option)
 
     class Toggle(@StringRes title: Int, @DrawableRes icon: Int, val isToggled: Boolean, val toggled: (Boolean) -> Unit) :
-            Option(title, icon, R.layout.item_option_toggle)
+        Option(title, icon, R.layout.item_option_toggle)
+
+    class SquareAction(@StringRes title: Int, @DrawableRes icon: Int?, val action: () -> Unit) :
+        Option(title, icon, R.layout.item_option_square)
 }
 
 class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
@@ -42,6 +46,7 @@ class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OptionViewHolder = when (viewType) {
         R.layout.item_option -> OptionViewHolder.Action(parent.inflate(viewType))
+        R.layout.item_option_square -> OptionViewHolder.SquareAction(parent.inflate(viewType))
         else -> OptionViewHolder.Toggle(parent.inflate(viewType))
     }
 
@@ -49,6 +54,7 @@ class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
         when (holder) {
             is OptionViewHolder.Action -> holder.bind(getItem(position) as Option.Action)
             is OptionViewHolder.Toggle -> holder.bind(getItem(position) as Option.Toggle)
+            is OptionViewHolder.SquareAction -> holder.bind(getItem(position) as Option.SquareAction)
         }
     }
 }
@@ -56,30 +62,51 @@ class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
 private val optionDiff = object : DiffUtil.ItemCallback<Option>() {
     override fun areItemsTheSame(oldItem: Option, newItem: Option): Boolean = oldItem.title == newItem.title
     override fun areContentsTheSame(oldItem: Option, newItem: Option): Boolean =
-            oldItem.title == newItem.title && oldItem.icon == newItem.icon && oldItem.layout == newItem.layout
+        oldItem.title == newItem.title && oldItem.icon == newItem.icon && oldItem.layout == newItem.layout
 }
 
-sealed class OptionViewHolder(override val containerView: View) : RecyclerView.ViewHolder(containerView), LayoutContainer {
+sealed class OptionViewHolder(override val containerView: View) :
+    RecyclerView.ViewHolder(containerView), LayoutContainer {
+
     class Action(containerView: View) : OptionViewHolder(containerView) {
         fun bind(option: Option.Action) {
-            ivIcon.visibility = if (option.icon != null) {
-                ivIcon.setImageResource(option.icon)
-                View.VISIBLE
-            } else {
-                View.INVISIBLE
+            with(ivIcon) {
+                visibility = if (option.icon != null) {
+                    setImageResource(option.icon)
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
             }
             tvTitle.setText(option.title)
             containerView.setOnClickListener { option.action() }
         }
     }
 
+    class SquareAction(containerView: View) : OptionViewHolder(containerView) {
+        fun bind(option: Option.SquareAction) {
+            with(ivIconSquare) {
+                visibility = if (option.icon != null) {
+                    setImageResource(option.icon)
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
+            }
+            tvTitleSquare.setText(option.title)
+            containerView.setOnClickListener { option.action() }
+        }
+    }
+
     class Toggle(containerView: View) : OptionViewHolder(containerView) {
         fun bind(option: Option.Toggle) {
-            ivIconToggle.visibility = if (option.icon != null) {
-                ivIconToggle.setImageResource(option.icon)
-                View.VISIBLE
-            } else {
-                View.INVISIBLE
+            with(ivIconToggle) {
+                visibility = if (option.icon != null) {
+                    setImageResource(option.icon)
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
             }
             sw.setText(option.title)
             sw.isChecked = option.isToggled

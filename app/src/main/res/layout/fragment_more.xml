@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"
+    android:overScrollMode="never"
     android:paddingBottom="@dimen/bnv_height">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivBackground"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -22,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvHello"
             style="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_width="wrap_content"
@@ -35,60 +36,37 @@
             app:layout_constraintEnd_toEndOf="@id/ivBackground"
             app:layout_constraintStart_toStartOf="@id/ivBackground"
             app:layout_constraintTop_toTopOf="@id/ivBackground"
-            app:layout_constraintVertical_bias="0.95"
+            app:layout_constraintVertical_bias="0.9"
             tools:text="Hi\nflosch" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMoreOptions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin"
             android:clipToPadding="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:nestedScrollingEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/ivBackground"
             app:stackFromEnd="true"
             tools:itemCount="7"
             tools:listitem="@layout/item_option" />
 
-        <TextView
-            android:id="@+id/tvUserId"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_half"
-            android:gravity="center"
-            android:textColor="@color/textColorDisabled"
-            app:layout_constraintBottom_toTopOf="@id/tvVersion"
-            app:layout_constraintTop_toBottomOf="@id/rvMoreOptions"
-            tools:text="User ID: 1238r397r8236e823r" />
-
-        <TextView
-            android:id="@+id/tvVersion"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_large"
-            android:gravity="center"
-            android:textColor="@color/textColorDisabled"
-            app:layout_constraintBottom_toTopOf="@id/ivPoweredBy"
-            app:layout_constraintTop_toBottomOf="@id/tvUserId"
-            tools:text="App Version 1.2.0" />
-
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivPoweredBy"
             android:layout_width="56dp"
             android:layout_height="38dp"
             android:layout_marginStart="@dimen/margin"
-            android:layout_marginBottom="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_half"
             android:src="@drawable/ic_tmdb_powered"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvMoreOptions" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAttribution"
             style="@style/TextAppearance.MaterialComponents.Caption"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin_half"
+            android:layout_marginStart="@dimen/margin"
             android:layout_marginEnd="@dimen/margin"
             android:gravity="center_vertical"
             android:text="@string/tmdb_attribution"
@@ -97,5 +75,29 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/ivPoweredBy"
             app:layout_constraintTop_toTopOf="@id/ivPoweredBy" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvUserId"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin"
+            android:gravity="center"
+            android:textColor="@color/textColorDisabled"
+            app:layout_constraintBottom_toTopOf="@id/tvVersion"
+            app:layout_constraintTop_toBottomOf="@id/ivPoweredBy"
+            tools:text="User ID: 1238r397r8236e823r" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tvVersion"
+            style="@style/TextAppearance.MaterialComponents.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/margin_large"
+            android:gravity="center"
+            android:textColor="@color/textColorDisabled"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvUserId"
+            tools:text="App Version 1.2.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

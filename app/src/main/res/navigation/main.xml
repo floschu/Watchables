@@ -3,33 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
-    app:startDestination="@id/splashscreen">
-
-    <fragment
-        android:id="@+id/splashscreen"
-        android:name="at.florianschuster.watchables.ui.splashscreen.SplashFragment"
-        tools:layout="@layout/fragment_splash">
-        <action
-            android:id="@+id/action_splashscreen_to_watchables"
-            app:destination="@id/watchables"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/fade_out"
-            app:popUpTo="@+id/splashscreen"
-            app:popUpToInclusive="true" />
-        <action
-            android:id="@+id/action_splashscreen_to_login"
-            app:destination="@id/login"
-            app:enterAnim="@anim/fade_in"
-            app:exitAnim="@anim/fade_out"
-            app:launchSingleTop="true"
-            app:popEnterAnim="@anim/fade_in"
-            app:popExitAnim="@anim/fade_out"
-            app:popUpTo="@+id/splashscreen"
-            app:popUpToInclusive="true" />
-    </fragment>
+    app:startDestination="@id/watchables">
 
     <action
         android:id="@+id/to_login"
@@ -38,7 +12,9 @@
         app:exitAnim="@anim/fade_out"
         app:launchSingleTop="true"
         app:popEnterAnim="@anim/fade_in"
-        app:popExitAnim="@anim/fade_out" />
+        app:popExitAnim="@anim/fade_out"
+        app:popUpTo="@id/main"
+        app:popUpToInclusive="true" />
 
     <fragment
         android:id="@+id/login"
@@ -96,6 +72,13 @@
             app:exitAnim="@anim/slide_out_start"
             app:popEnterAnim="@anim/slide_in_start"
             app:popExitAnim="@anim/slide_out_end" />
+        <action
+            android:id="@+id/action_search_to_scan"
+            app:destination="@id/scan"
+            app:enterAnim="@anim/slide_in_end"
+            app:exitAnim="@anim/slide_out_start"
+            app:popEnterAnim="@anim/slide_in_start"
+            app:popExitAnim="@anim/slide_out_end" />
     </fragment>
 
     <action
@@ -111,6 +94,14 @@
         android:name="at.florianschuster.watchables.ui.more.MoreFragment"
         tools:layout="@layout/fragment_more" />
 
+    <action
+        android:id="@+id/to_detail"
+        app:destination="@id/detail"
+        app:enterAnim="@anim/fade_in"
+        app:exitAnim="@anim/fade_out"
+        app:popEnterAnim="@anim/fade_in"
+        app:popExitAnim="@anim/fade_out" />
+
     <fragment
         android:id="@+id/detail"
         android:name="at.florianschuster.watchables.ui.detail.DetailFragment"
@@ -121,5 +112,22 @@
         <argument
             android:name="type"
             app:argType="at.florianschuster.watchables.model.Watchable$Type" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="https://florianschuster.at/watchables/{type}/{id}" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/scan"
+        android:name="at.florianschuster.watchables.ui.scan.ScanScreen"
+        tools:layout="@layout/fragment_scan">
+        <action
+            android:id="@+id/action_scan_to_detail"
+            app:destination="@id/detail"
+            app:enterAnim="@anim/slide_in_end"
+            app:exitAnim="@anim/slide_out_start"
+            app:popEnterAnim="@anim/slide_in_start"
+            app:popExitAnim="@anim/slide_out_end"
+            app:popUpTo="@+id/search" />
     </fragment>
 </navigation>

@@ -1,45 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/ivBackground"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:scaleType="centerCrop"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop" />
 
     <androidx.core.widget.NestedScrollView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:id="@+id/svContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:clipToPadding="false"
         android:overScrollMode="never"
         android:paddingTop="?actionBarSize"
-        android:paddingBottom="@dimen/bnv_height"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:paddingBottom="@dimen/bnv_height">
 
-        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="@dimen/margin">
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/includeQr"
+                layout="@layout/fragment_detail_qr"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMedia"
+                android:id="@+id/rvDetailHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/margin"
                 android:layout_marginBottom="@dimen/margin"
                 android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
                 android:orientation="horizontal"
                 android:overScrollMode="never"
                 android:paddingStart="200dp"
@@ -48,12 +51,12 @@
                 app:layout_constraintBottom_toTopOf="@+id/tvTitle"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/includeQr"
                 app:layout_constraintVertical_chainStyle="packed"
                 tools:itemCount="4"
                 tools:listitem="@layout/item_detail_video" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvTitle"
                 style="@style/TextAppearance.MaterialComponents.Headline5"
                 android:layout_width="0dp"
@@ -66,13 +69,14 @@
                 android:shadowDy="1"
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
+                android:textIsSelectable="true"
                 app:layout_constraintBottom_toTopOf="@id/tvAiring"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/rvMedia"
+                app:layout_constraintTop_toBottomOf="@+id/rvDetailHeader"
                 tools:text="Avengers" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvAiring"
                 style="@style/TextAppearance.MaterialComponents.Subtitle1"
                 android:layout_width="0dp"
@@ -87,6 +91,7 @@
                 android:shadowRadius="2"
                 android:text="@string/release_date_not_available"
                 android:textColor="@color/textColor"
+                android:textIsSelectable="true"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -106,18 +111,21 @@
                 app:layout_constraintTop_toBottomOf="@id/tvAiring"
                 tools:visibility="visible" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvSummary"
                 style="@style/TextAppearance.MaterialComponents.Caption"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/margin"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginEnd="@dimen/margin"
                 android:gravity="center_horizontal|top"
                 android:shadowColor="@color/black_opacity_50"
                 android:shadowDx="1"
                 android:shadowDy="1"
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
+                android:textIsSelectable="true"
                 android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/tvActors"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -126,14 +134,14 @@
                 tools:text="Seven noble families fight for control of the mythical land of Westeros. Friction between the houses leads to full-scale war. All while a very ancient evil awakens in the farthest north. Amidst the war, a neglected military order of misfits, the Night's Watch, is all that stands between the realms of men and icy horrors beyond."
                 tools:visibility="visible" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/tvActors"
                 style="@style/TextAppearance.MaterialComponents.Body2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin"
                 android:layout_marginEnd="@dimen/margin"
-                android:layout_marginBottom="@dimen/margin"
                 android:gravity="center_horizontal|top"
                 android:paddingStart="@dimen/padding"
                 android:paddingEnd="@dimen/padding"
@@ -142,6 +150,7 @@
                 android:shadowDy="1"
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
+                android:textIsSelectable="true"
                 android:textSize="12sp"
                 android:visibility="gone"
                 app:layout_constraintBottom_toTopOf="@+id/rvDetailOptions"
@@ -155,6 +164,8 @@
                 android:id="@+id/rvDetailOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -162,8 +173,11 @@
                 app:layout_constraintTop_toBottomOf="@+id/tvSummary"
                 tools:itemCount="4"
                 tools:listitem="@layout/item_option" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+
     </androidx.core.widget.NestedScrollView>
 
     <include layout="@layout/fragment_detail_toolbar" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>

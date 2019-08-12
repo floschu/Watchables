@@ -60,7 +60,7 @@ private fun provideMovieDatabaseApi(
         addInterceptor {
             val originalRequest = it.request()
             val request = originalRequest.newBuilder().apply {
-                val url = originalRequest.url().newBuilder().apply {
+                val url = originalRequest.url.newBuilder().apply {
                     addQueryParameter("api_key", BuildConfig.MOVIEDB_KEY)
                     addQueryParameter("language", currentLocale.toLanguageTag())
                     addQueryParameter("region", currentLocale.language.toUpperCase())

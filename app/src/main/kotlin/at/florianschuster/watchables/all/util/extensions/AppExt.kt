@@ -28,6 +28,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import at.florianschuster.watchables.R
+import com.tailoredapps.androidutil.async.Async
+import com.tailoredapps.androidutil.permissions.Permission
+import com.tailoredapps.androidutil.ui.extensions.toast
+import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.Maybe
+import io.reactivex.Single
+import io.reactivex.annotations.CheckReturnValue
+import io.reactivex.annotations.Experimental
 
 @SuppressLint("CheckResult")
 fun main(afterMillis: Long = 0, block: () -> Unit) {
@@ -47,12 +55,38 @@ fun FragmentActivity.openChromeTab(url: String) {
         tabsIntent.launchUrl(this, Uri.parse(url))
     } catch (throwable: Throwable) {
         Timber.w(throwable)
-        startActivity(IntentUtil.web(url)) // fallback of chrome not installed -> open default browser
+        try {
+            startActivity(IntentUtil.web(url)) // fallback of chrome not installed -> open default browser
+        } catch (anotherOne: Throwable) {
+            Timber.w(anotherOne)
+            toast(R.string.error_other)
+        }
     }
 }
 
 fun Fragment.openChromeTab(url: String) {
-    val activity = this.activity
-        ?: throw RuntimeException("No Activity attached to Fragment. Cannot show Dialog.")
-    activity.openChromeTab(url)
+    requireActivity().openChromeTab(url)
+}
+
+fun RxPermissions.request(permission: Permission): Single<Boolean> {
+    return request(permission.manifestPermission)
+        .first(false)
+        .onErrorReturn { false }
+}
+
+@Deprecated(message="Replace with AndroidAppUtil.Async if v16 is available.")
+@Experimental
+@CheckReturnValue
+fun <T : Any> Maybe<T>.mapToAsync(onComplete: () -> Async<T> = { Async.Error(NoSuchElementException()) }): Single<Async<T>> {
+    return materialize()
+        .flatMap {
+            val value = it.value
+            val error = it.error
+            when {
+                it.isOnNext && value != null -> Single.just(Async.Success(value))
+                it.isOnError && error != null -> Single.just(Async.Error(error))
+                it.isOnComplete -> Single.just(onComplete())
+                else -> Single.never()
+            }
+        }
 }
