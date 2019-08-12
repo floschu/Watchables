@@ -85,7 +85,7 @@ class FirebaseDeepLinkService : DeepLinkService {
             setDomainUriPrefix(DeepLinkService.Link.domain)
             setLink(DeepLinkService.Link.ToWatchable(watchable.id, watchable.type).link)
             setAndroidParameters(DynamicLink.AndroidParameters.Builder().apply {
-                setMinimumVersion(30) // todo
+                setMinimumVersion(30)
             }.build())
             setSocialMetaTagParameters(DynamicLink.SocialMetaTagParameters.Builder().apply {
                 setTitle(watchable.name)
