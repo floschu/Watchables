@@ -75,16 +75,19 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        coordinator.provideNavigationHandler(findNavController())
         bind(reactor)
     }
 
     override fun bind(reactor: LoginReactor) {
-        coordinator.provideNavigationHandler(findNavController())
-
         AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
 
-        ivPoweredBy.clicks().subscribe { openChromeTab(getString(R.string.tmdb_url)) }.addTo(disposables)
-        tvPolicy.clicks().subscribe { openChromeTab(getString(R.string.privacy_policy_url)) }.addTo(disposables)
+        ivPoweredBy.clicks()
+            .bind { openChromeTab(getString(R.string.tmdb_url)) }
+            .addTo(disposables)
+        tvPolicy.clicks()
+            .bind { openChromeTab(getString(R.string.privacy_policy_url)) }
+            .addTo(disposables)
 
         btnSignIn.clicks()
                 .map {
@@ -94,7 +97,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
                     }.build()
                 }
                 .map { GoogleSignIn.getClient(activity!!, it) }
-                .subscribe { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
+                .bind { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
                 .addTo(disposables)
 
         // state
