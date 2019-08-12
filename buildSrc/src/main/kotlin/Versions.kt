@@ -13,4 +13,9 @@ object Versions {
     const val OkHttp = "4.0.1"
     const val Leakcanary = "1.6.3"
     const val Glide = "4.9.0"
+
+    const val Mockito = "2.28.2"
+    const val Powermock = "2.0.2"
+    const val Espresso = "3.1.0"
+    const val AndroidXTest = "1.2.0"
 }

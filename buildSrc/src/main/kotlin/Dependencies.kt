@@ -116,13 +116,31 @@ object Dependencies {
         "RxJava" to "androidx.work:work-rxjava2:${Versions.Work}"
     )
 
+    val Test = mapOf(
+        "Junit" to ("junit:junit:4.12"),
+        "Mockito" to ("org.mockito:mockito-core:${Versions.Mockito}"),
+        "MockitoKotlin" to ("com.nhaarman:mockito-kotlin-kt1.1:1.5.0"),
+        "Powermock" to ("org.powermock:powermock-module-junit4:${Versions.Powermock}"),
+        "PowermockRule" to ("org.powermock:powermock-module-junit4-rule:${Versions.Powermock}"),
+        "PowermockMockito2" to ("org.powermock:powermock-api-mockito2:${Versions.Powermock}"),
+        "KotlinReflect" to ("org.jetbrains.kotlin:kotlin-reflect:${Versions.Kotlin}"),
+        "Jsr305" to ("com.google.code.findbugs:jsr305:3.0.2"),
+        "Mockk" to ("io.mockk:mockk:1.9.3"),
+        "Kluent" to ("org.amshove.kluent:kluent:1.51"),
+        "KoinTest" to ("org.koin:koin-test:${Versions.Koin}")
+    )
+
     val AndroidTest = mapOf(
-        "Core" to "androidx.test:core:1.0.0",
-        "Runner" to "androidx.test:runner:1.1.0",
-        "Rules" to "androidx.test:rules:1.1.0",
-        "JUnitExt" to "androidx.test.ext:junit:1.0.0",
-        "Espresso" to "androidx.test.espresso:espresso-core:3.1.0",
-        "Work" to "androidx.work:work-testing:${Versions.Work}",
-        "Kluent" to "org.amshove.kluent:kluent-android:1.52"
+        "Core" to ("androidx.test:core:${Versions.AndroidXTest}"),
+        "Runner" to ("androidx.test:runner:${Versions.AndroidXTest}"),
+        "Rules" to ("androidx.test:rules:${Versions.AndroidXTest}"),
+        "AndroidXTruth" to ("androidx.test.ext:truth:${Versions.AndroidXTest}"),
+        "AndroidXJunit" to ("androidx.test.ext:junit:1.1.0"),
+        "Truth" to ("com.google.truth:truth:1.0-rc2"),
+        "Espresso" to ("androidx.test.espresso:espresso-core:${Versions.Espresso}"),
+        "EspressoContrib" to ("androidx.test.espresso:espresso-contrib:${Versions.Espresso}"),
+        "EspressoIntents" to ("androidx.test.espresso:espresso-intents:${Versions.Espresso}"),
+        "EspressoWeb" to ("androidx.test.espresso:espresso-web:${Versions.Espresso}"),
+        "Mockito" to ("org.mockito:mockito-android:${Versions.Mockito}")
     )
 }

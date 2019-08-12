@@ -138,6 +138,7 @@ dependencies {
     kapt Dependencies.Glide.Compiler
     implementation Dependencies.Work.values()
 
+    testImplementation Dependencies.Test.values()
     androidTestImplementation Dependencies.AndroidTest.values()
 }
 
