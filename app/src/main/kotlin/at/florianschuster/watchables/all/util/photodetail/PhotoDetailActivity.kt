@@ -1,7 +1,6 @@
 package at.florianschuster.watchables.all.util.photodetail
 
 import android.animation.ObjectAnimator
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -35,11 +34,11 @@ import me.saket.flick.ContentSizeProvider
 import me.saket.flick.FlickCallbacks
 import me.saket.flick.FlickGestureListener
 import me.saket.flick.InterceptResult
-import java.io.ByteArrayOutputStream
+import java.io.File
 import java.security.MessageDigest
 
 private const val ARG_PHOTO_URL = "photo.url"
-private const val ARG_BITMAP = "bitmap"
+private const val ARG_FILE = "file"
 
 val Context.photoDetailConsumer: Consumer<String>
     get() = Consumer {
@@ -48,21 +47,17 @@ val Context.photoDetailConsumer: Consumer<String>
             .let(::startActivity)
     }
 
-val Context.bitmapDetailConsumer: Consumer<Bitmap>
-    get() = Consumer { bitmap ->
-        val array = ByteArrayOutputStream().also {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
-        }.toByteArray()
-
+val Context.filePhotoDetailConsumer: Consumer<File>
+    get() = Consumer { file ->
         Intent(this, PhotoDetailActivity::class.java)
-            .extras(ARG_BITMAP to array)
+            .extras(ARG_FILE to file)
             .let(::startActivity)
     }
 
 // https://github.com/saket/Flick/
 class PhotoDetailActivity : AppCompatActivity() {
     private val url: String? by extra(ARG_PHOTO_URL)
-    private val bitmapBytes: ByteArray? by extra(ARG_BITMAP)
+    private val file: File? by extra(ARG_FILE)
 
     private lateinit var systemUiHelper: SystemUiHelper
     private lateinit var activityBackgroundDrawable: Drawable
@@ -74,7 +69,7 @@ class PhotoDetailActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        if (url == null && bitmapBytes == null) {
+        if (url == null && file == null) {
             finish()
             return
         }
@@ -88,7 +83,7 @@ class PhotoDetailActivity : AppCompatActivity() {
             .asBitmap()
             .apply {
                 if (url != null) load(url)
-                else if (bitmapBytes != null) load(bitmapBytes)
+                else if (file != null) load(file)
             }
             .transform(PaddingTransformation(1F, Color.TRANSPARENT))
             .priority(Priority.IMMEDIATE)

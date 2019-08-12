@@ -10,6 +10,7 @@ import com.google.firebase.dynamiclinks.PendingDynamicLinkData
 import com.tailoredapps.androidutil.firebase.RxTasks
 import io.reactivex.Maybe
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 
 interface DeepLinkService {
     sealed class Link(val link: Uri) {
@@ -41,6 +42,7 @@ class FirebaseDeepLinkService : DeepLinkService {
     override fun handleIntent(intent: Intent): Maybe<DeepLinkService.Link> {
         return RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
             .map { it.mapToDeepLink() }
+            .subscribeOn(Schedulers.io())
     }
 
     override fun parseDeepLink(url: String): Maybe<DeepLinkService.Link> {
@@ -48,6 +50,7 @@ class FirebaseDeepLinkService : DeepLinkService {
         return Single.fromCallable { Uri.parse(url) }
             .flatMapMaybe { RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(it) } }
             .map { it.mapToDeepLink() }
+            .subscribeOn(Schedulers.io())
     }
 
     private fun PendingDynamicLinkData.mapToDeepLink(): DeepLinkService.Link {
@@ -65,13 +68,16 @@ class FirebaseDeepLinkService : DeepLinkService {
     }
 
     override fun createDeepLinkUrl(watchable: Watchable, short: Boolean): Maybe<String> {
-        return if (short) {
-            RxTasks.maybe { createFirebaseDynamicLinkBuilder(watchable).buildShortDynamicLink() }
-                .map { it.shortLink.toString() }
-        } else {
-            Maybe.just(createFirebaseDynamicLinkBuilder(watchable).buildDynamicLink())
-                .map { it.uri.toString() }
-        }
+        return when {
+            short -> {
+                RxTasks.maybe { createFirebaseDynamicLinkBuilder(watchable).buildShortDynamicLink() }
+                    .map { it.shortLink.toString() }
+            }
+            else -> {
+                Maybe.just(createFirebaseDynamicLinkBuilder(watchable).buildDynamicLink())
+                    .map { it.uri.toString() }
+            }
+        }.subscribeOn(Schedulers.io())
     }
 
     private fun createFirebaseDynamicLinkBuilder(watchable: Watchable): DynamicLink.Builder {

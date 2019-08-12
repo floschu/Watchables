@@ -93,7 +93,9 @@
     <string name="scan_error"><![CDATA[Der Code wurde leider nicht erkannt]]></string>
     <string name="scan_flash_on"><![CDATA[Blitz An]]></string>
     <string name="scan_flash_off"><![CDATA[Blitz Aus]]></string>
-    <string name="more_ratings_toggle"><![CDATA[Bewertungen]]></string>
+    <string name="more_ratings_toggle"><![CDATA[Watchable Bewertungen]]></string>
+    <string name="detail_iv_cd_qr"><![CDATA[Der Qr Code des Watchable]]></string>
+    <string name="detail_error_qr"><![CDATA[Qr Code konnte nicht erstellt werden]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>

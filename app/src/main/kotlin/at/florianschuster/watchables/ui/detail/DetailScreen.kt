@@ -16,11 +16,16 @@
 
 package at.florianschuster.watchables.ui.detail
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
-import androidx.navigation.fragment.findNavController
+import androidx.navigation.NavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -63,11 +68,12 @@ import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.watchables.all.util.QrCodeService
-import at.florianschuster.watchables.all.util.photodetail.bitmapDetailConsumer
+import at.florianschuster.watchables.all.util.extensions.mapToAsync
+import at.florianschuster.watchables.all.util.photodetail.filePhotoDetailConsumer
+import at.florianschuster.watchables.all.util.srcFileConsumer
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.model.convertToSearchType
 import at.florianschuster.watchables.service.local.PrefRepo
-import com.jakewharton.rxbinding3.view.touches
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.tailoredapps.androidutil.async.mapToAsync
 import com.tailoredapps.androidutil.optional.asOptional
@@ -77,8 +83,11 @@ import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.annotations.CheckReturnValue
+import io.reactivex.annotations.Experimental
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_detail.*
+import kotlinx.android.synthetic.main.fragment_detail_qr.*
 import kotlinx.android.synthetic.main.fragment_detail_rating.*
 import kotlinx.android.synthetic.main.fragment_detail_toolbar.*
 import org.koin.android.ext.android.inject
@@ -86,20 +95,17 @@ import org.koin.core.parameter.parametersOf
 import org.threeten.bp.LocalDate
 import org.threeten.bp.ZonedDateTime
 import timber.log.Timber
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 sealed class DetailRoute : CoordinatorRoute {
     object Pop : DetailRoute()
-    data class ShowQrCode(val qrCode: Bitmap) : DetailRoute()
 }
 
-class DetailCoordinator : BaseCoordinator<DetailRoute, DetailFragment>() {
-    override fun navigate(route: DetailRoute, handler: DetailFragment) {
+class DetailCoordinator : BaseCoordinator<DetailRoute, NavController>() {
+    override fun navigate(route: DetailRoute, handler: NavController) {
         when (route) {
-            is DetailRoute.Pop -> handler.findNavController().navigateUp()
-            is DetailRoute.ShowQrCode -> {
-                handler.context?.bitmapDetailConsumer?.accept(route.qrCode)
-            }
+            is DetailRoute.Pop -> handler.navigateUp()
         }
     }
 }
@@ -117,7 +123,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        coordinator.provideNavigationHandler(this)
+        coordinator.provideNavigationHandler(navController)
 
         btnBack.clicks()
             .map { DetailRoute.Pop }
@@ -132,11 +138,33 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
         rvDetailOptions.adapter = optionsAdapter
         optionsAdapter.update()
 
-        rvDetailHeader.touches()
-            .take(1)
-            .map { true }
-            .subscribe(rvDetailHeaderScrolledRelay)
+        rvDetailHeader.setOnTouchListener { _, _ ->
+            rvDetailHeaderScrolledRelay.accept(true)
+            false
+        }
+
+        with(ivQr) {
+            clipToOutline = true
+
+            clicks().map { reactor.currentState.qrResult }
+                .map { it().asOptional }
+                .filterSome()
+                .bind {
+                    includeQr.isVisible = false
+                    requireContext().filePhotoDetailConsumer.accept(it)
+                }
+                .addTo(disposables)
+        }
+
+        btnQr.clicks()
+            .throttleFirst(100, TimeUnit.MILLISECONDS)
+            .bind { if (!includeQr.isVisible) performQrInAnimation() else performQrOutAnimation() }
             .addTo(disposables)
+
+        svContent.setOnTouchListener { _, _ ->
+            if (includeQr.isVisible) performQrOutAnimation()
+            false
+        }
 
         bind(reactor)
     }
@@ -207,16 +235,16 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             .bind()
             .addTo(disposables)
 
-        reactor.state.changesFrom { it.qrLoading }
-            .bind { loading ->
-                btnQr.isVisible = !loading
-                pbLoading.isVisible = loading
-            }
-            .addTo(disposables)
+        reactor.state.changesFrom { it.qrResult }
+            .bind { qrResult ->
+                pbLoading.isVisible = qrResult.loading
+                btnQr.isVisible = qrResult is Async.Success
 
-        btnQr.clicks()
-            .map { DetailReactor.Action.ShowQrCode }
-            .bind(to = reactor.action)
+                when (qrResult) {
+                    is Async.Success -> ivQr.srcFileConsumer().accept(qrResult.element)
+                    is Async.Error -> toast(R.string.detail_error_qr)
+                }
+            }
             .addTo(disposables)
     }
 
@@ -295,6 +323,75 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
             ?: return 0 to 0
         return distances[0] to distances[1]
     }
+
+    private fun performQrInAnimation() { // todo viewgroup transition down animationn
+        includeQr.isVisible = true
+
+        val scaleAnimation = ScaleAnimation(
+            0f, 1f,
+            0f, 1f,
+            Animation.RELATIVE_TO_SELF, 1.0f,
+            Animation.RELATIVE_TO_SELF, 0f
+        )
+
+        val alphaAnimation = AlphaAnimation(0f, 1f)
+
+        val animation = AnimationSet(false).apply {
+            addAnimation(scaleAnimation)
+            addAnimation(alphaAnimation)
+
+            interpolator = AccelerateInterpolator()
+
+            duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(p0: Animation?) {
+                }
+
+                override fun onAnimationEnd(p0: Animation?) {
+                }
+
+                override fun onAnimationStart(p0: Animation?) {
+                }
+            })
+        }
+
+        includeQr.startAnimation(animation)
+    }
+
+    private fun performQrOutAnimation() {
+        val scaleAnimation = ScaleAnimation(
+            1f, 0f,
+            1f, 0f,
+            Animation.RELATIVE_TO_SELF, 1.0f,
+            Animation.RELATIVE_TO_SELF, 0f
+        )
+
+        val alphaAnimation = AlphaAnimation(1f, 0f)
+
+        val animation = AnimationSet(false).apply {
+            addAnimation(scaleAnimation)
+            addAnimation(alphaAnimation)
+
+            interpolator = DecelerateInterpolator()
+
+            duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+
+            setAnimationListener(object : Animation.AnimationListener {
+                override fun onAnimationRepeat(p0: Animation?) {
+                }
+
+                override fun onAnimationEnd(p0: Animation?) {
+                    includeQr.isVisible = false
+                }
+
+                override fun onAnimationStart(p0: Animation?) {
+                }
+            })
+        }
+
+        includeQr.startAnimation(animation)
+    }
 }
 
 class DetailReactor(
@@ -318,7 +415,7 @@ class DetailReactor(
         data class SetWatched(val watched: Boolean) : Action()
         object Dismiss : Action()
         object AddWatchable : Action()
-        object ShowQrCode : Action()
+        object LoadQr : Action()
     }
 
     sealed class Mutation {
@@ -327,7 +424,7 @@ class DetailReactor(
         data class SetAdditionalData(val additionalData: Async<State.AdditionalData>) : Mutation()
         data class SetVideoHeaderItems(val videos: List<DetailHeaderItem.YoutubeVideo>) : Mutation()
         data class SetPosterHeadItem(val poster: DetailHeaderItem.Poster) : Mutation()
-        data class SetQrLoading(val loading: Boolean) : Mutation()
+        data class SetQrResult(val qr: Async<File>) : Mutation()
     }
 
     data class State(
@@ -336,7 +433,7 @@ class DetailReactor(
         val headerItems: List<DetailHeaderItem> = emptyList(),
         val additionalData: Async<AdditionalData> = Async.Uninitialized,
         val deleteResult: Async<Unit> = Async.Uninitialized,
-        val qrLoading: Boolean = false
+        val qrResult: Async<File> = Async.Uninitialized
     ) {
         data class AdditionalData(
             val name: String? = null,
@@ -369,13 +466,15 @@ class DetailReactor(
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.InitialLoad -> {
-            watchablesDataSource.watchable(itemId)
+            val dataLoad = watchablesDataSource.watchable(itemId)
                 .ignoreElement()
                 .toObservable<Mutation>()
                 .onErrorResumeNext { t: Throwable ->
                     if (t is NoSuchElementException) mutate(Action.LoadDetailData)
                     else Observable.empty()
                 }
+
+            Observable.concat(dataLoad, mutate(Action.LoadQr))
         }
         is Action.LoadDetailData -> {
             val loading = Mutation.SetAdditionalData(Async.Loading).observable
@@ -428,19 +527,14 @@ class DetailReactor(
                 )
             }
         }
-        is Action.ShowQrCode -> {
+        is Action.LoadQr -> {
             val qrLoad = Maybe.fromCallable { currentState.watchable }
                 .flatMap { deepLinkService.createDeepLinkUrl(it) }
-                .map { qrCodeService.generateFullScreen(it).asOptional }
-                .filterSome()
-                .doOnSuccess { Router follow DetailRoute.ShowQrCode(it) }
-                .ignoreElement()
-                .toObservable<Mutation>()
-            Observable.concat(
-                Mutation.SetQrLoading(true).observable,
-                qrLoad,
-                Mutation.SetQrLoading(false).observable
-            )
+                .flatMap { qrCodeService.generate(it) }
+                .mapToAsync()
+                .toObservable()
+                .map { Mutation.SetQrResult(it) }
+            Observable.concat(Mutation.SetQrResult(Async.Loading).observable, qrLoad)
         }
     }
 
@@ -462,7 +556,7 @@ class DetailReactor(
                 .sorted()
             previousState.copy(headerItems = newHeaderItems)
         }
-        is Mutation.SetQrLoading -> previousState.copy(qrLoading = mutation.loading)
+        is Mutation.SetQrResult -> previousState.copy(qrResult = mutation.qr)
     }
 
     private fun loadAdditionalInfoFromMovie(): Single<State.AdditionalData> {

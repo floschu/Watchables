@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"
+    android:overScrollMode="never"
     android:paddingBottom="@dimen/bnv_height">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,8 +43,9 @@
             android:id="@+id/rvMoreOptions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clipToPadding="false"
             android:layout_marginTop="@dimen/margin"
+            android:clipToPadding="false"
+            android:nestedScrollingEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/ivBackground"
             app:stackFromEnd="true"
             tools:itemCount="7"
@@ -53,11 +55,11 @@
             android:id="@+id/ivPoweredBy"
             android:layout_width="56dp"
             android:layout_height="38dp"
-            android:layout_marginTop="@dimen/margin_half"
             android:layout_marginStart="@dimen/margin"
+            android:layout_marginTop="@dimen/margin_half"
             android:src="@drawable/ic_tmdb_powered"
-            app:layout_constraintTop_toBottomOf="@id/rvMoreOptions"
-            app:layout_constraintStart_toStartOf="parent" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvMoreOptions" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvAttribution"
@@ -98,4 +100,4 @@
             app:layout_constraintTop_toBottomOf="@id/tvUserId"
             tools:text="App Version 1.2.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.core.widget.NestedScrollView>
