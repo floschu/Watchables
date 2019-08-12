@@ -9,13 +9,10 @@ import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import io.reactivex.Completable
 import io.reactivex.Maybe
-import io.reactivex.Notification
 import io.reactivex.Single
-import io.reactivex.rxkotlin.ofType
 import io.reactivex.rxkotlin.toFlowable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
-import java.lang.IllegalStateException
 
 typealias UpdatedMovies = List<Pair<Watchable, Movie>>
 typealias UpdatedShows = List<Triple<Watchable, Show, Season>> // newest season

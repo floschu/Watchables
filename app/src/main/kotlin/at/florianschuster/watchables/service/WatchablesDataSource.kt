@@ -39,7 +39,6 @@ import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.rxkotlin.toObservable
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 
 interface WatchablesDataSource {
     val watchableUser: Single<WatchableUser>

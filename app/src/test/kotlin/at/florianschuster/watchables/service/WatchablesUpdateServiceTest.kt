@@ -8,6 +8,5 @@ class WatchablesUpdateServiceTest {
 
     @Test
     fun test() { // todo
-
     }
 }

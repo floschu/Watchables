@@ -21,7 +21,6 @@ import android.os.Bundle
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
-import androidx.navigation.navOptions
 import androidx.navigation.ui.setupWithNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router

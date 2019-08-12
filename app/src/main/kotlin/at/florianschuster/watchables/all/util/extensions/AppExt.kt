@@ -74,7 +74,7 @@ fun RxPermissions.request(permission: Permission): Single<Boolean> {
         .onErrorReturn { false }
 }
 
-@Deprecated(message="Replace with AndroidAppUtil.Async if v16 is available.")
+@Deprecated(message = "Replace with AndroidAppUtil.Async if v16 is available.")
 @Experimental
 @CheckReturnValue
 fun <T : Any> Maybe<T>.mapToAsync(onComplete: () -> Async<T> = { Async.Error(NoSuchElementException()) }): Single<Async<T>> {
