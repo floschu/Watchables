@@ -26,8 +26,6 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
 
 sealed class WatchablesAdapterInteraction {
     data class Options(val watchable: Watchable) : WatchablesAdapterInteraction()
