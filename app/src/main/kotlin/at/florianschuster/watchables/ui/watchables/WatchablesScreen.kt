@@ -60,6 +60,7 @@ import com.tailoredapps.androidutil.ui.extensions.snack
 import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.all.util.extensions.rxDiff
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -100,8 +101,6 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         coordinator.provideNavigationHandler(findNavController())
 
-        AnimationUtils.loadAnimation(requireContext(), R.anim.pulse).also(ivLogo::startAnimation)
-
         with(rvWatchables) {
             adapter = this@WatchablesFragment.adapter
             addScrolledPastItemListener { fabScroll.isVisible = it }
@@ -125,14 +124,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-            .concatMapSingle { newData ->
-                WatchablesAdapter.calculateDiff(adapter.data, newData)
-                    .subscribeOn(Schedulers.computation())
-                    .map { newData to it }
-            }
-            .bind { (watchableContainerList, diffResult) ->
-                adapter.setData(watchableContainerList, diffResult)
-            }
+            .observeOn(Schedulers.io())
+            .rxDiff(WatchablesAdapter.Companion::calculateDiff)
+            .bind(to = adapter.dataConsumer)
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables.isEmpty() && !it.loading }

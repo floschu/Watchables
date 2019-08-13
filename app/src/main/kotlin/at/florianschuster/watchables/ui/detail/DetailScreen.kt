@@ -458,21 +458,25 @@ class DetailReactor(
             .map { Mutation.SetWatchable(it) }
             .doOnError(Timber::e)
             .onErrorReturn { Mutation.SetWatchable(null) }
-            .switchMap { Observable.concat(it.observable, mutate(Action.LoadDetailData)) }
+            .switchMap { setWatchableMutation ->
+                Observable.concat(
+                    setWatchableMutation.observable,
+                    mutate(Action.LoadDetailData),
+                    mutate(Action.LoadQr)
+                )
+            }
         return Observable.merge(mutation, watchableMutation)
     }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
         is Action.InitialLoad -> {
-            val dataLoad = watchablesDataSource.watchable(itemId)
+            watchablesDataSource.watchable(itemId)
                 .ignoreElement()
                 .toObservable<Mutation>()
                 .onErrorResumeNext { t: Throwable ->
                     if (t is NoSuchElementException) mutate(Action.LoadDetailData)
                     else Observable.empty()
                 }
-
-            Observable.concat(dataLoad, mutate(Action.LoadQr))
         }
         is Action.LoadDetailData -> {
             val loading = Mutation.SetAdditionalData(Async.Loading).observable

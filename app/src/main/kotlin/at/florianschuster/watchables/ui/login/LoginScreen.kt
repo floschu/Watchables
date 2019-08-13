@@ -80,8 +80,6 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
     }
 
     override fun bind(reactor: LoginReactor) {
-        AnimationUtils.loadAnimation(context, R.anim.pulse).also(ivLogo::startAnimation)
-
         ivPoweredBy.clicks()
             .bind { openChromeTab(getString(R.string.tmdb_url)) }
             .addTo(disposables)

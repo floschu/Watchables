@@ -25,7 +25,7 @@ import at.florianschuster.watchables.ui.watchables.WatchableContainer
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.functions.Consumer
 
 sealed class WatchablesAdapterInteraction {
     data class Options(val watchable: Watchable) : WatchablesAdapterInteraction()
@@ -41,13 +41,17 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
     val interaction: Observable<WatchablesAdapterInteraction>
         get() = interactionRelay.hide().share()
 
-    var data: List<WatchableContainer> = emptyList()
-        private set
+    private var data: List<WatchableContainer> = emptyList()
 
-    fun setData(data: List<WatchableContainer>, diffResult: DiffUtil.DiffResult) {
-        this.data = data
-        diffResult.dispatchUpdatesTo(this)
-    }
+    val dataConsumer: Consumer<Pair<List<WatchableContainer>, DiffUtil.DiffResult?>> =
+        Consumer { (newData, diff) ->
+            this.data = newData
+            if (diff != null) {
+                diff.dispatchUpdatesTo(this)
+            } else {
+                notifyDataSetChanged()
+            }
+        }
 
     private val viewPool = RecyclerView.RecycledViewPool()
 
@@ -83,27 +87,24 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
         fun calculateDiff(
             oldData: List<WatchableContainer>,
             newData: List<WatchableContainer>
-        ): Single<DiffUtil.DiffResult> = Single
-            .fromCallable {
-                DiffUtil.calculateDiff(object : DiffUtil.Callback() {
-                    override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                        oldData[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
+        ): DiffUtil.Callback = object : DiffUtil.Callback() {
+            override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                oldData[oldItemPosition].watchable.id == newData[newItemPosition].watchable.id
 
-                    override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
-                        oldData[oldItemPosition] == newData[newItemPosition]
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean =
+                oldData[oldItemPosition] == newData[newItemPosition]
 
-                    override fun getOldListSize(): Int = oldData.size
+            override fun getOldListSize(): Int = oldData.size
 
-                    override fun getNewListSize(): Int = newData.size
+            override fun getNewListSize(): Int = newData.size
 
-                    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-                        val oldItem = oldData[oldItemPosition]
-                        val newItem = newData[newItemPosition]
-                        val watchableDiff = oldItem.watchable != newItem.watchable
-                        val episodesDiff = oldItem.seasons != newItem.seasons
-                        return if (watchableDiff && episodesDiff) null else watchableDiff to episodesDiff
-                    }
-                })
+            override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
+                val oldItem = oldData[oldItemPosition]
+                val newItem = newData[newItemPosition]
+                val watchableDiff = oldItem.watchable != newItem.watchable
+                val episodesDiff = oldItem.seasons != newItem.seasons
+                return if (watchableDiff && episodesDiff) null else watchableDiff to episodesDiff
             }
+        }
     }
 }
