@@ -19,7 +19,7 @@ object Dependencies {
 
     val UI = mapOf(
         "Material" to "com.google.android.material:material:1.0.0",
-        "AppCompat" to "androidx.appcompat:appcompat:1.1.0-beta01",
+        "AppCompat" to "androidx.appcompat:appcompat:1.1.0-rc01",
         "Fragment" to "androidx.fragment:fragment:1.0.0",
         "Constraintlayout" to "androidx.constraintlayout:constraintlayout:1.1.3",
         "CoreKTX" to "androidx.core:core-ktx:1.0.1"
@@ -61,9 +61,9 @@ object Dependencies {
 
     val Firebase = mapOf(
         "Core" to "com.google.firebase:firebase-core:17.0.1",
-        "Auth" to "com.google.firebase:firebase-auth:18.0.0",
+        "Auth" to "com.google.firebase:firebase-auth:18.1.0",
         "gmsauth" to "com.google.android.gms:play-services-auth:17.0.0",
-        "Firestore" to "com.google.firebase:firebase-firestore:20.1.0",
+        "Firestore" to "com.google.firebase:firebase-firestore:20.2.0",
         "Crashlytics" to "com.crashlytics.sdk.android:crashlytics:2.10.1",
         "Messaging" to "com.google.firebase:firebase-messaging:19.0.1",
         "Performance" to "com.google.firebase:firebase-perf:18.0.1",
@@ -136,7 +136,7 @@ object Dependencies {
         "Rules" to ("androidx.test:rules:${Versions.AndroidXTest}"),
         "AndroidXTruth" to ("androidx.test.ext:truth:${Versions.AndroidXTest}"),
         "AndroidXJunit" to ("androidx.test.ext:junit:1.1.0"),
-        "Truth" to ("com.google.truth:truth:1.0-rc2"),
+        "Truth" to ("com.google.truth:truth:1.0"),
         "Espresso" to ("androidx.test.espresso:espresso-core:${Versions.Espresso}"),
         "EspressoContrib" to ("androidx.test.espresso:espresso-contrib:${Versions.Espresso}"),
         "EspressoIntents" to ("androidx.test.espresso:espresso-intents:${Versions.Espresso}"),
