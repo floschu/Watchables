@@ -39,23 +39,15 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnTorch"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Button.White"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin"
-        android:paddingStart="@dimen/padding"
-        android:paddingEnd="@dimen/padding"
         android:text="@string/scan_flash_on"
-        android:textAllCaps="false"
-        android:textColor="@color/textLightPrimary"
         app:icon="@drawable/ic_flash_on"
-        app:iconPadding="@dimen/padding"
-        app:iconTint="@color/textLightPrimary"
         app:layout_constraintBottom_toTopOf="@id/bnvSpace"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:rippleColor="@color/white_opacity_40"
-        app:strokeColor="@color/textLightPrimary" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <include
         android:id="@+id/layoutPermission"

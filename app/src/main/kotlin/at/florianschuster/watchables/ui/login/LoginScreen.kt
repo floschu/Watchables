@@ -19,6 +19,12 @@ package at.florianschuster.watchables.ui.login
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.view.animation.TranslateAnimation
+import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.android.koin.coordinator
@@ -49,10 +55,16 @@ import com.tailoredapps.androidutil.async.Async
 import com.tailoredapps.androidutil.firebase.RxTasks
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.all.util.extensions.main
+import com.tailoredapps.androidutil.ui.extensions.hideKeyboard
+import com.tailoredapps.androidutil.ui.extensions.showKeyBoard
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import kotlinx.android.synthetic.main.fragment_login.*
+import kotlinx.android.synthetic.main.fragment_login_buttons.*
+import kotlinx.android.synthetic.main.fragment_login_buttons.btnSignInEmail
+import kotlinx.android.synthetic.main.fragment_login_email.*
 
 enum class LoginRoute : CoordinatorRoute {
     OnLoggedIn
@@ -82,30 +94,35 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         ivPoweredBy.clicks()
             .bind { openChromeTab(getString(R.string.tmdb_url)) }
             .addTo(disposables)
-        tvPolicy.clicks()
+
+        btnPolicy.clicks()
             .bind { openChromeTab(getString(R.string.privacy_policy_url)) }
             .addTo(disposables)
 
-        btnSignIn.clicks()
-                .map {
-                    GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).apply {
-                        requestIdToken(getString(R.string.default_web_client_id))
-                        requestEmail()
-                    }.build()
-                }
-                .map { GoogleSignIn.getClient(activity!!, it) }
-                .bind { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
-                .addTo(disposables)
+        btnSignInEmail.clicks().bind { showEmail() }.addTo(disposables)
+        btnEmailBack.clicks().bind { showButtons() }.addTo(disposables)
+
+        btnSignInGoogle.clicks()
+            .map {
+                GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).apply {
+                    requestIdToken(getString(R.string.default_web_client_id))
+                    requestEmail()
+                }.build()
+            }
+            .map { GoogleSignIn.getClient(requireActivity(), it) }
+            .bind { startActivityForResult(it.signInIntent, SIGN_IN_CODE) }
+            .addTo(disposables)
 
         // state
         reactor.state.changesFrom { it.result }
-                .bind {
-                    progress.visibility(View.INVISIBLE).accept(it is Async.Loading)
-                    if (it is Async.Error) {
-                        toast(it.error.asCauseTranslation(resources))
-                    }
+            .bind {
+                progress.visibility(View.INVISIBLE).accept(it.loading)
+
+                if (it is Async.Error) {
+                    toast(it.error.asCauseTranslation(resources))
                 }
-                .addTo(disposables)
+            }
+            .addTo(disposables)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -113,10 +130,53 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
         if (requestCode != SIGN_IN_CODE) return
 
         RxTasks.single { GoogleSignIn.getSignedInAccountFromIntent(data) }
-                .map { GoogleAuthProvider.getCredential(it.idToken, null) }
-                .map { LoginReactor.Action.Login(it) }
-                .subscribe(reactor.action::accept) { toast(it.asCauseTranslation(resources)) }
-                .addTo(disposables)
+            .map { GoogleAuthProvider.getCredential(it.idToken, null) }
+            .map { LoginReactor.Action.Login(it) }
+            .subscribe(reactor.action::accept) { toast(it.asCauseTranslation(resources)) }
+            .addTo(disposables)
+    }
+
+    private fun showEmail() {
+        val animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+
+        includeButtons.isVisible = false
+        includeEmail.isVisible = true
+
+        TranslateAnimation(0f, 0f, 0f, 0f).apply {
+            duration = animationDuration
+            interpolator = OvershootInterpolator()
+            fillAfter = true
+        }.let { includeButtons.startAnimation(it) }
+
+        AlphaAnimation(1f, 0.25f).apply {
+            duration = animationDuration
+            interpolator = DecelerateInterpolator()
+            fillAfter = true
+        }.let {
+            ivLogo.startAnimation(it)
+            btnPolicy.startAnimation(it)
+            ivPoweredBy.startAnimation(it)
+        }
+
+        main(animationDuration) { etName.showKeyBoard() }
+    }
+
+    private fun showButtons() {
+        etName.hideKeyboard()
+        etEmail.hideKeyboard()
+
+        includeButtons.isVisible = true
+        includeEmail.isVisible = false
+
+        AlphaAnimation(0.25f, 1f).apply {
+            duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+            interpolator = AccelerateInterpolator()
+            fillAfter = true
+        }.let {
+            ivLogo.startAnimation(it)
+            btnPolicy.startAnimation(it)
+            ivPoweredBy.startAnimation(it)
+        }
     }
 
     companion object {
@@ -145,14 +205,14 @@ class LoginReactor(
         is Action.Login -> {
             val loading = Observable.just(Mutation.Login(Async.Loading))
             val loginMutation = sessionService.login(action.credential)
-                    .andThen(sessionService.user)
-                    .flatMapCompletable(::createWatchableUserIfNeeded)
-                    .doOnComplete { UpdateWatchablesWorker.enqueue() }
-                    .doOnComplete { DeleteWatchablesWorker.enqueue() }
-                    .toSingleDefault(Mutation.Login(Async.Success(Unit)))
-                    .toObservable()
-                    .onErrorReturn { Mutation.Login(Async.Error(it)) }
-                    .doOnComplete { Router follow LoginRoute.OnLoggedIn }
+                .andThen(sessionService.user)
+                .flatMapCompletable(::createWatchableUserIfNeeded)
+                .doOnComplete { UpdateWatchablesWorker.enqueue() }
+                .doOnComplete { DeleteWatchablesWorker.enqueue() }
+                .toSingleDefault(Mutation.Login(Async.Success(Unit)))
+                .toObservable()
+                .onErrorReturn { Mutation.Login(Async.Error(it)) }
+                .doOnComplete { Router follow LoginRoute.OnLoggedIn }
             Observable.concat(loading, loginMutation)
         }
     }
@@ -162,11 +222,11 @@ class LoginReactor(
     }
 
     private fun createWatchableUserIfNeeded(user: FirebaseUser): Completable =
-            watchablesDataSource.watchableUser.ignoreElement().onErrorResumeNext {
-                if (it is NoSuchElementException) {
-                    watchablesDataSource.createUser(WatchableUser(0).apply { id = user.uid })
-                } else {
-                    Completable.error(it)
-                }
+        watchablesDataSource.watchableUser.ignoreElement().onErrorResumeNext {
+            if (it is NoSuchElementException) {
+                watchablesDataSource.createUser(WatchableUser(0).apply { id = user.uid })
+            } else {
+                Completable.error(it)
             }
+        }
 }

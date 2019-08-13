@@ -70,7 +70,8 @@
     <string name="error_server_error_no_code"><![CDATA[A server error occurred]]></string>
     <string name="error_permission"><![CDATA[Please give the permission to use this feature]]></string>
     <string name="error_other"><![CDATA[An error occurred]]></string>
-    <string name="sign_in_google"><![CDATA[Sign in with Google]]></string>
+    <string name="login_btn_google"><![CDATA[Sign in with Google]]></string>
+    <string name="login_btn_email"><![CDATA[Sign in with Email]]></string>
     <string name="menu_watchable_season_set_watched"><![CDATA[Set season watched]]></string>
     <string name="menu_watchable_season_set_not_watched"><![CDATA[Set season not watched]]></string>
     <string name="onboarding_snack"><![CDATA[By long pressing Watchables and Episodes, you get more options!]]></string>
@@ -106,6 +107,9 @@
     <string name="more_ratings_toggle"><![CDATA[Watchable Ratings]]></string>
     <string name="detail_iv_cd_qr"><![CDATA[The QR code of the Watchable]]></string>
     <string name="detail_error_qr"><![CDATA[QR code could not be created]]></string>
+    <string name="login_email_btn_send"><![CDATA[Send]]></string>
+    <string name="login_email_hint_email"><![CDATA[Email]]></string>
+    <string name="login_email_hint_name"><![CDATA[Name]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchables Add Notifications]]></string>
     <string name="notification_add_channel_description"><![CDATA[These notifications are displayed when a Watchable is being added to your list.]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Sorry!]]></string>

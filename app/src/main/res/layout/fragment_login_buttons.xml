@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSignInGoogle"
+        style="@style/Widget.MaterialComponents.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        android:text="@string/login_btn_google"
+        android:textAllCaps="false"
+        android:textColor="@color/textDarkPrimary"
+        app:icon="@drawable/ic_google"
+        app:iconTint="@color/transparent"
+        app:iconTintMode="src_over"
+        app:layout_constraintBottom_toTopOf="@id/btnSignInEmail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        app:rippleColor="@color/black_opacity_15" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSignInEmail"
+        style="@style/Widget.MaterialComponents.Button.Icon"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        android:text="@string/login_btn_email"
+        android:textAllCaps="false"
+        android:textColor="@color/textDarkPrimary"
+        app:icon="@drawable/ic_mail_outline"
+        app:iconTint="@color/transparent"
+        app:iconTintMode="src_over"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSignInGoogle"
+        app:layout_constraintWidth_percent="0.5"
+        app:rippleColor="@color/black_opacity_15" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
