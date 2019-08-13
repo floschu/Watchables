@@ -66,9 +66,9 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables.emptyLayout
-import kotlinx.android.synthetic.main.fragment_watchables.fabScroll
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
@@ -125,8 +125,9 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-            .switchMapSingle { newData ->
+            .concatMapSingle { newData ->
                 WatchablesAdapter.calculateDiff(adapter.data, newData)
+                    .subscribeOn(Schedulers.computation())
                     .map { newData to it }
             }
             .bind { (watchableContainerList, diffResult) ->

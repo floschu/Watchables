@@ -195,6 +195,13 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                             }
                         }
 
+                        val rating = additionalDataAsync.element.rating
+                        includeRating.isVisible = reactor.currentState.watchableRatingsEnabled && rating != null
+                        if (rating != null) {
+                            tvRating.text = "${rating.rating}"
+                            tvNumberOfRatings.text = getString(R.string.detail_tv_ratings, rating.count)
+                        }
+
                         val summary = additionalDataAsync.element.summary
                         tvSummary.isVisible = summary != null
                         if (summary != null) tvSummary.text = summary
@@ -202,13 +209,6 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                         val actors = additionalDataAsync.element.actors
                         tvActors.isVisible = actors.isNotEmpty()
                         tvActors.text = getString(R.string.detail_tv_actors, actors.joinToString(", "))
-
-                        val rating = additionalDataAsync.element.rating
-                        includeRating.isVisible = reactor.currentState.watchableRatingsEnabled && rating != null
-                        if (rating != null) {
-                            tvRating.text = "${rating.rating}"
-                            tvNumberOfRatings.text = getString(R.string.detail_tv_ratings, rating.count)
-                        }
 
                         optionsAdapter.update()
                     }
