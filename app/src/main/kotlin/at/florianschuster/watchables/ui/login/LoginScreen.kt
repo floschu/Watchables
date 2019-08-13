@@ -19,7 +19,6 @@ package at.florianschuster.watchables.ui.login
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.animation.AnimationUtils
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.android.koin.coordinator
