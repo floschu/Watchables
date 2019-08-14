@@ -25,7 +25,6 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.annotations.CheckReturnValue
 import io.reactivex.annotations.Experimental
-import io.reactivex.rxkotlin.ofType
 
 @Deprecated(message = "Replace with AndroidAppUtil.Async if v16 is available.")
 @Experimental
