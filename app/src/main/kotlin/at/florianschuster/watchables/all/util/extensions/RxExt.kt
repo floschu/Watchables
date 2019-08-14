@@ -18,11 +18,14 @@ package at.florianschuster.watchables.all.util.extensions
 
 import androidx.recyclerview.widget.DiffUtil
 import com.tailoredapps.androidutil.async.Async
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.annotations.CheckReturnValue
 import io.reactivex.annotations.Experimental
+import io.reactivex.rxkotlin.ofType
 
 @Deprecated(message = "Replace with AndroidAppUtil.Async if v16 is available.")
 @Experimental
@@ -43,13 +46,12 @@ fun <T : Any> Maybe<T>.mapToAsync(onComplete: () -> Async<T> = { Async.Error(NoS
 
 fun <T : Any> Observable<List<T>>.rxDiff(
     differ: (List<T>, List<T>) -> DiffUtil.Callback
-): Observable<Pair<List<T>, DiffUtil.DiffResult?>> {
-    val seedPair: Pair<List<T>, DiffUtil.DiffResult?> = Pair(emptyList(), null)
+): Flowable<Pair<List<T>, DiffUtil.DiffResult?>> {
+    return toFlowable(BackpressureStrategy.BUFFER)
+        .scan(Pair(emptyList(), null), { (oldItems, _), nextItems ->
+            val callback = differ(oldItems, nextItems)
+            val result = DiffUtil.calculateDiff(callback, true)
 
-    return scan(seedPair, { oldPair, nextItems ->
-        val callback = differ(oldPair.first, nextItems)
-        val result = DiffUtil.calculateDiff(callback, true)
-
-        nextItems to result
-    }).skip(1)
+            nextItems to result
+        })
 }

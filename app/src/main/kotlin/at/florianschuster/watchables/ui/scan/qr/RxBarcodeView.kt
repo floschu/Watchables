@@ -34,11 +34,6 @@ fun BarcodeView.decode(): Observable<BarcodeResult> {
     return BarcodeViewDecodeObservable(this, BarCodeScanType.CONTINUOUS)
 }
 
-@CheckResult
-fun BarcodeView.decodeSingle(): Observable<BarcodeResult> {
-    return BarcodeViewDecodeObservable(this, BarCodeScanType.SINGLE)
-}
-
 internal class BarcodeViewDecodeObservable(
     private val view: BarcodeView,
     private val type: BarCodeScanType

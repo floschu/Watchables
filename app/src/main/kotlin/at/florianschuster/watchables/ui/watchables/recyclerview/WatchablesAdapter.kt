@@ -26,6 +26,7 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
 import io.reactivex.functions.Consumer
+import timber.log.Timber
 
 sealed class WatchablesAdapterInteraction {
     data class Options(val watchable: Watchable) : WatchablesAdapterInteraction()
@@ -42,16 +43,19 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
         get() = interactionRelay.hide().share()
 
     private var data: List<WatchableContainer> = emptyList()
-
     val dataConsumer: Consumer<Pair<List<WatchableContainer>, DiffUtil.DiffResult?>> =
         Consumer { (newData, diff) ->
-            this.data = newData
+            data = newData
             if (diff != null) {
                 diff.dispatchUpdatesTo(this)
             } else {
                 notifyDataSetChanged()
             }
         }
+
+    init {
+        Timber.d("WatchablesAdapter init()")
+    }
 
     private val viewPool = RecyclerView.RecycledViewPool()
 
@@ -84,7 +88,7 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
     }
 
     companion object {
-        fun calculateDiff(
+        fun diff(
             oldData: List<WatchableContainer>,
             newData: List<WatchableContainer>
         ): DiffUtil.Callback = object : DiffUtil.Callback() {

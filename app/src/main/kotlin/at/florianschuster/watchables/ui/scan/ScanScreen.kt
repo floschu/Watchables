@@ -20,6 +20,11 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.isVisible
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
+import at.florianschuster.koordinator.CoordinatorRoute
+import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
@@ -27,6 +32,8 @@ import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.all.util.extensions.request
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.ui.scan.qr.decode
@@ -47,8 +54,28 @@ import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import java.util.concurrent.TimeUnit
 
+sealed class ScanRoute : CoordinatorRoute {
+    object Pop : ScanRoute()
+    data class OnItemScanned(val id: String, val type: Watchable.Type) : ScanRoute()
+}
+
+class ScanCoordinator : BaseCoordinator<ScanRoute, NavController>() {
+    override fun navigate(route: ScanRoute, handler: NavController) {
+        when (route) {
+            is ScanRoute.Pop -> {
+                handler.navigateUp()
+            }
+            is ScanRoute.OnItemScanned -> {
+                val action = ScanScreenDirections.actionScanToDetail(route.id, route.type)
+                handler.navigate(action)
+            }
+        }
+    }
+}
+
 class ScanScreen : BaseFragment(R.layout.fragment_scan), ReactorView<ScanReactor> {
     override val reactor: ScanReactor by reactor()
+    private val coordinator: ScanCoordinator by coordinator()
 
     private val rxPermissions: RxPermissions by inject { parametersOf(this) }
 
@@ -60,9 +87,11 @@ class ScanScreen : BaseFragment(R.layout.fragment_scan), ReactorView<ScanReactor
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        coordinator provideNavigationHandler findNavController()
+
         btnTorch.isVisible = context?.flashAvailable ?: false
 
-        btnBack.clicks().bind { navController.navigateUp() }.addTo(disposables)
+        btnBack.clicks().bind { Router follow ScanRoute.Pop }.addTo(disposables)
 
         btnQueryPermission.clicks()
             .flatMapSingle { rxPermissions.request(Permission.Camera) }
@@ -99,10 +128,7 @@ class ScanScreen : BaseFragment(R.layout.fragment_scan), ReactorView<ScanReactor
                 loading.isVisible = scanDataAsync.loading
                 when (scanDataAsync) {
                     is Async.Success -> {
-                        ScanScreenDirections.actionScanToDetail(
-                            scanDataAsync.element.id,
-                            scanDataAsync.element.type
-                        ).let(navController::navigate)
+                        Router follow ScanRoute.OnItemScanned(scanDataAsync.element.id, scanDataAsync.element.type)
                     }
                     is Async.Error -> toast(R.string.scan_error)
                 }

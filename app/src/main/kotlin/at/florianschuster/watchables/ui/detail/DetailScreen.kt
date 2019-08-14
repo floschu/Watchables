@@ -26,6 +26,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -121,7 +122,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        coordinator.provideNavigationHandler(navController)
+        coordinator provideNavigationHandler findNavController()
 
         btnBack.clicks()
             .map { DetailRoute.Pop }

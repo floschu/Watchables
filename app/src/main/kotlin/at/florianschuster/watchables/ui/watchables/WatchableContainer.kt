@@ -50,5 +50,5 @@ val WatchablesDataSource.watchableContainerObservable: Flowable<List<WatchableCo
                         watchable.convertToWatchableContainer(watchableSeasons)
                     }
                 }
-                .skip(1) // skips initial startWith emptyLists that are needed when seasons are still empty
+                .skip(1)
     }

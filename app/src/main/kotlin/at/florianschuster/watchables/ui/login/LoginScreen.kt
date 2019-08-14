@@ -74,7 +74,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        coordinator.provideNavigationHandler(findNavController())
+        coordinator provideNavigationHandler findNavController()
         bind(reactor)
     }
 

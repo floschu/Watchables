@@ -21,6 +21,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
 import at.florianschuster.koordinator.android.koin.coordinator
@@ -96,7 +97,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
     }
 
     override fun bind(reactor: SearchReactor) {
-        coordinator.provideNavigationHandler(navController)
+        coordinator provideNavigationHandler findNavController()
 
         with(rvSearch) {
             adapter = this@SearchFragment.adapter
