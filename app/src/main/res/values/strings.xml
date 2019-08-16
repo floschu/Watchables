@@ -25,7 +25,8 @@
     <string name="watchable_not_watched"><![CDATA[Not yet Watched]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh no :(]]></string>
     <string name="empty_watchable_text"><![CDATA[You have not added any Watchables yet. Add some by using the Search!]]></string>
-    <string name="more_updage_watchables"><![CDATA[Update Watchables]]></string>
+    <string name="more_update_watchables"><![CDATA[Update Watchables]]></string>
+    <string name="more_update_watchables_subtitle"><![CDATA[Synchronize your Watchables with the server, if something does not seem right]]></string>
     <string name="more_logout"><![CDATA[Logout]]></string>
     <string name="more_report_bug"><![CDATA[Report a bug]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>

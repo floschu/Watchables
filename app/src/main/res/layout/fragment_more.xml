@@ -56,7 +56,7 @@
             android:layout_width="56dp"
             android:layout_height="38dp"
             android:layout_marginStart="@dimen/margin"
-            android:layout_marginTop="@dimen/margin_half"
+            android:layout_marginTop="@dimen/margin"
             android:src="@drawable/ic_tmdb_powered"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvMoreOptions" />

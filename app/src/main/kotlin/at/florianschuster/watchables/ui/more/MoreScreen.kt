@@ -145,8 +145,8 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
         }
 
     private val updateWatchablesOption: Option
-        get() = Option.Action(R.string.more_updage_watchables, R.drawable.ic_update) {
-            reactor.action.accept(MoreReactor.Action.UpdateWatchables) // todo remove item after click
+        get() = Option.Value(R.string.more_update_watchables, R.drawable.ic_update, getString(R.string.more_update_watchables_subtitle)) {
+            reactor.action.accept(MoreReactor.Action.UpdateWatchables)
         }
 
     private val ratingsOption: Option
