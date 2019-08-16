@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:foreground="?attr/selectableItemBackground"
     android:minHeight="?attr/listPreferredItemHeight"
-    android:background="@color/blackTransparent"
+    android:background="@drawable/bg_option_ripple"
     android:padding="@dimen/padding">
 
     <androidx.appcompat.widget.AppCompatImageView

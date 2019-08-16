@@ -4,6 +4,7 @@
     <dimen name="margin_half">8dp</dimen>
     <dimen name="padding">12dp</dimen>
 
+    <dimen name="item_ripple_padding">4dp</dimen>
     <dimen name="item_outer_corners">12dp</dimen>
     <dimen name="item_inner_corners">8dp</dimen>
 
