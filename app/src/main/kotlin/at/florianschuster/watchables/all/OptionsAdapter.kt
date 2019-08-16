@@ -29,16 +29,24 @@ import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_option.*
 import kotlinx.android.synthetic.main.item_option_square.*
 import kotlinx.android.synthetic.main.item_option_toggle.*
+import kotlinx.android.synthetic.main.item_option_value.*
 
 sealed class Option(val title: Int, val icon: Int?, val layout: Int) {
+    val id: String get() = "$layout$title"
+
     class Action(@StringRes title: Int, @DrawableRes icon: Int?, val action: () -> Unit) :
         Option(title, icon, R.layout.item_option)
 
-    class Toggle(@StringRes title: Int, @DrawableRes icon: Int, val isToggled: Boolean, val toggled: (Boolean) -> Unit) :
-        Option(title, icon, R.layout.item_option_toggle)
-
     class SquareAction(@StringRes title: Int, @DrawableRes icon: Int?, val action: () -> Unit) :
         Option(title, icon, R.layout.item_option_square)
+
+    class Toggle(@StringRes title: Int, @DrawableRes icon: Int, val initialToggled: Boolean, val toggled: (Boolean) -> Unit) :
+        Option(title, icon, R.layout.item_option_toggle)
+
+    class Value(@StringRes title: Int, @DrawableRes icon: Int, val value: String, val clicked: () -> Unit) :
+        Option(title, icon, R.layout.item_option_value)
+
+    object Divider : Option(-1, -1, R.layout.item_option_divider)
 }
 
 class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
@@ -47,7 +55,9 @@ class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OptionViewHolder = when (viewType) {
         R.layout.item_option -> OptionViewHolder.Action(parent.inflate(viewType))
         R.layout.item_option_square -> OptionViewHolder.SquareAction(parent.inflate(viewType))
-        else -> OptionViewHolder.Toggle(parent.inflate(viewType))
+        R.layout.item_option_toggle -> OptionViewHolder.Toggle(parent.inflate(viewType))
+        R.layout.item_option_value -> OptionViewHolder.Value(parent.inflate(viewType))
+        else -> OptionViewHolder.Divider(parent.inflate(viewType))
     }
 
     override fun onBindViewHolder(holder: OptionViewHolder, position: Int) {
@@ -55,14 +65,14 @@ class OptionsAdapter : ListAdapter<Option, OptionViewHolder>(optionDiff) {
             is OptionViewHolder.Action -> holder.bind(getItem(position) as Option.Action)
             is OptionViewHolder.Toggle -> holder.bind(getItem(position) as Option.Toggle)
             is OptionViewHolder.SquareAction -> holder.bind(getItem(position) as Option.SquareAction)
+            is OptionViewHolder.Value -> holder.bind(getItem(position) as Option.Value)
         }
     }
 }
 
 private val optionDiff = object : DiffUtil.ItemCallback<Option>() {
-    override fun areItemsTheSame(oldItem: Option, newItem: Option): Boolean = oldItem.title == newItem.title
-    override fun areContentsTheSame(oldItem: Option, newItem: Option): Boolean =
-        oldItem.title == newItem.title && oldItem.icon == newItem.icon && oldItem.layout == newItem.layout
+    override fun areItemsTheSame(oldItem: Option, newItem: Option): Boolean = oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: Option, newItem: Option): Boolean = false
 }
 
 sealed class OptionViewHolder(override val containerView: View) :
@@ -109,8 +119,26 @@ sealed class OptionViewHolder(override val containerView: View) :
                 }
             }
             sw.setText(option.title)
-            sw.isChecked = option.isToggled
+            sw.isChecked = option.initialToggled
             sw.setOnCheckedChangeListener { _, checked -> option.toggled(checked) }
         }
     }
+
+    class Value(containerView: View) : OptionViewHolder(containerView) {
+        fun bind(option: Option.Value) {
+            with(ivIconValue) {
+                visibility = if (option.icon != null) {
+                    setImageResource(option.icon)
+                    View.VISIBLE
+                } else {
+                    View.INVISIBLE
+                }
+            }
+            tvTitleValue.setText(option.title)
+            tvValue.text = option.value
+            containerView.setOnClickListener { option.clicked() }
+        }
+    }
+
+    class Divider(containerView: View) : OptionViewHolder(containerView)
 }

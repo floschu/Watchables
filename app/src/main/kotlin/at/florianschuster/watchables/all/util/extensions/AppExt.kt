@@ -17,7 +17,11 @@
 package at.florianschuster.watchables.all.util.extensions
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.provider.CalendarContract
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -28,10 +32,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.WatchablesApp
+import com.mikepenz.aboutlibraries.Libs
+import com.mikepenz.aboutlibraries.LibsBuilder
 import com.tailoredapps.androidutil.permissions.Permission
 import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Single
+import org.threeten.bp.LocalDate
+import org.threeten.bp.ZoneOffset
 
 @SuppressLint("CheckResult")
 fun main(afterMillis: Long = 0, block: () -> Unit) {
@@ -62,6 +71,49 @@ fun FragmentActivity.openChromeTab(url: String) {
 
 fun Fragment.openChromeTab(url: String) {
     requireActivity().openChromeTab(url)
+}
+
+fun Fragment.showLibraries() {
+    LibsBuilder().apply {
+        withActivityTitle(requireContext().getString(R.string.more_licenses))
+        withActivityStyle(Libs.ActivityStyle.DARK)
+        withCheckCachedDetection(false)
+        withLicenseShown(true)
+        withAutoDetect(true)
+    }.start(requireContext())
+}
+
+fun FragmentActivity.openPlayStoreToRateApp() {
+    try {
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("market://details?id=${WatchablesApp.instance.packageName}")
+        ).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NO_HISTORY or
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+            )
+        }
+    } catch (e: ActivityNotFoundException) {
+        IntentUtil.playstore(this)
+    }.let(::startActivity)
+}
+
+fun Fragment.openPlayStoreToRateApp() {
+    requireActivity().openPlayStoreToRateApp()
+}
+
+fun Fragment.openCalendarWithEvent(title: String, description: String, date: LocalDate) {
+    startActivity(Intent(Intent.ACTION_INSERT).apply {
+        data = CalendarContract.Events.CONTENT_URI
+        val millis = date.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
+        putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, millis)
+        putExtra(CalendarContract.EXTRA_EVENT_END_TIME, millis)
+        putExtra(CalendarContract.EXTRA_EVENT_ALL_DAY, true)
+        putExtra(CalendarContract.Events.TITLE, title)
+        putExtra(CalendarContract.Events.DESCRIPTION, description)
+    })
 }
 
 fun RxPermissions.request(permission: Permission): Single<Boolean> {

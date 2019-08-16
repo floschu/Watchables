@@ -28,7 +28,6 @@ import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.Option
 import at.florianschuster.watchables.all.OptionsAdapter
-import at.florianschuster.watchables.all.util.Utils
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
@@ -48,6 +47,8 @@ import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.BuildConfig
+import at.florianschuster.watchables.all.util.extensions.openPlayStoreToRateApp
+import at.florianschuster.watchables.all.util.extensions.showLibraries
 import at.florianschuster.watchables.service.local.PrefRepo
 import com.jakewharton.rxbinding3.view.clicks
 import com.tailoredapps.androidutil.ui.IntentUtil
@@ -69,9 +70,12 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        rvMoreOptions.layoutManager = GridLayoutManager(requireContext(), 2).apply {
-            spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-                override fun getSpanSize(position: Int): Int = if (position < 2) 1 else 2
+        with(rvMoreOptions) {
+            adapter = this@MoreFragment.adapter
+            layoutManager = GridLayoutManager(requireContext(), 2).apply {
+                spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+                    override fun getSpanSize(position: Int): Int = if (position < 2) 1 else 2
+                }
             }
         }
 
@@ -80,19 +84,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
     }
 
     override fun bind(reactor: MoreReactor) {
-        rvMoreOptions.adapter = adapter
-        listOf(
-            rateOption,
-            shareOption,
-            updateWatchablesOption,
-            ratingsOption,
-            privacyOption,
-            licensesOption,
-            analyticsOption,
-            devInfoOption,
-            reportBugOption,
-            logoutOption
-        ).also(adapter::submitList)
+        adapter.update(reactor.currentState)
 
         reactor.state.changesFrom { it.userName.asOptional }
             .filterSome()
@@ -120,6 +112,23 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
             .addTo(disposables)
     }
 
+    private fun OptionsAdapter.update(state: MoreReactor.State) {
+        listOfNotNull(
+            rateOption,
+            shareOption,
+            ratingsOption,
+            updateWatchablesOption,
+            Option.Divider,
+            privacyOption,
+            licensesOption,
+            devInfoOption,
+            reportBugOption,
+            analyticsOption,
+            Option.Divider,
+            logoutOption
+        ).also(::submitList)
+    }
+
     private fun Context.copyTextToClipBoard(label: String, text: String) {
         val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
@@ -127,7 +136,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
     private val rateOption: Option
         get() = Option.SquareAction(R.string.settings_rate_app, R.drawable.ic_rate_review) {
-            startActivity(Utils.rateApp(requireContext()))
+            openPlayStoreToRateApp()
         }
 
     private val shareOption: Option
@@ -137,7 +146,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
     private val updateWatchablesOption: Option
         get() = Option.Action(R.string.more_updage_watchables, R.drawable.ic_update) {
-            reactor.action.accept(MoreReactor.Action.UpdateWatchables)
+            reactor.action.accept(MoreReactor.Action.UpdateWatchables) // todo remove item after click
         }
 
     private val ratingsOption: Option
@@ -162,7 +171,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
     private val licensesOption: Option
         get() = Option.Action(R.string.more_licenses, R.drawable.ic_search) {
-            Utils.showLibraries(requireContext())
+            showLibraries()
         }
 
     private val analyticsOption: Option
@@ -179,7 +188,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
                 negativeButtonResource = R.string.dialog_cancel
             }.ofType<RxDialogAction.Positive>()
                 .map { MoreReactor.Action.Logout }
-                .subscribe(reactor.action)
+                .bind(to = reactor.action)
                 .addTo(disposables)
         }
 }
@@ -189,7 +198,10 @@ class MoreReactor(
     private val analyticsService: AnalyticsService,
     private val prefRepo: PrefRepo
 ) : BaseReactor<MoreReactor.Action, MoreReactor.Mutation, MoreReactor.State>(
-    State(analyticsService.analyticsEnabled, prefRepo.watchableRatingsEnabled)
+    initialState = State(
+        analyticsEnabled = analyticsService.analyticsEnabled,
+        watchableRatingsEnabled = prefRepo.watchableRatingsEnabled
+    )
 ) {
     sealed class Action {
         object Logout : Action()

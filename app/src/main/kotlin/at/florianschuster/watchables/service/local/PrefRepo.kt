@@ -16,54 +16,37 @@
 
 package at.florianschuster.watchables.service.local
 
-import android.content.Context
+import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
-import com.orhanobut.hawk.Hawk
 import org.threeten.bp.LocalDate
+import java.util.Locale
 
-interface PrefRepo {
-    var analyticsEnabled: Boolean
+class PrefRepo(
+    private val persistenceProvider: PersistenceProvider
+) {
+
     var onboardingSnackShown: Boolean
+        get() = persistenceProvider.retrieve(PersistenceProvider.KEY.OnboardingSnackShown, false)
+        set(value) {
+            persistenceProvider.store(PersistenceProvider.KEY.OnboardingSnackShown, value)
+        }
+
     var enjoyingAppDialogShownDate: LocalDate
+        get() = LocalDate.ofEpochDay(persistenceProvider.retrieve(PersistenceProvider.KEY.EnjoyingDialogShownDate, LocalDate.now().plusDays(7).toEpochDay()))
+        set(value) {
+            persistenceProvider.store(PersistenceProvider.KEY.EnjoyingDialogShownDate, value.toEpochDay())
+        }
+
     var rated: Boolean
-    var watchableContainerFilterType: WatchableContainerFilterType
+        get() = persistenceProvider.retrieve(PersistenceProvider.KEY.RatedInPlayStore, false)
+        set(value) {
+            persistenceProvider.store(PersistenceProvider.KEY.RatedInPlayStore, value)
+        }
+
     var watchableContainerSortingType: WatchableContainerSortingType
-    var watchableRatingsEnabled: Boolean
-}
-
-class HawkPrefRepo(context: Context) : PrefRepo {
-    init {
-        Hawk.init(context).build()
-    }
-
-    override var analyticsEnabled: Boolean
-        get() = Hawk.get(ANALYTICS_ENABLED, true)
-        set(value) {
-            Hawk.put(ANALYTICS_ENABLED, value)
-        }
-
-    override var onboardingSnackShown: Boolean
-        get() = Hawk.get(ONBOARDING_SNACK, false)
-        set(value) {
-            Hawk.put(ONBOARDING_SNACK, value)
-        }
-
-    override var enjoyingAppDialogShownDate: LocalDate
-        get() = LocalDate.ofEpochDay(Hawk.get(ENJOYING_DIALOG_DATE, LocalDate.now().plusDays(7).toEpochDay()))
-        set(value) {
-            Hawk.put(ENJOYING_DIALOG_DATE, value.toEpochDay())
-        }
-
-    override var rated: Boolean
-        get() = Hawk.get(RATED, false)
-        set(value) {
-            Hawk.put(RATED, value)
-        }
-
-    override var watchableContainerSortingType: WatchableContainerSortingType
         get() {
-            val stored = Hawk.get(WATCHABLES_CONTAINER_SORTING_TYPE, 0)
+            val stored = persistenceProvider.retrieve(PersistenceProvider.KEY.PreferredWatchablesContainerSortingType, 0)
             return when {
                 stored < WatchableContainerSortingType.values().size -> {
                     WatchableContainerSortingType.values()[stored]
@@ -72,12 +55,12 @@ class HawkPrefRepo(context: Context) : PrefRepo {
             }
         }
         set(value) {
-            Hawk.put(WATCHABLES_CONTAINER_SORTING_TYPE, value.ordinal)
+            persistenceProvider.store(PersistenceProvider.KEY.PreferredWatchablesContainerSortingType, value.ordinal)
         }
 
-    override var watchableContainerFilterType: WatchableContainerFilterType
+    var watchableContainerFilterType: WatchableContainerFilterType
         get() {
-            val stored = Hawk.get(WATCHABLES_CONTAINER_FILTER_TYPE, 0)
+            val stored = persistenceProvider.retrieve(PersistenceProvider.KEY.PreferredWatchablesContainerFilterType, 0)
             return when {
                 stored < WatchableContainerFilterType.values().size -> {
                     WatchableContainerFilterType.values()[stored]
@@ -86,22 +69,12 @@ class HawkPrefRepo(context: Context) : PrefRepo {
             }
         }
         set(value) {
-            Hawk.put(WATCHABLES_CONTAINER_FILTER_TYPE, value.ordinal)
+            persistenceProvider.store(PersistenceProvider.KEY.PreferredWatchablesContainerFilterType, value.ordinal)
         }
 
-    override var watchableRatingsEnabled: Boolean
-        get() = Hawk.get(WATCHABLE_RATINGS, true)
+    var watchableRatingsEnabled: Boolean
+        get() = persistenceProvider.retrieve(PersistenceProvider.KEY.WatchableRatingsEnabled, true)
         set(value) {
-            Hawk.put(WATCHABLE_RATINGS, value)
+            persistenceProvider.store(PersistenceProvider.KEY.WatchableRatingsEnabled, value)
         }
-
-    companion object {
-        private const val ANALYTICS_ENABLED = "analytics_enabled"
-        private const val ONBOARDING_SNACK = "onboarding_snack"
-        private const val ENJOYING_DIALOG_DATE = "enjoying_dialog_date"
-        private const val RATED = "rated_app"
-        private const val WATCHABLES_CONTAINER_SORTING_TYPE = "watchables_container_sorting_type"
-        private const val WATCHABLES_CONTAINER_FILTER_TYPE = "watchables_container_filter_type"
-        private const val WATCHABLE_RATINGS = "watchable_ratings"
-    }
 }

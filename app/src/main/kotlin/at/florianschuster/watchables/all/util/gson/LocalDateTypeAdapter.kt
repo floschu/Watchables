@@ -22,23 +22,32 @@ import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
+import org.threeten.bp.format.DateTimeParseException
+import timber.log.Timber
 import java.util.Locale
 
 class LocalDateTypeAdapter : TypeAdapter<LocalDate?>() {
+    private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withLocale(Locale.ENGLISH)
+    private val formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
 
     override fun write(out: JsonWriter, value: LocalDate?) {
         out.value(value.toString())
     }
 
     override fun read(`in`: JsonReader): LocalDate? =
-            if (`in`.peek() == JsonToken.NULL) {
-                `in`.nextNull()
-                null
-            } else {
-                val value = `in`.nextString()
-                val formatter = DateTimeFormatter
-                        .ofPattern("yyyy-MM-dd")
-                        .withLocale(Locale.ENGLISH)
+        if (`in`.peek() == JsonToken.NULL) {
+            `in`.nextNull()
+            null
+        } else {
+            val value = `in`.nextString()
+            try {
                 LocalDate.parse(value, formatter)
+            } catch (e: DateTimeParseException) {
+                try {
+                    LocalDate.parse(value, formatter2)
+                } catch (e: DateTimeParseException) {
+                    null
+                }
             }
+        }
 }

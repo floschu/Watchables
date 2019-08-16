@@ -18,9 +18,12 @@ package at.florianschuster.watchables.service.remote
 
 import com.google.gson.Gson
 import at.florianschuster.watchables.BuildConfig
+import at.florianschuster.watchables.all.AppLocaleProvider
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.all.util.gson.LocalDateTypeAdapter
+import at.florianschuster.watchables.all.util.gson.MovieReleaseDateTypeTypeAdapter
 import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
+import at.florianschuster.watchables.model.Movie
 import com.google.gson.GsonBuilder
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient
@@ -30,7 +33,6 @@ import org.threeten.bp.LocalDate
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.Locale
 
 internal val remoteModule = module {
     single { provideGson() }
@@ -42,6 +44,7 @@ internal val remoteModule = module {
 private fun provideGson(): Gson = GsonBuilder().apply {
     registerTypeAdapter(LocalDate::class.java, LocalDateTypeAdapter())
     registerTypeAdapter(Search.SearchItem::class.java, SearchItemTypeAdapter())
+    registerTypeAdapter(Movie.ReleaseDates.Result.Date.Type::class.java, MovieReleaseDateTypeTypeAdapter())
 }.create()
 
 private fun provideOkHttpClient(
@@ -51,7 +54,7 @@ private fun provideOkHttpClient(
 }.build()
 
 private fun provideMovieDatabaseApi(
-    currentLocale: Locale,
+    appLocaleProvider: AppLocaleProvider,
     okHttpClient: OkHttpClient,
     gson: Gson,
     apiUrl: String
@@ -62,8 +65,8 @@ private fun provideMovieDatabaseApi(
             val request = originalRequest.newBuilder().apply {
                 val url = originalRequest.url.newBuilder().apply {
                     addQueryParameter("api_key", BuildConfig.MOVIEDB_KEY)
-                    addQueryParameter("language", currentLocale.toLanguageTag())
-                    addQueryParameter("region", currentLocale.language.toUpperCase())
+                    addQueryParameter("language", appLocaleProvider.preferredUserLocale.toLanguageTag())
+                    addQueryParameter("region", appLocaleProvider.preferredUserLocale.language.toUpperCase())
                 }.build()
                 url(url)
             }.build()

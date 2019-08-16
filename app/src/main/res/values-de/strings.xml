@@ -19,7 +19,8 @@
     <string name="menu_watchable_share"><![CDATA[Watchable weiterleiten]]></string>
     <string name="release_date_past"><![CDATA[Erschienen am %s]]></string>
     <string name="release_date_future"><![CDATA[Erscheint am %s]]></string>
-    <string name="release_date_not_available"><![CDATA[Kein Erscheinungsdatum bekannt.]]></string>
+    <string name="realease_date_btn_more"><![CDATA[Klicke hier für andere]]></string>
+    <string name="realease_date_dialog_title"><![CDATA[Erscheinungsdaten]]></string>
     <string name="watchable_watched"><![CDATA[Gesehen]]></string>
     <string name="watchable_not_watched"><![CDATA[Nicht gesehen]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh nein :(]]></string>
@@ -45,6 +46,7 @@
         <item><![CDATA[Was geht,\n]]></item>
         <item><![CDATA[Yo,\n]]></item>
     </string-array>
+    <string name="more_ratings_toggle"><![CDATA[Watchable Bewertungen]]></string>
     <string name="dialog_ok"><![CDATA[OK]]></string>
     <string name="dialog_cancel"><![CDATA[Abbrechen]]></string>
     <string name="video_type_trailer"><![CDATA[Trailer]]></string>
@@ -60,7 +62,8 @@
     <string name="error_server_error_no_code"><![CDATA[Ein Servererror ist aufgetreten]]></string>
     <string name="error_permission"><![CDATA[Please give the permission to use this feature]]></string>
     <string name="error_other"><![CDATA[Ein Fehler ist aufgetreten]]></string>
-    <string name="sign_in_google"><![CDATA[Mit Google einloggen]]></string>
+    <string name="login_btn_google"><![CDATA[Mit Google anmelden]]></string>
+    <string name="login_btn_email"><![CDATA[Mit Email anmelden]]></string>
     <string name="menu_watchable_season_set_watched"><![CDATA[Staffel auf gesehen setzen]]></string>
     <string name="menu_watchable_season_set_not_watched"><![CDATA[Staffel auf nicht gesehen setzen]]></string>
     <string name="onboarding_snack"><![CDATA[Durch langes drücken auf Watchables und Episoden erhältst du mehr Optionen!]]></string>
@@ -93,9 +96,11 @@
     <string name="scan_error"><![CDATA[Der Code wurde leider nicht erkannt]]></string>
     <string name="scan_flash_on"><![CDATA[Blitz An]]></string>
     <string name="scan_flash_off"><![CDATA[Blitz Aus]]></string>
-    <string name="more_ratings_toggle"><![CDATA[Watchable Bewertungen]]></string>
     <string name="detail_iv_cd_qr"><![CDATA[Der Qr Code des Watchable]]></string>
     <string name="detail_error_qr"><![CDATA[Qr Code konnte nicht erstellt werden]]></string>
+    <string name="login_email_btn_send"><![CDATA[Senden]]></string>
+    <string name="login_email_hint_email"><![CDATA[Email]]></string>
+    <string name="login_email_hint_name"><![CDATA[Name]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>
@@ -105,8 +110,8 @@
     <string name="notification_update_channel_name"><![CDATA[Watchable Update Notifikation]]></string>
     <string name="notification_update_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable geupdated wird.]]></string>
     <string name="notification_update_title_show_name"><![CDATA[%1$s - S%2$d]]></string>
-    <string name="notification_update_title"><![CDATA[%1$s wird am %2$s erscheinen]]></string>
-    <string name="notification_update_text"><![CDATA[Klicke hier um mehr zu lernen]]></string>
+    <string name="notification_update_title"><![CDATA[%s wurde geupdated]]></string>
+    <string name="notification_update_text"><![CDATA[Klicke hier um mehr zu erfahren]]></string>
     <string name="dev_mail"><![CDATA[mail@florianschuster.at]]></string>
     <string name="imdb_id_url"><![CDATA[https://www.imdb.com/title/%s/]]></string>
     <string name="tmdb_url"><![CDATA[https://www.themoviedb.org/]]></string>

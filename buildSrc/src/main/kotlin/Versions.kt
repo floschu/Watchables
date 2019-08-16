@@ -1,9 +1,9 @@
 @Suppress("SpellCheckingInspection")
 object Versions {
     const val Kotlin = "1.3.41"
-    const val Reaktor = "1.0.17"
+    const val Reaktor = "1.0.18"
     const val Koordinator = "0.0.15"
-    const val AndroidAppUtil = "15"
+    const val AndroidAppUtil = "16"
     const val Navigation = "2.0.0"
     const val Work = "2.1.0"
     const val Lifecycle = "2.0.0"

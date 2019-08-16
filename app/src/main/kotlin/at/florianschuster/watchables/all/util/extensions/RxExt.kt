@@ -17,31 +17,9 @@
 package at.florianschuster.watchables.all.util.extensions
 
 import androidx.recyclerview.widget.DiffUtil
-import com.tailoredapps.androidutil.async.Async
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import io.reactivex.Maybe
 import io.reactivex.Observable
-import io.reactivex.Single
-import io.reactivex.annotations.CheckReturnValue
-import io.reactivex.annotations.Experimental
-
-@Deprecated(message = "Replace with AndroidAppUtil.Async if v16 is available.")
-@Experimental
-@CheckReturnValue
-fun <T : Any> Maybe<T>.mapToAsync(onComplete: () -> Async<T> = { Async.Error(NoSuchElementException()) }): Single<Async<T>> {
-    return materialize()
-        .flatMap {
-            val value = it.value
-            val error = it.error
-            when {
-                it.isOnNext && value != null -> Single.just(Async.Success(value))
-                it.isOnError && error != null -> Single.just(Async.Error(error))
-                it.isOnComplete -> Single.just(onComplete())
-                else -> Single.never()
-            }
-        }
-}
 
 fun <T : Any> Observable<List<T>>.rxDiff(
     differ: (List<T>, List<T>) -> DiffUtil.Callback

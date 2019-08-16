@@ -16,13 +16,15 @@
 
 package at.florianschuster.watchables
 
-import android.content.res.Resources
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import at.florianschuster.watchables.all.AndroidAppLocaleProvider
+import at.florianschuster.watchables.all.AppLocaleProvider
+import at.florianschuster.watchables.all.HawkPersistenceProvider
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.service.FirebaseDeepLinkService
 import at.florianschuster.watchables.all.OptionsAdapter
+import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.all.util.QrCodeService
 import at.florianschuster.watchables.all.util.ZXingQrCodeService
 import at.florianschuster.watchables.service.ActivityShareService
@@ -46,11 +48,13 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
-import java.util.Locale
 
 val appModule = module {
-    single { provideAppLocale(androidContext().resources) }
     single { LeakCanary.install(androidApplication()) }
+
+    single<AppLocaleProvider> { AndroidAppLocaleProvider() }
+    single<PersistenceProvider> { HawkPersistenceProvider(androidContext()) }
+
     single<SessionService<FirebaseUser, AuthCredential>> { FirebaseSessionService(androidContext()) }
     single<AnalyticsService> { FirebaseAnalyticsService(androidContext(), get()) }
     single<NotificationService> { AndroidNotificationService(androidContext()) }
@@ -63,18 +67,4 @@ val appModule = module {
     factory<ShareService> { (activity: AppCompatActivity) -> ActivityShareService(activity, get()) }
     factory { OptionsAdapter() }
     factory { (fragment: Fragment) -> RxPermissions(fragment) }
-}
-
-private fun provideAppLocale(resources: Resources): Locale {
-    val currentLocale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        resources.configuration.locales[0]
-    } else {
-        @Suppress("DEPRECATION")
-        resources.configuration.locale
-    }
-
-    return when (currentLocale.language) {
-        Locale.GERMAN.language -> currentLocale
-        else -> Locale.US
-    }
 }

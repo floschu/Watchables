@@ -16,6 +16,7 @@
 
 package at.florianschuster.watchables.service.remote
 
+import at.florianschuster.watchables.model.Language
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.Season
@@ -27,13 +28,16 @@ import retrofit2.http.Query
 
 interface MovieDatabaseApi {
 
+    @GET("configuration/languages")
+    fun languages(): Single<List<Language>>
+
     @GET("search/multi")
     fun search(@Query("query") query: String, @Query("page") page: Int = 1): Single<Search>
 
     @GET("trending/movie,tv/day")
     fun trending(@Query("page") page: Int = 1): Single<Search>
 
-    @GET("movie/{movie_id}?append_to_response=external_ids,videos,credits")
+    @GET("movie/{movie_id}?append_to_response=external_ids,videos,credits,release_dates")
     fun movie(@Path("movie_id") id: Int): Single<Movie>
 
     @GET("tv/{tv_id}?append_to_response=external_ids,videos")

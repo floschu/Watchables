@@ -38,7 +38,6 @@ data class Movie(
     @SerializedName("original_title") val name: String,
     @SerializedName("poster_path") val image: String?,
     @SerializedName("homepage") val website: String?,
-    @SerializedName("release_date") val releaseDate: LocalDate?,
     @SerializedName("runtime") val durationInMinutes: Long?,
     @SerializedName("original_language") val language: String,
     @SerializedName("overview") val summary: String?,
@@ -47,7 +46,8 @@ data class Movie(
     @SerializedName("external_ids") val externalIds: ExternalIds,
     val credits: Credits?,
     @SerializedName("vote_average") val rating: Double?,
-    @SerializedName("vote_count") val numberOfRatings: Int?
+    @SerializedName("vote_count") val numberOfRatings: Int?,
+    @SerializedName("release_dates") val releaseDates: ReleaseDates?
 ) {
     enum class Status {
         @SerializedName("Rumored")
@@ -62,6 +62,26 @@ data class Movie(
         released,
         @SerializedName("Canceled")
         canceled
+    }
+
+    data class ReleaseDates(val results: List<Result>) {
+        data class Result(
+            @SerializedName("iso_3166_1")
+            val countryIso: String,
+            @SerializedName("release_dates")
+            val dates: List<Date>
+        ) {
+            data class Date(
+                val certification: String,
+                @SerializedName("release_date")
+                val date: LocalDate,
+                val type: Type
+            ) {
+                enum class Type {
+                    Premiere, TheatricalLimited, Theatrical, Digital, Physical, TV
+                }
+            }
+        }
     }
 }
 
@@ -156,3 +176,11 @@ data class Credits(val id: Int, val cast: List<Cast>) {
         val order: Int
     )
 }
+
+data class Language(
+    @SerializedName("iso_639_1")
+    val languageIso: String,
+    @SerializedName("english_name")
+    val englishName: String,
+    val name: String
+)
