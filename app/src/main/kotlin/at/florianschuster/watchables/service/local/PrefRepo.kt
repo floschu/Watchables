@@ -20,7 +20,6 @@ import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
 import org.threeten.bp.LocalDate
-import java.util.Locale
 
 class PrefRepo(
     private val persistenceProvider: PersistenceProvider

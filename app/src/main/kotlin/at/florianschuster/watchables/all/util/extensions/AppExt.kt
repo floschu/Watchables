@@ -18,7 +18,6 @@ package at.florianschuster.watchables.all.util.extensions
 
 import android.annotation.SuppressLint
 import android.content.ActivityNotFoundException
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.CalendarContract

@@ -22,7 +22,6 @@ import androidx.core.os.bundleOf
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.service.local.PrefRepo
 import com.google.firebase.analytics.FirebaseAnalytics
 
 interface AnalyticsService {

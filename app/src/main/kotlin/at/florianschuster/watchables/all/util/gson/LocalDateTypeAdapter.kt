@@ -23,7 +23,6 @@ import com.google.gson.stream.JsonWriter
 import org.threeten.bp.LocalDate
 import org.threeten.bp.format.DateTimeFormatter
 import org.threeten.bp.format.DateTimeParseException
-import timber.log.Timber
 import java.util.Locale
 
 class LocalDateTypeAdapter : TypeAdapter<LocalDate?>() {
