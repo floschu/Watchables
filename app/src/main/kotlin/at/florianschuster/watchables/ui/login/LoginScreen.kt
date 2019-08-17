@@ -19,10 +19,15 @@ package at.florianschuster.watchables.ui.login
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
+import android.view.animation.AnimationSet
+import android.view.animation.AnimationUtils
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.OvershootInterpolator
+import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
@@ -84,10 +89,18 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
     override val reactor: LoginReactor by reactor()
     private val coordinator: LoginCoordinator by coordinator()
 
+    private val logoFadeOutAnimation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.login_scale_fade_out) }
+    private val logoFadeInAnimation by lazy { AnimationUtils.loadAnimation(requireContext(), R.anim.login_scale_fade_in) }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         coordinator provideNavigationHandler findNavController()
         bind(reactor)
+    }
+
+    override fun onDestroyView() {
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
+        super.onDestroyView()
     }
 
     override fun bind(reactor: LoginReactor) {
@@ -100,7 +113,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
             .addTo(disposables)
 
         btnSignInEmail.clicks().bind { showEmail() }.addTo(disposables)
-        btnEmailBack.clicks().bind { showButtons() }.addTo(disposables)
+        btnCancelEmail.clicks().bind { showButtons() }.addTo(disposables)
 
         btnSignInGoogle.clicks()
             .map {
@@ -137,46 +150,31 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
     }
 
     private fun showEmail() {
-        val animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
-
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         includeButtons.isVisible = false
         includeEmail.isVisible = true
+        btnPolicy.isVisible = false
+        ivPoweredBy.isVisible = false
 
-        TranslateAnimation(0f, 0f, 0f, 0f).apply {
-            duration = animationDuration
-            interpolator = OvershootInterpolator()
-            fillAfter = true
-        }.let { includeButtons.startAnimation(it) }
+        ivLogo.startAnimation(logoFadeOutAnimation)
 
-        AlphaAnimation(1f, 0.25f).apply {
-            duration = animationDuration
-            interpolator = DecelerateInterpolator()
-            fillAfter = true
-        }.let {
-            ivLogo.startAnimation(it)
-            btnPolicy.startAnimation(it)
-            ivPoweredBy.startAnimation(it)
+        main(resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()) {
+            etName.showKeyBoard()
         }
-
-        main(animationDuration) { etName.showKeyBoard() }
     }
 
+
     private fun showButtons() {
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN)
         etName.hideKeyboard()
         etEmail.hideKeyboard()
 
         includeButtons.isVisible = true
         includeEmail.isVisible = false
+        btnPolicy.isVisible = true
+        ivPoweredBy.isVisible = true
 
-        AlphaAnimation(0.25f, 1f).apply {
-            duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
-            interpolator = AccelerateInterpolator()
-            fillAfter = true
-        }.let {
-            ivLogo.startAnimation(it)
-            btnPolicy.startAnimation(it)
-            ivPoweredBy.startAnimation(it)
-        }
+        ivLogo.startAnimation(logoFadeInAnimation)
     }
 
     companion object {

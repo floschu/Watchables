@@ -4,18 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/btnEmailBack"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?selectableItemBackgroundBorderless"
-        android:padding="@dimen/padding"
-        android:src="@drawable/ic_arrow_back"
-        app:layout_constraintBottom_toBottomOf="@id/tilName"
-        app:layout_constraintEnd_toStartOf="@id/tilName"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/tilName" />
-
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilName"
         style="@style/TextInputLayout"
@@ -55,15 +43,28 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnSignInEmail"
+        android:id="@+id/btnSendEmail"
         style="@style/Button.White"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin"
         android:text="@string/login_email_btn_send"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnCancelEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tilEmail"
+        app:layout_constraintWidth_percent="0.5" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelEmail"
+        style="@style/Button.White"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/login_email_btn_cancel"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnSignInEmail"
         app:layout_constraintWidth_percent="0.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -131,6 +131,8 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:theme">@style/TextInputEditTextTheme</item>
         <item name="android:maxLines">1</item>
+        <item name="android:lines">1</item>
+        <item name="android:singleLine">true</item>
     </style>
 
     <style name="TextInputEditTextTheme">

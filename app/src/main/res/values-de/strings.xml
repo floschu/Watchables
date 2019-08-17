@@ -102,6 +102,7 @@
     <string name="login_email_btn_send"><![CDATA[Senden]]></string>
     <string name="login_email_hint_email"><![CDATA[Email]]></string>
     <string name="login_email_hint_name"><![CDATA[Name]]></string>
+    <string name="login_email_btn_cancel"><![CDATA[Abbrechen]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>
@@ -127,4 +128,5 @@
     <string name="analytics_watchable_delete_event"><![CDATA[watchable_delete]]></string>
     <string name="analytics_watchable_watched_event"><![CDATA[watchable_watched]]></string>
     <string name="analytics_delete_worker"><![CDATA[delete_worker]]></string>
+    <string name="analytics_app_update"><![CDATA[app_update_success]]></string>
 </resources>
