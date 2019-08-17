@@ -9,7 +9,8 @@
         android:id="@+id/ivBackground"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        tools:background="@color/grey_600" />
 
     <View
         android:layout_width="match_parent"
@@ -75,44 +76,39 @@
                 android:shadowRadius="2"
                 android:textColor="@color/textColor"
                 android:textIsSelectable="true"
-                app:layout_constraintBottom_toTopOf="@id/tvAiring"
+                app:layout_constraintBottom_toTopOf="@id/includeReleaseDate"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/rvDetailHeader"
                 tools:text="Avengers" />
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/tvAiring"
-                style="@style/TextAppearance.MaterialComponents.Subtitle1"
-                android:layout_width="0dp"
+            <include
+                android:id="@+id/includeReleaseDate"
+                layout="@layout/fragment_detail_release_date"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin"
                 android:layout_marginEnd="@dimen/margin"
-                android:gravity="center_horizontal|top"
-                android:shadowColor="@color/black_opacity_50"
-                android:shadowDx="1"
-                android:shadowDy="1"
-                android:shadowRadius="2"
-                android:text="@string/release_date_not_available"
-                android:textColor="@color/textColor"
-                android:textIsSelectable="true"
                 android:visibility="gone"
+                app:layout_constrainedWidth="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-                tools:text="Airing: 25.10.2018"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle"
                 tools:visibility="visible" />
 
             <include
                 android:id="@+id/includeRating"
                 layout="@layout/fragment_detail_rating"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_half"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin"
+                android:layout_marginEnd="@dimen/margin"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvAiring"
+                app:layout_constraintTop_toBottomOf="@id/includeReleaseDate"
                 tools:visibility="visible" />
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -168,7 +164,7 @@
                 android:id="@+id/rvDetailOptions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin"
+                android:layout_marginTop="@dimen/margin_large"
                 android:nestedScrollingEnabled="false"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"

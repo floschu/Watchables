@@ -33,7 +33,6 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseActivity
-import at.florianschuster.watchables.all.util.Utils
 import at.florianschuster.watchables.all.util.extensions.main
 import at.florianschuster.watchables.ui.base.BaseReactor
 import com.google.firebase.auth.AuthCredential
@@ -41,6 +40,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import at.florianschuster.reaktor.android.koin.reactor
+import at.florianschuster.watchables.all.util.extensions.openPlayStoreToRateApp
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.ui.base.BaseCoordinator
@@ -121,7 +121,7 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
                 when (it) {
                     is RxDialogAction.Positive -> {
                         reactor.action.accept(MainReactor.Action.UpdateDialogShownDate(true))
-                        startActivity(Utils.rateApp(this))
+                        openPlayStoreToRateApp()
                     }
                     else -> {
                         reactor.action.accept(MainReactor.Action.UpdateDialogShownDate(false))

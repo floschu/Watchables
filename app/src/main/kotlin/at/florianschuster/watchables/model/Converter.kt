@@ -38,8 +38,8 @@ fun Movie.convertToWatchable(): Watchable = Watchable(
 private fun Movie.watchableStatus(): Watchable.Status = when (status) {
     Movie.Status.rumored -> Watchable.Status.running
     Movie.Status.planned -> Watchable.Status.running
-    Movie.Status.inProduction -> if (releaseDate == null) Watchable.Status.running else Watchable.Status.finished
-    Movie.Status.postProduction -> if (releaseDate == null) Watchable.Status.running else Watchable.Status.finished
+    Movie.Status.inProduction -> Watchable.Status.running
+    Movie.Status.postProduction -> Watchable.Status.running
     Movie.Status.released -> Watchable.Status.finished
     Movie.Status.canceled -> Watchable.Status.finished
 }

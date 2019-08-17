@@ -25,7 +25,8 @@ import android.view.animation.AnimationSet
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import androidx.core.view.isVisible
-import androidx.navigation.NavController
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.LinearSnapHelper
@@ -68,11 +69,13 @@ import com.tailoredapps.androidutil.ui.extensions.observable
 import com.tailoredapps.androidutil.ui.extensions.toast
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.watchables.all.util.QrCodeService
-import at.florianschuster.watchables.all.util.extensions.mapToAsync
+import at.florianschuster.watchables.all.util.extensions.openCalendarWithEvent
 import at.florianschuster.watchables.all.util.photodetail.filePhotoDetailConsumer
 import at.florianschuster.watchables.all.util.srcFileConsumer
+import at.florianschuster.watchables.model.ReleaseDates
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.model.convertToSearchType
+import at.florianschuster.watchables.model.releaseDates
 import at.florianschuster.watchables.service.local.PrefRepo
 import com.jakewharton.rxrelay2.BehaviorRelay
 import com.tailoredapps.androidutil.async.mapToAsync
@@ -84,9 +87,11 @@ import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
+import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.fragment_detail.*
 import kotlinx.android.synthetic.main.fragment_detail_qr.*
 import kotlinx.android.synthetic.main.fragment_detail_rating.*
+import kotlinx.android.synthetic.main.fragment_detail_release_date.*
 import kotlinx.android.synthetic.main.fragment_detail_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
@@ -98,12 +103,16 @@ import java.util.concurrent.TimeUnit
 
 sealed class DetailRoute : CoordinatorRoute {
     object Pop : DetailRoute()
+    data class OnReleaseDateSelected(val title: String, val description: String, val date: LocalDate) : DetailRoute()
 }
 
-class DetailCoordinator : BaseCoordinator<DetailRoute, NavController>() {
-    override fun navigate(route: DetailRoute, handler: NavController) {
+class DetailCoordinator : BaseCoordinator<DetailRoute, Fragment>() {
+    override fun navigate(route: DetailRoute, handler: Fragment) {
         when (route) {
-            is DetailRoute.Pop -> handler.navigateUp()
+            is DetailRoute.Pop -> handler.findNavController().navigateUp()
+            is DetailRoute.OnReleaseDateSelected -> {
+                handler.openCalendarWithEvent(route.title, route.description, route.date)
+            }
         }
     }
 }
@@ -121,7 +130,7 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        coordinator.provideNavigationHandler(navController)
+        coordinator provideNavigationHandler this
 
         btnBack.clicks()
             .map { DetailRoute.Pop }
@@ -185,14 +194,16 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                         ivBackground.srcBlurConsumer(R.drawable.ic_logo)
                             .accept(additionalDataAsync.element.thumbnailPoster)
 
-                        val airing = additionalDataAsync.element.airing
-                        tvAiring.isVisible = airing != null
-                        if (airing != null) {
-                            tvAiring.text = if (airing.isBefore(ZonedDateTime.now().toLocalDate())) {
-                                getString(R.string.release_date_past, airing.asFormattedString)
+                        val releaseDates = additionalDataAsync.element.releaseDates
+                        includeReleaseDate.isVisible = releaseDates != null
+                        if (releaseDates != null) {
+                            val formatted = "${releaseDates.preferred.date.asFormattedString} (${releaseDates.preferred.locale.displayCountry})"
+                            tvReleaseDate.text = if (releaseDates.preferred.date.isBefore(ZonedDateTime.now().toLocalDate())) {
+                                getString(R.string.release_date_past, formatted)
                             } else {
-                                getString(R.string.release_date_future, airing.asFormattedString)
+                                getString(R.string.release_date_future, formatted)
                             }
+                            tvReleaseDateMore.isVisible = releaseDates.all.count() > 1
                         }
 
                         val rating = additionalDataAsync.element.rating
@@ -244,18 +255,44 @@ class DetailFragment : BaseFragment(R.layout.fragment_detail), ReactorView<Detai
                 }
             }
             .addTo(disposables)
+
+        includeReleaseDate.clicks()
+            .map { reactor.currentState.additionalData }
+            .ofType<Async.Success<DetailReactor.State.AdditionalData>>()
+            .map { it.element.releaseDates.asOptional }
+            .filterSome()
+            .flatMapMaybe { dates ->
+                if (dates.all.count() > 1) {
+                    rxDialog(R.style.DialogTheme) {
+                        titleResource = R.string.realease_date_dialog_title
+                        positiveButtonResource = R.string.dialog_ok
+                        @Suppress("MoveLambdaOutsideParentheses")
+                        setItems(dates.all, { (locale, date) ->
+                            "${locale.displayCountry}: ${date.asFormattedString}"
+                        })
+                    }.ofType<RxDialogAction.Selected<ReleaseDates.LocalizedReleaseDate>>()
+                        .map { it.item.date }
+                } else {
+                    Maybe.just(dates.preferred.date)
+                }
+            }
+            .map { DetailReactor.Action.SelectReleaseDate(it) }
+            .bind(to = reactor.action)
+            .addTo(disposables)
     }
 
     private fun OptionsAdapter.update() {
         listOfNotNull(
             if (reactor.currentState.watchable != null) null else addOption,
+            reactor.currentState.watchable?.let(::createShareOption),
+            Option.Divider,
             reactor.currentState.additionalData()?.website?.let(::createOpenWebOption),
             reactor.currentState.additionalData()?.imdbId?.let(::createOpenImdbOption),
             reactor.currentState.additionalData()?.facebookId?.let(::createOpenFacebookOption),
             reactor.currentState.additionalData()?.instagramId?.let(::createOpenInstagramOption),
             reactor.currentState.additionalData()?.twitterId?.let(::createOpenTwitterOption),
-            reactor.currentState.watchable?.let(::createShareOption),
-            if (reactor.currentState.watchable != null) deleteOption else null
+            reactor.currentState.watchable?.let { Option.Divider },
+            reactor.currentState.watchable?.let { deleteOption }
         ).also(::submitList)
     }
 
@@ -414,6 +451,7 @@ class DetailReactor(
         object Dismiss : Action()
         object AddWatchable : Action()
         object LoadQr : Action()
+        data class SelectReleaseDate(val date: LocalDate) : Action()
     }
 
     sealed class Mutation {
@@ -444,7 +482,7 @@ class DetailReactor(
             val instagramId: String? = null,
             val twitterId: String? = null,
             val summary: String? = null,
-            val airing: LocalDate? = null,
+            val releaseDates: ReleaseDates? = null,
             val actors: List<String> = emptyList(),
             val rating: Rating? = null
         ) {
@@ -538,6 +576,18 @@ class DetailReactor(
                 .map { Mutation.SetQrResult(it) }
             Observable.concat(Mutation.SetQrResult(Async.Loading).observable, qrLoad)
         }
+        is Action.SelectReleaseDate -> {
+            Maybe.fromCallable { currentState.watchable }
+                .flatMap { watchable ->
+                    deepLinkService.createDeepLinkUrl(watchable)
+                        .map { watchable to it }
+                }
+                .doOnSuccess { (watchable, deepLink) ->
+                    Router follow DetailRoute.OnReleaseDateSelected(watchable.name, deepLink, action.date)
+                }
+                .ignoreElement()
+                .toObservable()
+        }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
@@ -575,7 +625,7 @@ class DetailReactor(
                     it.externalIds.instagramId,
                     it.externalIds.twitterId,
                     it.summary,
-                    it.releaseDate,
+                    it.releaseDates(),
                     it.credits?.mapToActorList() ?: emptyList(),
                     if (it.rating != null && it.rating > 0 &&
                         it.numberOfRatings != null && it.numberOfRatings > 0) {
@@ -599,7 +649,7 @@ class DetailReactor(
                     it.externalIds.instagramId,
                     it.externalIds.twitterId,
                     it.summary,
-                    it.nextEpisode?.airingDate,
+                    it.releaseDates(),
                     it.credits?.mapToActorList() ?: emptyList(),
                     if (it.rating != null && it.rating > 0 &&
                         it.numberOfRatings != null && it.numberOfRatings > 0) {

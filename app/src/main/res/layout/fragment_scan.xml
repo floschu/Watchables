@@ -12,6 +12,7 @@
         app:zxing_use_texture_view="true" />
 
     <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/frame"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -29,6 +30,24 @@
             android:layout_height="match_parent"
             android:background="@drawable/bg_scan_frame" />
     </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_description"
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/margin"
+        android:gravity="center"
+        android:shadowColor="@color/black_opacity_50"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
+        android:text="@string/scan_tv_description"
+        android:textColor="@color/textColor"
+        app:layout_constraintBottom_toTopOf="@id/frame"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintWidth_percent="0.75" />
 
     <Space
         android:id="@+id/bnvSpace"
@@ -57,22 +76,4 @@
     <include
         android:id="@+id/includeToolbar"
         layout="@layout/fragment_scan_toolbar" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_description"
-        style="@style/TextAppearance.MaterialComponents.Caption"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin"
-        android:layout_marginEnd="@dimen/margin"
-        android:gravity="center"
-        android:shadowColor="@color/black_opacity_50"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="2"
-        android:text="@string/scan_tv_description"
-        android:textColor="@color/textColor"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/includeToolbar" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -15,9 +15,11 @@
  */
 package at.florianschuster.watchables.ui.scan
 
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.android.koin.reactor
 import org.koin.dsl.module
 
 internal val scanModule = module {
     reactor { ScanReactor(deepLinkService = get()) }
+    coordinator { ScanCoordinator() }
 }

@@ -34,13 +34,11 @@ import at.florianschuster.watchables.model.Season
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.ui.main.MainActivity
 import at.florianschuster.watchables.all.util.GlideApp
-import at.florianschuster.watchables.all.util.extensions.asFormattedString
 import at.florianschuster.watchables.model.thumbnailPoster
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.threeten.bp.LocalDate
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -100,18 +98,16 @@ class AndroidNotificationService(
     // update
 
     override fun pushMovieUpdate(watchable: Watchable, movie: Movie) {
-        val date = movie.releaseDate ?: return
         val shortName = if (movie.name.length <= 25) movie.name else "${movie.name.substring(0, 26)}..."
-        update(movie.id, shortName, date, watchable)
+        pushUpdate(movie.id, shortName, watchable)
     }
 
     override fun pushShowUpdate(watchable: Watchable, showName: String, season: Season) {
-        val date = season.airingDate ?: return
         val shortName = if (showName.length <= 25) showName else "${showName.substring(0, 26)}..."
-        update(season.id, context.getString(R.string.notification_update_title_show_name, shortName, season.index), date, watchable)
+        pushUpdate(season.id, context.getString(R.string.notification_update_title_show_name, shortName, season.index), watchable)
     }
 
-    private fun update(notificationId: Int, name: String, date: LocalDate, watchable: Watchable) {
+    private fun pushUpdate(notificationId: Int, name: String, watchable: Watchable) {
         val pendingIntent = NavDeepLinkBuilder(context).apply {
             setGraph(R.navigation.main)
             setDestination(R.id.detail)
@@ -121,7 +117,7 @@ class AndroidNotificationService(
         val pushNotificationBuilder = NotificationCompat
             .Builder(context, UPDATE_CHANNEL_ID).apply {
                 setSmallIcon(R.drawable.ic_notification)
-                setContentTitle(context.getString(R.string.notification_update_title, name, date.asFormattedString))
+                setContentTitle(context.getString(R.string.notification_update_title, name))
                 setContentText(context.getString(R.string.notification_update_text))
                 setContentIntent(pendingIntent)
                 setShowWhen(true)

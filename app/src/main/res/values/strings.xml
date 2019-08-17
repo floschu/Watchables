@@ -19,12 +19,14 @@
     <string name="menu_watchable_share"><![CDATA[Share Watchable]]></string>
     <string name="release_date_past"><![CDATA[Aired on %s]]></string>
     <string name="release_date_future"><![CDATA[Airing on %s]]></string>
-    <string name="release_date_not_available"><![CDATA[No airing information available.]]></string>
+    <string name="realease_date_btn_more"><![CDATA[Click here for others]]></string>
+    <string name="realease_date_dialog_title"><![CDATA[Release Dates]]></string>
     <string name="watchable_watched"><![CDATA[Watched]]></string>
     <string name="watchable_not_watched"><![CDATA[Not yet Watched]]></string>
     <string name="empty_watchable_title"><![CDATA[Oh no :(]]></string>
     <string name="empty_watchable_text"><![CDATA[You have not added any Watchables yet. Add some by using the Search!]]></string>
-    <string name="more_updage_watchables"><![CDATA[Update Watchables]]></string>
+    <string name="more_update_watchables"><![CDATA[Update Watchables]]></string>
+    <string name="more_update_watchables_subtitle"><![CDATA[Synchronize your Watchables with the server, if something does not seem right]]></string>
     <string name="more_logout"><![CDATA[Logout]]></string>
     <string name="more_report_bug"><![CDATA[Report a bug]]></string>
     <string name="more_analytics"><![CDATA[Analytics]]></string>
@@ -55,6 +57,7 @@
         <item><![CDATA[Wazzup,\n]]></item>
         <item><![CDATA[G’day,\n]]></item>
     </string-array>
+    <string name="more_ratings_toggle"><![CDATA[Watchable Ratings]]></string>
     <string name="dialog_ok"><![CDATA[OK]]></string>
     <string name="dialog_cancel"><![CDATA[Cancel]]></string>
     <string name="video_type_trailer"><![CDATA[Trailer]]></string>
@@ -104,7 +107,6 @@
     <string name="scan_error"><![CDATA[Unfortunately the code could not be processed]]></string>
     <string name="scan_flash_on"><![CDATA[Flash On]]></string>
     <string name="scan_flash_off"><![CDATA[Flash Off]]></string>
-    <string name="more_ratings_toggle"><![CDATA[Watchable Ratings]]></string>
     <string name="detail_iv_cd_qr"><![CDATA[The QR code of the Watchable]]></string>
     <string name="detail_error_qr"><![CDATA[QR code could not be created]]></string>
     <string name="login_email_btn_send"><![CDATA[Send]]></string>
@@ -119,7 +121,7 @@
     <string name="notification_update_channel_name"><![CDATA[Watchable Update Notifications]]></string>
     <string name="notification_update_channel_description"><![CDATA[These notifications are displayed when a Watchable is updated with new information.]]></string>
     <string name="notification_update_title_show_name"><![CDATA[%1$s - S%2$d]]></string>
-    <string name="notification_update_title"><![CDATA[%1$s will air on %2$s]]></string>
+    <string name="notification_update_title"><![CDATA[%s was updated]]></string>
     <string name="notification_update_text"><![CDATA[Click here to learn more]]></string>
     <string name="dev_mail"><![CDATA[mail@florianschuster.at]]></string>
     <string name="imdb_id_url"><![CDATA[https://www.imdb.com/title/%s/]]></string>

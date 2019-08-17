@@ -16,7 +16,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.6"
+        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintWidth_percent="0.3" />
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -24,8 +24,8 @@
         style="@style/TextAppearance.MaterialComponents.Subtitle1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/margin"
-        android:layout_marginEnd="@dimen/margin"
+        app:layout_constraintWidth_percent="0.75"
+        android:layout_margin="@dimen/margin"
         android:gravity="center_horizontal"
         android:text="@string/scan_tv_permission_title"
         android:textColor="@color/textColor"

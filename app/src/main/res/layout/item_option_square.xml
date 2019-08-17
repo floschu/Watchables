@@ -6,9 +6,8 @@
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/margin_half"
     android:layout_marginBottom="@dimen/margin_half"
-    android:background="@color/blackTransparent"
+    android:background="@drawable/bg_option_ripple"
     android:clipChildren="false"
-    android:foreground="?attr/selectableItemBackgroundBorderless"
     android:padding="@dimen/padding">
 
     <androidx.appcompat.widget.AppCompatImageView

@@ -14,10 +14,23 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.service.local
+package at.florianschuster.watchables.all
 
-import org.koin.dsl.module
+import androidx.core.os.LocaleListCompat
+import java.util.Locale
 
-val localModule = module {
-    single { PrefRepo(get()) }
+interface AppLocaleProvider {
+    val preferredUserLocale: Locale
+}
+
+class AndroidAppLocaleProvider : AppLocaleProvider {
+
+    override val preferredUserLocale: Locale
+        get() {
+            val currentLocale = LocaleListCompat.getAdjustedDefault()[0]
+            return when (currentLocale.language) {
+                Locale.GERMAN.language -> currentLocale
+                else -> Locale.US
+            }
+        }
 }

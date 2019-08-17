@@ -97,8 +97,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        coordinator.provideNavigationHandler(findNavController())
+        coordinator provideNavigationHandler findNavController()
 
         with(rvWatchables) {
             adapter = this@WatchablesFragment.adapter
@@ -123,8 +122,8 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
             .addTo(disposables)
 
         reactor.state.changesFrom { it.displayWatchables }
-            .observeOn(Schedulers.io())
-            .rxDiff(WatchablesAdapter.Companion::calculateDiff)
+            .rxDiff(WatchablesAdapter.Companion::diff)
+            .subscribeOn(Schedulers.computation())
             .bind(to = adapter.dataConsumer)
             .addTo(disposables)
 
@@ -228,7 +227,6 @@ class WatchablesReactor(
         onboardingSnackShown = prefRepo.onboardingSnackShown
     )
 ) {
-
     sealed class Action {
         data class SetWatched(val watchableId: String, val watched: Boolean) : Action()
         data class SetEpisodeWatched(val watchableSeasonId: String, val episode: String, val watched: Boolean) : Action()

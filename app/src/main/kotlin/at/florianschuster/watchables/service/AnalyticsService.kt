@@ -20,8 +20,8 @@ import android.content.Context
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.service.local.PrefRepo
 import com.google.firebase.analytics.FirebaseAnalytics
 
 interface AnalyticsService {
@@ -35,15 +35,15 @@ interface AnalyticsService {
 
 class FirebaseAnalyticsService(
     private val context: Context,
-    private val prefRepo: PrefRepo
+    private val persistenceProvider: PersistenceProvider
 ) : AnalyticsService {
     private val analytics = FirebaseAnalytics.getInstance(context)
 
     override var analyticsEnabled: Boolean
-        get() = prefRepo.analyticsEnabled
+        get() = persistenceProvider.retrieve(PersistenceProvider.KEY.AnalyticsEnabled, true)
         set(value) {
             analytics.setAnalyticsCollectionEnabled(value)
-            prefRepo.analyticsEnabled = value
+            persistenceProvider.store(PersistenceProvider.KEY.AnalyticsEnabled, value)
         }
 
     override fun logWatchableAdd(watchable: Watchable) {
@@ -69,7 +69,7 @@ class FirebaseAnalyticsService(
     }
 
     private fun getWatchableBundle(watchable: Watchable): Bundle = bundleOf(
-            FirebaseAnalytics.Param.ITEM_ID to watchable.id,
-            FirebaseAnalytics.Param.ITEM_VARIANT to watchable.type.name
+        FirebaseAnalytics.Param.ITEM_ID to watchable.id,
+        FirebaseAnalytics.Param.ITEM_VARIANT to watchable.type.name
     )
 }

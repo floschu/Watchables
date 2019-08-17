@@ -9,38 +9,39 @@
     android:padding="@dimen/padding">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivIcon"
+        android:id="@+id/ivIconValue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:tint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tvTitle"
+        app:layout_constraintEnd_toStartOf="@+id/tvTitleValue"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/ic_person_outline" />
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tvTitle"
+        android:id="@+id/tvTitleValue"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="0dp"
         android:textColor="@color/textColor"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin"
-        android:layout_marginEnd="@dimen/margin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/ivChevron"
-        app:layout_constraintStart_toEndOf="@+id/ivIcon"
+        app:layout_constraintBottom_toTopOf="@id/tvValue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/ivIconValue"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Account" />
+        tools:text="Selection Title" />
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/ivChevron"
-        android:layout_width="wrap_content"
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvValue"
+        style="@style/TextAppearance.MaterialComponents.Caption"
+        android:layout_width="0dp"
+        android:textColor="@color/textColorSecondary"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_chevron_end"
-        android:tint="@color/colorAccent"
+        android:layout_marginStart="@dimen/margin"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tvTitle"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/ivIconValue"
+        app:layout_constraintTop_toBottomOf="@id/tvTitleValue"
+        tools:text="Selected value" />
 </androidx.constraintlayout.widget.ConstraintLayout>
