@@ -86,57 +86,107 @@ dependencies {
      */
     implementation Dependencies.Reaktor
     implementation Dependencies.Koordinator
-    implementation Dependencies.AndroidUtil.values()
+
+    implementation Dependencies.AndroidUtilUI
+    implementation Dependencies.AndroidUtilAsync
+    implementation Dependencies.AndroidUtilNetwork
+    implementation Dependencies.AndroidUtilOptional
+    implementation Dependencies.AndroidUtilPermissions
+    implementation Dependencies.AndroidUtilValidation
+    implementation Dependencies.AndroidUtilViewState
+    implementation Dependencies.AndroidUtilFirebase
+
 
     /**
      * UI
      */
-    implementation Dependencies.UI.values()
-    implementation Dependencies.Navigation.values()
-    implementation Dependencies.Lifecycle.Extensions
-    kapt Dependencies.Lifecycle.Compiler
+    implementation Dependencies.AppCompat
+    implementation Dependencies.Material
+    implementation Dependencies.Fragment
+    implementation Dependencies.Constraintlayout
+    implementation Dependencies.CoreKTX
+
+    implementation Dependencies.NavigationUI
+    implementation Dependencies.NavigationFragment
+    implementation Dependencies.LifecycleExtensions
+    kapt Dependencies.LifecycleCompiler
 
     /**
      * Dependency Injection
      */
-    implementation Dependencies.Koin.values()
+    implementation Dependencies.KoinCore
+    implementation Dependencies.KoinAndroid
+    implementation Dependencies.KoinAndroidScope
+    implementation Dependencies.KoinAndroidViewModel
 
     /**
      * Networking
      */
-    implementation Dependencies.Network.values()
+    implementation Dependencies.Retrofit
+    implementation Dependencies.RetrofitGsonConverter
+    implementation Dependencies.RetrofitRxJava2Adapter
+    implementation Dependencies.OkHttp
+    implementation Dependencies.OkHttpLoggingInterceptor
 
     /**
      * Local
      */
-    implementation Dependencies.Local.Hawk
+    implementation Dependencies.Hawk
 
     /**
      * QR
      */
-    implementation Dependencies.Zxing.values()
+    implementation Dependencies.ZxingCore
+    implementation Dependencies.ZxingAndroid
 
     /**
      * Firebase
      */
-    implementation Dependencies.Firebase.values()
+    implementation Dependencies.FirebaseCore
+    implementation Dependencies.FirebaseAuth
+    implementation Dependencies.PlayServicesAuth
+    implementation Dependencies.FirebaseFirestore
+    implementation Dependencies.FirebaseCrashlytics
+    implementation Dependencies.FirebaseMessaging
+    implementation Dependencies.FirebasePrformance
+    implementation Dependencies.FirebaseInvites
 
     /**
      * Rx
      */
-    implementation Dependencies.RxJava.values()
-    implementation Dependencies.RxBinding.values()
+    implementation Dependencies.RxJava2
+    implementation Dependencies.RxJava2Kotlin
+    implementation Dependencies.RxJava2Relay
+    implementation Dependencies.RxJava2Android
+
+    implementation Dependencies.RxBinding
+    implementation Dependencies.RxBindingCore
+    implementation Dependencies.RxBindingAppcompat
+    implementation Dependencies.RxBindingRecyclerview
+    implementation Dependencies.RxBindingMaterial
 
     /**
      * Utils
      */
-    implementation Dependencies.MiscUtil.values()
-    debugImplementation Dependencies.LeakCanary.Op
-    releaseImplementation Dependencies.LeakCanary.NoOp
-    implementation Dependencies.Glide.Core
-    implementation Dependencies.Glide.Transformation
-    kapt Dependencies.Glide.Compiler
-    implementation Dependencies.Work.values()
+    implementation Dependencies.Gson
+    implementation Dependencies.Timber
+    implementation Dependencies.Threeten
+    implementation Dependencies.Flick
+    implementation Dependencies.Gestureviews
+    implementation Dependencies.Aboutlibs
+    implementation Dependencies.Customtabs
+    implementation Dependencies.RxPermissions
+    implementation Dependencies.Shimmer
+
+    debugImplementation Dependencies.LeakCanary
+    releaseImplementation Dependencies.LeakCanaryNoOp
+
+    implementation Dependencies.Glide
+    kapt Dependencies.GlideCompiler
+    implementation Dependencies.GlideTransformation
+
+    implementation Dependencies.Worker
+    implementation Dependencies.WorkerRxJava2
 
     testImplementation Dependencies.Test.values()
     androidTestImplementation Dependencies.AndroidTest.values()

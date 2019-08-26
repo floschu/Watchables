@@ -1,122 +1,87 @@
 @Suppress("SpellCheckingInspection", "unused")
 object Dependencies {
     const val KotlinStd = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.Kotlin}"
-
     const val Reaktor = "at.florianschuster.reaktor:reaktor-android-koin:${Versions.Reaktor}"
-
     const val Koordinator = "at.florianschuster.koordinator:koordinator-android-koin:${Versions.Koordinator}"
 
-    val AndroidUtil = mapOf(
-        "UI" to "com.tailoredapps.androidutil:util-ui:${Versions.AndroidAppUtil}",
-        "Async" to "com.tailoredapps.androidutil:util-async:${Versions.AndroidAppUtil}",
-        "network" to "com.tailoredapps.androidutil:util-network:${Versions.AndroidAppUtil}",
-        "Optional" to "com.tailoredapps.androidutil:util-optional:${Versions.AndroidAppUtil}",
-        "Permissions" to "com.tailoredapps.androidutil:util-permissions:${Versions.AndroidAppUtil}",
-        "Validation" to "com.tailoredapps.androidutil:util-validation:${Versions.AndroidAppUtil}",
-        "ViewState" to "com.tailoredapps.androidutil:util-viewstate:${Versions.AndroidAppUtil}",
-        "Firebase" to "com.tailoredapps.androidutil:util-firebase:${Versions.AndroidAppUtil}"
-    )
+    const val AndroidUtilUI = "com.tailoredapps.androidutil:util-ui:${Versions.AndroidAppUtil}"
+    const val AndroidUtilAsync = "com.tailoredapps.androidutil:util-async:${Versions.AndroidAppUtil}"
+    const val AndroidUtilNetwork = "com.tailoredapps.androidutil:util-network:${Versions.AndroidAppUtil}"
+    const val AndroidUtilOptional = "com.tailoredapps.androidutil:util-optional:${Versions.AndroidAppUtil}"
+    const val AndroidUtilPermissions = "com.tailoredapps.androidutil:util-permissions:${Versions.AndroidAppUtil}"
+    const val AndroidUtilValidation = "com.tailoredapps.androidutil:util-validation:${Versions.AndroidAppUtil}"
+    const val AndroidUtilViewState = "com.tailoredapps.androidutil:util-viewstate:${Versions.AndroidAppUtil}"
+    const val AndroidUtilFirebase = "com.tailoredapps.androidutil:util-firebase:${Versions.AndroidAppUtil}"
 
-    val UI = mapOf(
-        "Material" to "com.google.android.material:material:1.0.0",
-        "AppCompat" to "androidx.appcompat:appcompat:1.1.0-rc01",
-        "Fragment" to "androidx.fragment:fragment:1.0.0",
-        "Constraintlayout" to "androidx.constraintlayout:constraintlayout:1.1.3",
-        "CoreKTX" to "androidx.core:core-ktx:1.0.1"
-    )
+    const val AppCompat = "androidx.appcompat:appcompat:1.1.0-rc01"
+    const val Material = "com.google.android.material:material:1.0.0"
+    const val Fragment = "androidx.fragment:fragment:1.0.0"
+    const val Constraintlayout = "androidx.constraintlayout:constraintlayout:1.1.3"
+    const val CoreKTX = "androidx.core:core-ktx:1.0.1"
 
-    val Navigation = mapOf(
-        "Core" to "androidx.navigation:navigation-fragment-ktx:${Versions.Navigation}",
-        "UI" to "androidx.navigation:navigation-ui-ktx:${Versions.Navigation}"
-    )
+    const val NavigationUI = "androidx.navigation:navigation-ui-ktx:${Versions.Navigation}"
+    const val NavigationFragment = "androidx.navigation:navigation-fragment-ktx:${Versions.Navigation}"
 
-    val Lifecycle = mapOf(
-        "Extensions" to "androidx.lifecycle:lifecycle-extensions:${Versions.Lifecycle}",
-        "Compiler" to "androidx.lifecycle:lifecycle-compiler:${Versions.Lifecycle}"
-    )
+    const val LifecycleExtensions = "androidx.lifecycle:lifecycle-extensions:${Versions.Lifecycle}"
+    const val LifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Versions.Lifecycle}"
 
-    val Koin = mapOf(
-        "Core" to "org.koin:koin-core:${Versions.Koin}",
-        "Android" to "org.koin:koin-android:${Versions.Koin}",
-        "Scrop" to "org.koin:koin-androidx-scope:${Versions.Koin}",
-        "ViewModel" to "org.koin:koin-androidx-viewmodel:${Versions.Koin}"
-    )
+    const val KoinCore = "org.koin:koin-core:${Versions.Koin}"
+    const val KoinAndroid = "org.koin:koin-android:${Versions.Koin}"
+    const val KoinAndroidScope = "org.koin:koin-androidx-scope:${Versions.Koin}"
+    const val KoinAndroidViewModel = "org.koin:koin-androidx-viewmodel:${Versions.Koin}"
 
-    val Zxing = mapOf(
-        "Core" to "com.google.zxing:core:3.4.0",
-        "Android" to "com.journeyapps:zxing-android-embedded:3.6.0@aar"
-    )
+    const val ZxingCore = "com.google.zxing:core:3.4.0"
+    const val ZxingAndroid = "com.journeyapps:zxing-android-embedded:3.6.0@aar"
 
-    val Network = mapOf(
-        "Core" to "com.squareup.retrofit2:retrofit:${Versions.Retrofit}",
-        "Gson" to "com.squareup.retrofit2:converter-gson:${Versions.Retrofit}",
-        "RxJava" to "com.squareup.retrofit2:adapter-rxjava2:${Versions.Retrofit}",
-        "OkHttp" to "com.squareup.okhttp3:okhttp:${Versions.OkHttp}",
-        "OkHttpLogging" to "com.squareup.okhttp3:logging-interceptor:${Versions.OkHttp}"
-    )
+    const val Retrofit = "com.squareup.retrofit2:retrofit:${Versions.Retrofit}"
+    const val RetrofitGsonConverter = "com.squareup.retrofit2:converter-gson:${Versions.Retrofit}"
+    const val RetrofitRxJava2Adapter = "com.squareup.retrofit2:adapter-rxjava2:${Versions.Retrofit}"
+    const val OkHttp = "com.squareup.okhttp3:okhttp:${Versions.OkHttp}"
+    const val OkHttpLoggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.OkHttp}"
 
-    val Local = mapOf(
-        "Hawk" to "com.orhanobut:hawk:2.0.1"
-    )
+    const val Hawk = "com.orhanobut:hawk:2.0.1"
 
-    val Firebase = mapOf(
-        "Core" to "com.google.firebase:firebase-core:17.0.1",
-        "Auth" to "com.google.firebase:firebase-auth:18.1.0",
-        "gmsauth" to "com.google.android.gms:play-services-auth:17.0.0",
-        "Firestore" to "com.google.firebase:firebase-firestore:20.2.0",
-        "Crashlytics" to "com.crashlytics.sdk.android:crashlytics:2.10.1",
-        "Messaging" to "com.google.firebase:firebase-messaging:19.0.1",
-        "Performance" to "com.google.firebase:firebase-perf:18.0.1",
-        "Invites" to "com.google.firebase:firebase-invites:17.0.0"
-    )
+    const val FirebaseCore = "com.google.firebase:firebase-core:17.0.1"
+    const val FirebaseAuth = "com.google.firebase:firebase-auth:18.1.0"
+    const val PlayServicesAuth = "com.google.android.gms:play-services-auth:17.0.0"
+    const val FirebaseFirestore = "com.google.firebase:firebase-firestore:20.2.0"
+    const val FirebaseCrashlytics = "com.crashlytics.sdk.android:crashlytics:2.10.1"
+    const val FirebaseMessaging = "com.google.firebase:firebase-messaging:19.0.1"
+    const val FirebasePrformance = "com.google.firebase:firebase-perf:18.0.1"
+    const val FirebaseInvites = "com.google.firebase:firebase-invites:17.0.0"
 
-    val RxJava = mapOf(
-        "Core" to "io.reactivex.rxjava2:rxjava:2.2.11",
-        "Kotlin" to "io.reactivex.rxjava2:rxkotlin:2.4.0",
-        "Relay" to "com.jakewharton.rxrelay2:rxrelay:2.1.0",
-        "Android" to "io.reactivex.rxjava2:rxandroid:2.1.1"
-    )
+    const val RxJava2 = "io.reactivex.rxjava2:rxjava:2.2.11"
+    const val RxJava2Kotlin = "io.reactivex.rxjava2:rxkotlin:2.4.0"
+    const val RxJava2Relay = "com.jakewharton.rxrelay2:rxrelay:2.1.0"
+    const val RxJava2Android = "io.reactivex.rxjava2:rxandroid:2.1.1"
 
-    val RxBinding = mapOf(
-        "Binding" to "com.jakewharton.rxbinding3:rxbinding:${Versions.RxBinding}",
-        "Core" to "com.jakewharton.rxbinding3:rxbinding-core:${Versions.RxBinding}",
-        "Appcompat" to "com.jakewharton.rxbinding3:rxbinding-appcompat:${Versions.RxBinding}",
-        "Drawerlayout" to "com.jakewharton.rxbinding3:rxbinding-drawerlayout:${Versions.RxBinding}",
-        "Recyclerview" to "com.jakewharton.rxbinding3:rxbinding-recyclerview:${Versions.RxBinding}",
-        "Swiperefreshlayout" to "com.jakewharton.rxbinding3:rxbinding-swiperefreshlayout:${Versions.RxBinding}",
-        "Viewpager" to "com.jakewharton.rxbinding3:rxbinding-viewpager:${Versions.RxBinding}",
-        "Material" to "com.jakewharton.rxbinding3:rxbinding-material:${Versions.RxBinding}"
-    )
+    const val RxBinding = "com.jakewharton.rxbinding3:rxbinding:${Versions.RxBinding}"
+    const val RxBindingCore = "com.jakewharton.rxbinding3:rxbinding-core:${Versions.RxBinding}"
+    const val RxBindingAppcompat = "com.jakewharton.rxbinding3:rxbinding-appcompat:${Versions.RxBinding}"
+    const val RxBindingRecyclerview = "com.jakewharton.rxbinding3:rxbinding-recyclerview:${Versions.RxBinding}"
+    const val RxBindingMaterial = "com.jakewharton.rxbinding3:rxbinding-material:${Versions.RxBinding}"
 
-    val MiscUtil = mapOf(
-        "Gson" to "com.google.code.gson:gson:2.8.5",
-        "Timber" to "com.jakewharton.timber:timber:4.7.1",
-        "Threeten" to "com.jakewharton.threetenabp:threetenabp:1.2.1",
-        "Flick" to "me.saket:flick:1.4.0",
-        "Gestureviews" to "com.alexvasilkov:gesture-views:2.5.2",
-        "Aboutlibs" to "com.mikepenz:aboutlibraries:6.2.1", //do not update this.. causes color errors?
-        "Customtabs" to "com.android.support:customtabs:28.0.0",
-        "RxPermissions" to "com.github.tbruyelle:rxpermissions:0.10.2",
-        "Shimmer" to "com.facebook.shimmer:shimmer:0.5.0"
-    )
+    const val Gson = "com.google.code.gson:gson:2.8.5"
+    const val Timber = "com.jakewharton.timber:timber:4.7.1"
+    const val Threeten = "com.jakewharton.threetenabp:threetenabp:1.2.1"
+    const val Flick = "me.saket:flick:1.4.0"
+    const val Gestureviews = "com.alexvasilkov:gesture-views:2.5.2"
+    const val Aboutlibs = "com.mikepenz:aboutlibraries:6.2.1" //do not update this.. causes color errors?
+    const val Customtabs = "com.android.support:customtabs:28.0.0"
+    const val RxPermissions = "com.github.tbruyelle:rxpermissions:0.10.2"
+    const val Shimmer = "com.facebook.shimmer:shimmer:0.5.0"
 
-    val LeakCanary = mapOf(
-        "Op" to "com.squareup.leakcanary:leakcanary-android:${Versions.Leakcanary}",
-        "NoOp" to "com.squareup.leakcanary:leakcanary-android-no-op:${Versions.Leakcanary}"
-    )
+    const val LeakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.Leakcanary}"
+    const val LeakCanaryNoOp = "com.squareup.leakcanary:leakcanary-android-no-op:${Versions.Leakcanary}"
 
-    val Glide = mapOf(
-        "Core" to "com.github.bumptech.glide:glide:${Versions.Glide}",
-        "Compiler" to "com.github.bumptech.glide:compiler:${Versions.Glide}",
-        "Transformation" to "jp.wasabeef:glide-transformations:4.0.1"
-    )
+    const val Glide = "com.github.bumptech.glide:glide:${Versions.Glide}"
+    const val GlideCompiler = "com.github.bumptech.glide:compiler:${Versions.Glide}"
+    const val GlideTransformation = "jp.wasabeef:glide-transformations:4.0.1"
 
-    val Work = mapOf(
-        "Core" to "androidx.work:work-runtime:${Versions.Work}",
-        "RxJava" to "androidx.work:work-rxjava2:${Versions.Work}"
-    )
+    const val Worker = "androidx.work:work-runtime:${Versions.Work}"
+    const val WorkerRxJava2 = "androidx.work:work-rxjava2:${Versions.Work}"
 
-    val Test = mapOf(
+    val Test = mapOf( // todo
         "Junit" to ("junit:junit:4.12"),
         "Mockito" to ("org.mockito:mockito-core:${Versions.Mockito}"),
         "MockitoKotlin" to ("com.nhaarman:mockito-kotlin-kt1.1:1.5.0"),
