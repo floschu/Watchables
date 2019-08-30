@@ -30,9 +30,9 @@ import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.all.util.extensions.request
 import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
 import at.florianschuster.watchables.ui.base.BaseReactor
@@ -47,12 +47,12 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
+import java.util.concurrent.TimeUnit
 import kotlinx.android.synthetic.main.fragment_scan.*
 import kotlinx.android.synthetic.main.fragment_scan_permission.*
 import kotlinx.android.synthetic.main.fragment_scan_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
-import java.util.concurrent.TimeUnit
 
 sealed class ScanRoute : CoordinatorRoute {
     object Pop : ScanRoute()

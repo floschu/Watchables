@@ -1,8 +1,8 @@
 package at.florianschuster.watchables.model
 
 import androidx.core.os.LocaleListCompat
-import org.threeten.bp.LocalDate
 import java.util.Locale
+import org.threeten.bp.LocalDate
 
 data class ReleaseDates(
     val preferred: LocalizedReleaseDate,

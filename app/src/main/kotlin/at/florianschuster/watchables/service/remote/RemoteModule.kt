@@ -16,14 +16,14 @@
 
 package at.florianschuster.watchables.service.remote
 
-import com.google.gson.Gson
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.all.AppLocaleProvider
-import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.all.util.gson.LocalDateTypeAdapter
 import at.florianschuster.watchables.all.util.gson.MovieReleaseDateTypeTypeAdapter
 import at.florianschuster.watchables.all.util.gson.SearchItemTypeAdapter
 import at.florianschuster.watchables.model.Movie
+import at.florianschuster.watchables.model.Search
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import io.reactivex.schedulers.Schedulers
 import okhttp3.OkHttpClient

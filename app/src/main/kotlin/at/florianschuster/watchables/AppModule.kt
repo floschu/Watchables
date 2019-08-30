@@ -21,8 +21,6 @@ import androidx.fragment.app.Fragment
 import at.florianschuster.watchables.all.AndroidAppLocaleProvider
 import at.florianschuster.watchables.all.AppLocaleProvider
 import at.florianschuster.watchables.all.HawkPersistenceProvider
-import at.florianschuster.watchables.service.DeepLinkService
-import at.florianschuster.watchables.service.FirebaseDeepLinkService
 import at.florianschuster.watchables.all.OptionsAdapter
 import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.all.util.QrCodeService
@@ -30,13 +28,15 @@ import at.florianschuster.watchables.all.util.ZXingQrCodeService
 import at.florianschuster.watchables.service.ActivityShareService
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.AndroidNotificationService
+import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.service.FirebaseAnalyticsService
-import at.florianschuster.watchables.service.TMDBWatchablesUpdateService
+import at.florianschuster.watchables.service.FirebaseDeepLinkService
 import at.florianschuster.watchables.service.FirebaseSessionService
 import at.florianschuster.watchables.service.FirebaseWatchablesDataSource
 import at.florianschuster.watchables.service.NotificationService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
+import at.florianschuster.watchables.service.TMDBWatchablesUpdateService
 import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.service.WatchablesUpdateService
 import at.florianschuster.watchables.ui.watchables.filter.RxWatchablesFilterService

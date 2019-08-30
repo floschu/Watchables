@@ -21,45 +21,45 @@ import android.view.View
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
-import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
+import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.reaktor.emptyMutation
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.extensions.asCauseTranslation
-import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.ui.base.BaseReactor
-import at.florianschuster.watchables.service.AnalyticsService
-import at.florianschuster.watchables.service.ShareService
-import at.florianschuster.watchables.service.local.PrefRepo
-import at.florianschuster.watchables.service.WatchablesDataSource
-import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseCoordinator
+import at.florianschuster.watchables.all.util.extensions.rxDiff
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
+import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.service.AnalyticsService
+import at.florianschuster.watchables.service.ShareService
+import at.florianschuster.watchables.service.WatchablesDataSource
+import at.florianschuster.watchables.service.local.PrefRepo
+import at.florianschuster.watchables.ui.base.BaseCoordinator
+import at.florianschuster.watchables.ui.base.BaseFragment
+import at.florianschuster.watchables.ui.base.BaseReactor
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterBottomSheetDialogFragment
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
-import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
 import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapter
+import at.florianschuster.watchables.ui.watchables.recyclerview.WatchablesAdapterInteraction
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
+import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.addScrolledPastItemListener
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.smoothScrollUp
 import com.tailoredapps.androidutil.ui.extensions.snack
-import com.tailoredapps.androidutil.optional.ofType
 import com.tailoredapps.androidutil.ui.extensions.toast
-import at.florianschuster.reaktor.android.koin.reactor
-import at.florianschuster.watchables.all.util.extensions.rxDiff
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -67,13 +67,13 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 import kotlinx.android.synthetic.main.fragment_watchables.*
 import kotlinx.android.synthetic.main.fragment_watchables.emptyLayout
 import kotlinx.android.synthetic.main.fragment_watchables_toolbar.*
 import org.koin.android.ext.android.inject
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 sealed class WatchablesRoute : CoordinatorRoute {
     data class OnWatchableSelected(val id: String, val type: Watchable.Type) : WatchablesRoute()
@@ -216,6 +216,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 }
 
 class WatchablesReactor(
+
     private val watchablesDataSource: WatchablesDataSource,
     private val analyticsService: AnalyticsService,
     private val prefRepo: PrefRepo,

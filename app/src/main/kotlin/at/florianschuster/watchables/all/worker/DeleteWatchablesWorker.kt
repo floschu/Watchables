@@ -32,10 +32,10 @@ import at.florianschuster.watchables.service.WatchablesDataSource
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.rxkotlin.toFlowable
+import java.util.concurrent.TimeUnit
 import org.koin.core.KoinComponent
 import org.koin.core.inject
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class DeleteWatchablesWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams), KoinComponent {
     private val sessionService: SessionService<FirebaseUser, AuthCredential> by inject()

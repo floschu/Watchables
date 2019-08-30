@@ -32,8 +32,8 @@ import at.florianschuster.watchables.model.convertToWatchable
 import at.florianschuster.watchables.model.convertToWatchableSeason
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.NotificationService
-import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import at.florianschuster.watchables.service.WatchablesDataSource
+import at.florianschuster.watchables.service.remote.MovieDatabaseApi
 import io.reactivex.Completable
 import io.reactivex.rxkotlin.toFlowable
 import org.koin.core.KoinComponent

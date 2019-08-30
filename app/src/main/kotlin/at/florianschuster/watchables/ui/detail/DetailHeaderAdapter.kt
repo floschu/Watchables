@@ -16,19 +16,19 @@
 
 package at.florianschuster.watchables.ui.detail
 
-import android.view.View
-import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
-import at.florianschuster.watchables.R
-import at.florianschuster.watchables.all.util.srcConsumer
 import android.content.Intent
 import android.net.Uri
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
-import at.florianschuster.watchables.model.Videos
+import androidx.recyclerview.widget.RecyclerView
+import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.photodetail.photoDetailConsumer
+import at.florianschuster.watchables.all.util.srcConsumer
+import at.florianschuster.watchables.model.Videos
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import kotlinx.android.extensions.LayoutContainer
 import kotlinx.android.synthetic.main.item_detail_poster.*

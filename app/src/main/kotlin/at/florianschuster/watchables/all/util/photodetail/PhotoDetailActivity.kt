@@ -20,22 +20,22 @@ import androidx.core.view.isVisible
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.GlideApp
-import com.tailoredapps.androidutil.ui.extensions.extra
-import com.tailoredapps.androidutil.ui.extensions.extras
 import at.florianschuster.watchables.all.util.photodetail.immersive.SystemUiHelper
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
+import com.tailoredapps.androidutil.ui.extensions.extra
+import com.tailoredapps.androidutil.ui.extensions.extras
 import io.reactivex.functions.Consumer
+import java.io.File
+import java.security.MessageDigest
 import kotlinx.android.synthetic.main.activity_photo_detail.*
 import me.saket.flick.ContentSizeProvider
 import me.saket.flick.FlickCallbacks
 import me.saket.flick.FlickGestureListener
 import me.saket.flick.InterceptResult
-import java.io.File
-import java.security.MessageDigest
 
 private const val ARG_PHOTO_URL = "photo.url"
 private const val ARG_FILE = "file"

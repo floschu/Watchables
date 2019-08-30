@@ -29,18 +29,18 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavDeepLinkBuilder
 import at.florianschuster.watchables.MainDirections
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.all.util.GlideApp
 import at.florianschuster.watchables.model.Movie
 import at.florianschuster.watchables.model.Season
 import at.florianschuster.watchables.model.Watchable
-import at.florianschuster.watchables.ui.main.MainActivity
-import at.florianschuster.watchables.all.util.GlideApp
 import at.florianschuster.watchables.model.thumbnailPoster
+import at.florianschuster.watchables.ui.main.MainActivity
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import timber.log.Timber
 
 interface NotificationService {
     fun addWatchableError(id: Int, name: String?)

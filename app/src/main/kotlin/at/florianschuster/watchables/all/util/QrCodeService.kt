@@ -26,8 +26,8 @@ import com.google.zxing.qrcode.QRCodeWriter
 import io.reactivex.Maybe
 import io.reactivex.MaybeEmitter
 import io.reactivex.schedulers.Schedulers
-import timber.log.Timber
 import java.io.File
+import timber.log.Timber
 
 interface QrCodeService {
     fun generate(content: String): Maybe<File>

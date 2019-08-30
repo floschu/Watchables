@@ -18,15 +18,15 @@ package at.florianschuster.watchables.service
 
 import android.content.Intent
 import android.graphics.Bitmap
-import io.reactivex.Completable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.R
+import at.florianschuster.watchables.all.util.GlideApp
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.originalPoster
-import at.florianschuster.watchables.all.util.GlideApp
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.io.File

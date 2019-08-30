@@ -18,10 +18,10 @@ package at.florianschuster.watchables.all.util
 
 import android.content.Context
 import android.util.Log
+import at.florianschuster.watchables.BuildConfig
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.module.AppGlideModule
-import at.florianschuster.watchables.BuildConfig
 
 @GlideModule
 class GlideModule : AppGlideModule() {

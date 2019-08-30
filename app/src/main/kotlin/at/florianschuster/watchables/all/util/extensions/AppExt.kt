@@ -25,21 +25,21 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.tailoredapps.androidutil.ui.IntentUtil
-import io.reactivex.Completable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.WatchablesApp
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import com.tailoredapps.androidutil.permissions.Permission
+import com.tailoredapps.androidutil.ui.IntentUtil
 import com.tailoredapps.androidutil.ui.extensions.toast
 import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.Completable
 import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import java.util.concurrent.TimeUnit
 import org.threeten.bp.LocalDate
 import org.threeten.bp.ZoneOffset
+import timber.log.Timber
 
 @SuppressLint("CheckResult")
 fun main(afterMillis: Long = 0, block: () -> Unit) {

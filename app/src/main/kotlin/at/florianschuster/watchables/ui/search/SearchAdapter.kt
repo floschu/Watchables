@@ -24,11 +24,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.model.Search
-import at.florianschuster.watchables.model.thumbnailPoster
 import at.florianschuster.watchables.all.util.srcBlurConsumer
 import at.florianschuster.watchables.all.util.srcConsumer
+import at.florianschuster.watchables.model.Search
 import at.florianschuster.watchables.model.originalPoster
+import at.florianschuster.watchables.model.thumbnailPoster
 import at.florianschuster.watchables.service.local.PrefRepo
 import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate

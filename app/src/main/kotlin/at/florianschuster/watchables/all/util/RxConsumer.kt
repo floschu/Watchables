@@ -21,8 +21,8 @@ import androidx.annotation.DrawableRes
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestOptions
 import io.reactivex.functions.Consumer
-import jp.wasabeef.glide.transformations.BlurTransformation
 import java.io.File
+import jp.wasabeef.glide.transformations.BlurTransformation
 
 fun ImageView.srcFileConsumer(@DrawableRes fallback: Int? = null): Consumer<in File?> =
     Consumer {
