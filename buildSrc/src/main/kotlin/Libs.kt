@@ -183,8 +183,6 @@ object Libs {
     const val glide: String = "com.github.bumptech.glide:glide:" +
             Versions.com_github_bumptech_glide
 
-    const val ktlint: String = "com.github.shyiko:ktlint:" + Versions.ktlint
-
     /**
      * https://github.com/tbruyelle/RxPermissions
      */
@@ -299,6 +297,11 @@ object Libs {
      * https://github.com/orhanobut/hawk
      */
     const val hawk: String = "com.orhanobut:hawk:" + Versions.hawk
+
+    /**
+     * https://github.com/pinterest/ktlint
+     */
+    const val ktlint: String = "com.pinterest:ktlint:" + Versions.ktlint
 
     /**
      * http://github.com/square/leakcanary/

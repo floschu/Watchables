@@ -54,8 +54,6 @@ object Versions {
 
     const val com_github_bumptech_glide: String = "4.9.0"
 
-    const val ktlint: String = "0.34.2"
-
     const val rxpermissions: String = "0.10.2" // available: "2.x.v0.9.3"
 
     const val play_services_auth: String = "17.0.0"
@@ -99,6 +97,8 @@ object Versions {
     const val mockito_kotlin_kt1_1: String = "1.5.0"
 
     const val hawk: String = "2.0.1"
+
+    const val ktlint: String = "0.34.2"
 
     const val com_squareup_leakcanary: String = "1.6.3"
 
