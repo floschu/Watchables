@@ -152,6 +152,8 @@ object Libs {
      */
     const val aapt2: String = "com.android.tools.build:aapt2:" + Versions.aapt2
 
+    const val bundletool: String = "com.android.tools.build:bundletool:" + Versions.bundletool
+
     /**
      * https://developer.android.com/studio
      */
@@ -195,6 +197,9 @@ object Libs {
      * http://developer.android.com/tools/extras/support-library.html
      */
     const val material: String = "com.google.android.material:material:" + Versions.material
+
+    const val com_google_android_play_core: String = "com.google.android.play:core:" +
+            Versions.com_google_android_play_core
 
     /**
      * http://findbugs.sourceforge.net/

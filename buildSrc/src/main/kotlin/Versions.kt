@@ -44,6 +44,8 @@ object Versions {
 
     const val aapt2: String = "3.5.0-5435860"
 
+    const val bundletool: String = "0.10.2"
+
     const val com_android_tools_build_gradle: String = "3.5.0"
 
     const val lint_gradle: String = "26.5.0"
@@ -59,6 +61,8 @@ object Versions {
     const val play_services_auth: String = "17.0.0"
 
     const val material: String = "1.0.0"
+
+    const val com_google_android_play_core: String = "1.6.1"
 
     const val jsr305: String = "3.0.2"
 

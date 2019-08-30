@@ -140,11 +140,17 @@ dependencies {
     implementation Libs.zxing_android_embedded
 
     /**
+     * Google
+     */
+
+    implementation Libs.com_google_android_play_core
+    implementation Libs.play_services_auth
+
+    /**
      * Firebase
      */
     implementation Libs.firebase_core
     implementation Libs.firebase_auth
-    implementation Libs.play_services_auth
     implementation Libs.firebase_firestore
     implementation Libs.crashlytics
     implementation Libs.firebase_messaging
