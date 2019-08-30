@@ -5,18 +5,24 @@ buildscript {
         google()
         maven { url 'https://maven.fabric.io/public' }
         jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
     }
 
     dependencies {
-        classpath BuildScriptDependencies.BuildTools
-        classpath BuildScriptDependencies.KotlinPlugin
-        classpath BuildScriptDependencies.NavigationSafeArgs
-        classpath BuildScriptDependencies.VersionsPlugin
-        classpath BuildScriptDependencies.EasyLauncher
-        classpath BuildScriptDependencies.GoogleServices
-        classpath BuildScriptDependencies.Fabric
+        classpath Libs.buildsrcversions
+
+        classpath Libs.com_android_tools_build_gradle
+        classpath Libs.kotlin_gradle_plugin
+
+        classpath Libs.navigation_safe_args_gradle_plugin
+
+        classpath Libs.easylauncher
+        classpath Libs.google_services
+        classpath Libs.io_fabric_tools_gradle
     }
 }
+
+apply plugin: "de.fayard.buildSrcVersions"
 
 allprojects {
     apply from: rootProject.file("ktlint.gradle")
@@ -30,4 +36,8 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+buildSrcVersions {
+    indent = "    "
 }

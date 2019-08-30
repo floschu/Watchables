@@ -79,117 +79,138 @@ androidExtensions {
 }
 
 dependencies {
-    implementation Dependencies.KotlinStd
+    implementation Libs.kotlin_stdlib_jdk7
 
     /**
      * Base
      */
-    implementation Dependencies.Reaktor
-    implementation Dependencies.Koordinator
+    implementation Libs.reaktor_android_koin
+    implementation Libs.koordinator_android_koin
 
-    implementation Dependencies.AndroidUtilUI
-    implementation Dependencies.AndroidUtilAsync
-    implementation Dependencies.AndroidUtilNetwork
-    implementation Dependencies.AndroidUtilOptional
-    implementation Dependencies.AndroidUtilPermissions
-    implementation Dependencies.AndroidUtilValidation
-    implementation Dependencies.AndroidUtilViewState
-    implementation Dependencies.AndroidUtilFirebase
-
+    implementation Libs.util_ui
+    implementation Libs.util_async
+    implementation Libs.util_network
+    implementation Libs.util_optional
+    implementation Libs.util_permissions
+    implementation Libs.util_validation
+    implementation Libs.util_viewstate
+    implementation Libs.util_firebase
 
     /**
      * UI
      */
-    implementation Dependencies.AppCompat
-    implementation Dependencies.Material
-    implementation Dependencies.Fragment
-    implementation Dependencies.Constraintlayout
-    implementation Dependencies.CoreKTX
+    implementation Libs.appcompat
+    implementation Libs.material
+    implementation Libs.fragment
+    implementation Libs.constraintlayout
+    implementation Libs.core_ktx
 
-    implementation Dependencies.NavigationUI
-    implementation Dependencies.NavigationFragment
-    implementation Dependencies.LifecycleExtensions
-    kapt Dependencies.LifecycleCompiler
+    implementation Libs.navigation_ui_ktx
+    implementation Libs.navigation_fragment_ktx
+
+    implementation Libs.lifecycle_extensions
+    kapt Libs.lifecycle_compiler
 
     /**
      * Dependency Injection
      */
-    implementation Dependencies.KoinCore
-    implementation Dependencies.KoinAndroid
-    implementation Dependencies.KoinAndroidScope
-    implementation Dependencies.KoinAndroidViewModel
+    implementation Libs.koin_core
+    implementation Libs.koin_android
+    implementation Libs.koin_androidx_scope
+    implementation Libs.koin_androidx_viewmodel
 
     /**
      * Networking
      */
-    implementation Dependencies.Retrofit
-    implementation Dependencies.RetrofitGsonConverter
-    implementation Dependencies.RetrofitRxJava2Adapter
-    implementation Dependencies.OkHttp
-    implementation Dependencies.OkHttpLoggingInterceptor
+    implementation Libs.retrofit
+    implementation Libs.converter_gson
+    implementation Libs.adapter_rxjava2
+    implementation Libs.okhttp
+    implementation Libs.logging_interceptor
 
     /**
      * Local
      */
-    implementation Dependencies.Hawk
+    implementation Libs.hawk
 
     /**
      * QR
      */
-    implementation Dependencies.ZxingCore
-    implementation Dependencies.ZxingAndroid
+    implementation Libs.com_google_zxing_core
+    implementation Libs.zxing_android_embedded
 
     /**
      * Firebase
      */
-    implementation Dependencies.FirebaseCore
-    implementation Dependencies.FirebaseAuth
-    implementation Dependencies.PlayServicesAuth
-    implementation Dependencies.FirebaseFirestore
-    implementation Dependencies.FirebaseCrashlytics
-    implementation Dependencies.FirebaseMessaging
-    implementation Dependencies.FirebasePrformance
-    implementation Dependencies.FirebaseInvites
+    implementation Libs.firebase_core
+    implementation Libs.firebase_auth
+    implementation Libs.play_services_auth
+    implementation Libs.firebase_firestore
+    implementation Libs.crashlytics
+    implementation Libs.firebase_messaging
+    implementation Libs.firebase_perf
+    implementation Libs.firebase_invites
 
     /**
      * Rx
      */
-    implementation Dependencies.RxJava2
-    implementation Dependencies.RxJava2Kotlin
-    implementation Dependencies.RxJava2Relay
-    implementation Dependencies.RxJava2Android
+    implementation Libs.rxjava
+    implementation Libs.rxkotlin
+    implementation Libs.rxrelay
+    implementation Libs.rxandroid
 
-    implementation Dependencies.RxBinding
-    implementation Dependencies.RxBindingCore
-    implementation Dependencies.RxBindingAppcompat
-    implementation Dependencies.RxBindingRecyclerview
-    implementation Dependencies.RxBindingMaterial
+    implementation Libs.rxbinding
+    implementation Libs.rxbinding_core
+    implementation Libs.rxbinding_appcompat
+    implementation Libs.rxbinding_recyclerview
+    implementation Libs.rxbinding_material
 
     /**
      * Utils
      */
-    implementation Dependencies.Gson
-    implementation Dependencies.Timber
-    implementation Dependencies.Threeten
-    implementation Dependencies.Flick
-    implementation Dependencies.Gestureviews
-    implementation Dependencies.Aboutlibs
-    implementation Dependencies.Customtabs
-    implementation Dependencies.RxPermissions
-    implementation Dependencies.Shimmer
+    implementation Libs.gson
+    implementation Libs.timber
+    implementation Libs.threetenabp
+    implementation Libs.flick
+    implementation Libs.gesture_views
+    implementation Libs.aboutlibraries
+    implementation Libs.customtabs
+    implementation Libs.rxpermissions
+    implementation Libs.shimmer
 
-    debugImplementation Dependencies.LeakCanary
-    releaseImplementation Dependencies.LeakCanaryNoOp
+    debugImplementation Libs.leakcanary_android
+    releaseImplementation Libs.leakcanary_android_no_op
 
-    implementation Dependencies.Glide
-    kapt Dependencies.GlideCompiler
-    implementation Dependencies.GlideTransformation
+    implementation Libs.glide
+    kapt Libs.com_github_bumptech_glide_compiler
+    implementation Libs.glide_transformations
 
-    implementation Dependencies.Worker
-    implementation Dependencies.WorkerRxJava2
+    implementation Libs.work_runtime
+    implementation Libs.work_rxjava2
 
-    testImplementation Dependencies.Test.values()
-    androidTestImplementation Dependencies.AndroidTest.values()
+    testImplementation Libs.junit_junit
+    testImplementation Libs.mockito_core
+    testImplementation Libs.mockito_kotlin_kt1_1
+    testImplementation Libs.powermock_module_junit4
+    testImplementation Libs.powermock_module_junit4_rule
+    testImplementation Libs.powermock_api_mockito2
+    testImplementation Libs.kotlin_reflect
+    testImplementation Libs.jsr305
+    testImplementation Libs.mockk
+    testImplementation Libs.kluent
+    testImplementation Libs.koin_test
+
+    androidTestImplementation Libs.androidx_test_core
+    androidTestImplementation Libs.androidx_test_runner
+    androidTestImplementation Libs.androidx_test_rules
+    androidTestImplementation Libs.androidx_test_ext_truth
+    androidTestImplementation Libs.androidx_test_ext_junit
+    androidTestImplementation Libs.com_google_truth_truth
+    androidTestImplementation Libs.espresso_core
+    androidTestImplementation Libs.espresso_contrib
+    androidTestImplementation Libs.espresso_intents
+    androidTestImplementation Libs.espresso_web
+    androidTestImplementation Libs.mockito_android
 }
 
 
