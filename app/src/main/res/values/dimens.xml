@@ -10,6 +10,7 @@
 
     <dimen name="detail_media_height">248dp</dimen>
     <dimen name="episode_height">52dp</dimen>
+    <dimen name="episode_min_width">56dp</dimen>
     <dimen name="bnv_height">56dp</dimen>
     <dimen name="bnv_height_rv_padding">112dp</dimen>
     <dimen name="watchables_filter_chip_height">42dp</dimen>
