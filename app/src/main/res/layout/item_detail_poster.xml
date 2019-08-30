@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="@dimen/detail_media_height"
+    android:layout_height="@dimen/height_detail_media"
     android:layout_margin="@dimen/margin_half">
 
     <androidx.appcompat.widget.AppCompatImageView

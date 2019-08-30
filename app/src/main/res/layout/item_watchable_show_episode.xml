@@ -3,9 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:minWidth="@dimen/episode_min_width"
-    android:layout_height="@dimen/episode_height"
-    android:layout_margin="@dimen/margin_half">
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/margin_half"
+    android:minWidth="@dimen/size_episode"
+    android:minHeight="@dimen/size_episode">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvEpisode"
@@ -23,9 +24,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:alpha="0.75"
-        android:visibility="invisible"
         android:src="@drawable/ic_check"
         android:tint="@color/colorAccent"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

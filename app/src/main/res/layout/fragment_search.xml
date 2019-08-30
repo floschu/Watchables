@@ -12,7 +12,7 @@
         android:clipToPadding="false"
         android:overScrollMode="never"
         android:paddingTop="?actionBarSize"
-        android:paddingBottom="@dimen/bnv_height_rv_padding"
+        android:paddingBottom="@dimen/height_bnv_rv_padding"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_search" />
 
@@ -24,7 +24,7 @@
         android:id="@+id/bnvSpace"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/bnv_height"
+        android:layout_marginBottom="@dimen/height_bnv"
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

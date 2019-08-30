@@ -4,13 +4,13 @@
 
     <item
         android:id="@android:id/mask"
-        android:bottom="@dimen/item_ripple_padding"
-        android:left="@dimen/item_ripple_padding"
-        android:right="@dimen/item_ripple_padding"
-        android:top="@dimen/item_ripple_padding">
+        android:bottom="@dimen/padding_item_ripple"
+        android:left="@dimen/padding_item_ripple"
+        android:right="@dimen/padding_item_ripple"
+        android:top="@dimen/padding_item_ripple">
         <shape android:shape="rectangle">
             <solid android:color="#000000" />
-            <corners android:radius="@dimen/item_inner_corners" />
+            <corners android:radius="@dimen/size_corners_inner" />
         </shape>
     </item>
     <item android:drawable="@drawable/bg_option" />

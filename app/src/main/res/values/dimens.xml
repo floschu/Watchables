@@ -4,18 +4,17 @@
     <dimen name="margin_half">8dp</dimen>
     <dimen name="padding">12dp</dimen>
 
-    <dimen name="item_ripple_padding">4dp</dimen>
-    <dimen name="item_outer_corners">12dp</dimen>
-    <dimen name="item_inner_corners">8dp</dimen>
+    <dimen name="padding_item_ripple">4dp</dimen>
+    <dimen name="size_corners_outer">12dp</dimen>
+    <dimen name="size_corners_inner">8dp</dimen>
 
-    <dimen name="detail_media_height">248dp</dimen>
-    <dimen name="episode_height">52dp</dimen>
-    <dimen name="episode_min_width">56dp</dimen>
-    <dimen name="bnv_height">56dp</dimen>
-    <dimen name="bnv_height_rv_padding">112dp</dimen>
-    <dimen name="watchables_filter_chip_height">42dp</dimen>
-    <dimen name="rating_star_size">30dp</dimen>
-    <dimen name="torch_button_size">56dp</dimen>
+    <dimen name="height_detail_media">248dp</dimen>
+    <dimen name="size_episode">56dp</dimen>
+    <dimen name="height_bnv">56dp</dimen>
+    <dimen name="height_bnv_rv_padding">112dp</dimen>
+    <dimen name="height_watchables_filter_chip">42dp</dimen>
+    <dimen name="size_rating_star">30dp</dimen>
+    <dimen name="size_torch_button">56dp</dimen>
 
     <dimen name="padding_button">20dp</dimen>
 

@@ -24,7 +24,7 @@
         android:clipToPadding="false"
         android:overScrollMode="never"
         android:paddingTop="?actionBarSize"
-        android:paddingBottom="@dimen/bnv_height">
+        android:paddingBottom="@dimen/height_bnv">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

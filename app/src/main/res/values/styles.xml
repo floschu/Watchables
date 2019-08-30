@@ -92,9 +92,9 @@
     <!-- Chips -->
     <style name="FilterChip" parent="@style/Widget.MaterialComponents.Chip.Choice">
         <item name="chipBackgroundColor">@drawable/bg_filter_chip</item>
-        <item name="chipCornerRadius">@dimen/item_outer_corners</item>
+        <item name="chipCornerRadius">@dimen/size_corners_outer</item>
         <item name="chipEndPadding">@dimen/padding</item>
-        <item name="chipMinHeight">@dimen/watchables_filter_chip_height</item>
+        <item name="chipMinHeight">@dimen/height_watchables_filter_chip</item>
         <item name="chipStartPadding">@dimen/padding</item>
         <item name="chipStrokeColor">@color/white</item>
         <item name="chipStrokeWidth">1dp</item>

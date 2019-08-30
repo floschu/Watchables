@@ -6,7 +6,7 @@
     android:insetBottom="@dimen/margin">
 
     <shape android:shape="rectangle">
-        <corners android:radius="@dimen/item_outer_corners" />
+        <corners android:radius="@dimen/size_corners_outer" />
         <solid android:color="@color/dialogBackground" />
     </shape>
 </inset>
