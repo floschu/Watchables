@@ -172,12 +172,6 @@ object Libs {
     const val shimmer: String = "com.facebook.shimmer:shimmer:" + Versions.shimmer
 
     /**
-     * https://github.com/ben-manes/gradle-versions-plugin
-     */
-    const val gradle_versions_plugin: String = "com.github.ben-manes:gradle-versions-plugin:" +
-            Versions.gradle_versions_plugin
-
-    /**
      * https://github.com/bumptech/glide
      */
     const val com_github_bumptech_glide_compiler: String = "com.github.bumptech.glide:compiler:" +
