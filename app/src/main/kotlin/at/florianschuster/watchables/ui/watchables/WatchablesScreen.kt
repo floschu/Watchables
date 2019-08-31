@@ -101,7 +101,7 @@ class WatchablesFragment : BaseFragment(R.layout.fragment_watchables), ReactorVi
 
         with(rvWatchables) {
             adapter = this@WatchablesFragment.adapter
-            addScrolledPastItemListener { fabScroll.isVisible = it }
+            addScrolledPastItemListener { fabScroll?.isVisible = it }
         }
 
         fabScroll.clicks().subscribe { rvWatchables.smoothScrollUp() }.addTo(disposables)

@@ -102,7 +102,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
         with(rvSearch) {
             adapter = this@SearchFragment.adapter
             setOnTouchListener { _, _ -> etSearch.hideKeyboard(); false }
-            addScrolledPastItemListener { fabScroll.isVisible = it }
+            addScrolledPastItemListener { fabScroll?.isVisible = it }
         }
 
         fabScroll.clicks().subscribe { rvSearch.smoothScrollUp() }.addTo(disposables)

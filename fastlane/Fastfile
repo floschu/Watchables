@@ -15,7 +15,7 @@ platform :android do
 
   desc "Builds a new version, pushes it to repository and deploys it to internal track"
     lane :publish do
-      gradle(task: "test ktlintFormat")
+      gradle(task: "buildSrcVersions ktlintFormat test")
       increment_version_code_and_commit lane:self.runner.current_lane
       gradle(task: "clean bundleRelease")
       upload_to_play_store(
