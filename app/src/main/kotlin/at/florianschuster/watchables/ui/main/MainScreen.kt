@@ -18,7 +18,6 @@ package at.florianschuster.watchables.ui.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -47,14 +46,12 @@ import com.google.firebase.auth.FirebaseUser
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
-import com.tailoredapps.androidutil.ui.extensions.toast
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
-import timber.log.Timber
 
 sealed class MainRoute : CoordinatorRoute {
     data class ShowWatchableDetail(val id: String, val type: Watchable.Type) : MainRoute()

@@ -24,8 +24,8 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
 import io.reactivex.Flowable
 import io.reactivex.Single
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
+import timber.log.Timber
 
 interface AppUpdateService {
     enum class Status {
