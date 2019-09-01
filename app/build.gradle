@@ -29,7 +29,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 43
-        versionName "1.0.11"
+        versionName "1.0.12"
         vectorDrawables.useSupportLibrary = true
         setProperty("archivesBaseName", "Watchables-v$versionName-b$versionCode")
 

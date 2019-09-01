@@ -1,103 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipToPadding="false"
-    android:overScrollMode="never"
-    android:paddingBottom="@dimen/height_bnv">
+    android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:overScrollMode="never"
+        android:paddingBottom="@dimen/height_bnv">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivBackground"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/bg_more"
-            app:layout_constraintDimensionRatio="16:9"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvHello"
-            style="@style/TextAppearance.MaterialComponents.Headline5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/margin"
-            android:gravity="center"
-            android:padding="@dimen/padding"
-            android:textColor="@color/textLightPrimary"
-            app:layout_constraintBottom_toBottomOf="@id/ivBackground"
-            app:layout_constraintEnd_toEndOf="@id/ivBackground"
-            app:layout_constraintStart_toStartOf="@id/ivBackground"
-            app:layout_constraintTop_toTopOf="@id/ivBackground"
-            app:layout_constraintVertical_bias="0.9"
-            tools:text="Hi\nflosch" />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvMoreOptions"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
-            android:clipToPadding="false"
-            android:nestedScrollingEnabled="false"
-            app:layout_constraintTop_toBottomOf="@id/ivBackground"
-            app:stackFromEnd="true"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_option" />
+            android:layout_height="wrap_content">
 
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/ivPoweredBy"
-            android:layout_width="56dp"
-            android:layout_height="38dp"
-            android:layout_marginStart="@dimen/margin"
-            android:layout_marginTop="@dimen/margin"
-            android:src="@drawable/ic_tmdb_powered"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rvMoreOptions" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivBackground"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/bg_more"
+                app:layout_constraintDimensionRatio="16:9"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvAttribution"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/margin"
-            android:layout_marginEnd="@dimen/margin"
-            android:gravity="center_vertical"
-            android:text="@string/tmdb_attribution"
-            android:textColor="@color/textColorDisabled"
-            app:layout_constraintBottom_toBottomOf="@id/ivPoweredBy"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/ivPoweredBy"
-            app:layout_constraintTop_toTopOf="@id/ivPoweredBy" />
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvHello"
+                style="@style/TextAppearance.MaterialComponents.Headline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/margin"
+                android:gravity="center"
+                android:padding="@dimen/padding"
+                android:textColor="@color/textLightPrimary"
+                app:layout_constraintBottom_toBottomOf="@id/ivBackground"
+                app:layout_constraintEnd_toEndOf="@id/ivBackground"
+                app:layout_constraintStart_toStartOf="@id/ivBackground"
+                app:layout_constraintTop_toTopOf="@id/ivBackground"
+                app:layout_constraintVertical_bias="0.9"
+                tools:text="Hi\nflosch" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvUserId"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin"
-            android:gravity="center"
-            android:textColor="@color/textColorDisabled"
-            app:layout_constraintBottom_toTopOf="@id/tvVersion"
-            app:layout_constraintTop_toBottomOf="@id/ivPoweredBy"
-            tools:text="User ID: 1238r397r8236e823r" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvMoreOptions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="false"
+                app:layout_constraintTop_toBottomOf="@id/ivBackground"
+                app:stackFromEnd="true"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_option" />
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/tvVersion"
-            style="@style/TextAppearance.MaterialComponents.Caption"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/margin_large"
-            android:gravity="center"
-            android:textColor="@color/textColorDisabled"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvUserId"
-            tools:text="App Version 1.2.0" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.core.widget.NestedScrollView>
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/ivPoweredBy"
+                android:layout_width="56dp"
+                android:layout_height="38dp"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginTop="@dimen/margin"
+                android:src="@drawable/ic_tmdb_powered"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rvMoreOptions" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvAttribution"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin"
+                android:layout_marginEnd="@dimen/margin"
+                android:gravity="center_vertical"
+                android:text="@string/tmdb_attribution"
+                android:textColor="@color/textColorDisabled"
+                app:layout_constraintBottom_toBottomOf="@id/ivPoweredBy"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/ivPoweredBy"
+                app:layout_constraintTop_toTopOf="@id/ivPoweredBy" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvUserId"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/margin"
+                android:gravity="center"
+                android:textColor="@color/textColorDisabled"
+                app:layout_constraintBottom_toTopOf="@id/tvVersion"
+                app:layout_constraintTop_toBottomOf="@id/ivPoweredBy"
+                tools:text="User ID: 1238r397r8236e823r" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tvVersion"
+                style="@style/TextAppearance.MaterialComponents.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/margin_large"
+                android:gravity="center"
+                android:textColor="@color/textColorDisabled"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvUserId"
+                tools:text="App Version 1.2.0" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@drawable/bg_all_toolbar" />
+</FrameLayout>
