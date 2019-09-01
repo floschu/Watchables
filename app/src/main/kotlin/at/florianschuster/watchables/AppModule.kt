@@ -28,12 +28,14 @@ import at.florianschuster.watchables.all.util.ZXingQrCodeService
 import at.florianschuster.watchables.service.ActivityShareService
 import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.AndroidNotificationService
+import at.florianschuster.watchables.service.AppUpdateService
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.service.FirebaseAnalyticsService
 import at.florianschuster.watchables.service.FirebaseDeepLinkService
 import at.florianschuster.watchables.service.FirebaseSessionService
 import at.florianschuster.watchables.service.FirebaseWatchablesDataSource
 import at.florianschuster.watchables.service.NotificationService
+import at.florianschuster.watchables.service.PlayAppUpdateService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.TMDBWatchablesUpdateService
@@ -63,6 +65,7 @@ val appModule = module {
     single<DeepLinkService> { FirebaseDeepLinkService() }
     single<QrCodeService> { ZXingQrCodeService(androidContext()) }
     single<WatchablesUpdateService> { TMDBWatchablesUpdateService(get(), get()) }
+    single<AppUpdateService> { PlayAppUpdateService(androidContext()) }
 
     factory<ShareService> { (activity: AppCompatActivity) -> ActivityShareService(activity, get()) }
     factory { OptionsAdapter() }

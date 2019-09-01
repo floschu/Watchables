@@ -18,6 +18,7 @@ package at.florianschuster.watchables.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -34,6 +35,7 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.extensions.main
 import at.florianschuster.watchables.all.util.extensions.openPlayStoreToRateApp
 import at.florianschuster.watchables.model.Watchable
+import at.florianschuster.watchables.service.AppUpdateService
 import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
@@ -45,12 +47,14 @@ import com.google.firebase.auth.FirebaseUser
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
 import com.tailoredapps.androidutil.ui.extensions.rxDialog
 import com.tailoredapps.androidutil.ui.extensions.toObservableDefault
+import com.tailoredapps.androidutil.ui.extensions.toast
 import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.rxkotlin.ofType
 import kotlinx.android.synthetic.main.activity_main.*
 import org.threeten.bp.LocalDate
+import timber.log.Timber
 
 sealed class MainRoute : CoordinatorRoute {
     data class ShowWatchableDetail(val id: String, val type: Watchable.Type) : MainRoute()
@@ -142,7 +146,8 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
 class MainReactor(
     private val prefRepo: PrefRepo,
     private val sessionService: SessionService<FirebaseUser, AuthCredential>,
-    private val deepLinkService: DeepLinkService
+    private val deepLinkService: DeepLinkService,
+    private val appUpdateService: AppUpdateService
 ) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
     initialState = State(),
     initialAction = Action.LoadDialogShownDate
@@ -156,18 +161,24 @@ class MainReactor(
     sealed class Mutation {
         data class SetLoggedIn(val loggedIn: Boolean) : Mutation()
         data class SetShouldShowRateDialog(val shouldShow: Boolean) : Mutation()
+        data class SetAppUpdateStatus(val status: AppUpdateService.Status) : Mutation()
     }
 
     data class State(
         val loggedIn: Boolean = true,
-        val shouldShowRateDialog: Boolean = false
+        val shouldShowRateDialog: Boolean = false,
+        val appUpdateStatus: AppUpdateService.Status = AppUpdateService.Status.AppUpToDate
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
         val sessionMutation = sessionService.session
             .map { Mutation.SetLoggedIn(it.loggedIn) }
             .toObservable()
-        return Observable.merge(mutation, sessionMutation)
+
+        val appUpdateMutation = appUpdateService.status
+            .map { Mutation.SetAppUpdateStatus(it) }
+            .toObservable()
+        return Observable.merge(mutation, sessionMutation, appUpdateMutation)
     }
 
     override fun mutate(action: Action): Observable<out Mutation> = when (action) {
@@ -200,5 +211,6 @@ class MainReactor(
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.SetLoggedIn -> previousState.copy(loggedIn = mutation.loggedIn)
         is Mutation.SetShouldShowRateDialog -> previousState.copy(shouldShowRateDialog = mutation.shouldShow)
+        is Mutation.SetAppUpdateStatus -> previousState.copy(appUpdateStatus = mutation.status)
     }
 }
