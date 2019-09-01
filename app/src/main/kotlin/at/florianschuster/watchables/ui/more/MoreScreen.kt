@@ -31,8 +31,8 @@ import at.florianschuster.watchables.BuildConfig
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.Option
 import at.florianschuster.watchables.all.OptionsAdapter
-import at.florianschuster.watchables.all.util.extensions.openChromeTab
 import at.florianschuster.watchables.all.util.extensions.openAppInPlayStore
+import at.florianschuster.watchables.all.util.extensions.openChromeTab
 import at.florianschuster.watchables.all.util.extensions.showLibraries
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
