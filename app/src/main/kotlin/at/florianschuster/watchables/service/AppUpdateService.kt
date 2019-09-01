@@ -26,7 +26,6 @@ import com.tailoredapps.androidutil.ui.extensions.toast
 import io.reactivex.Flowable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
-import timber.log.Timber
 
 interface AppUpdateService {
     enum class Status {
