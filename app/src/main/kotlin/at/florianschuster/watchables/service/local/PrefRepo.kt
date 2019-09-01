@@ -16,7 +16,6 @@
 
 package at.florianschuster.watchables.service.local
 
-import at.florianschuster.watchables.all.PersistenceProvider
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
 import org.threeten.bp.LocalDate
@@ -75,5 +74,11 @@ class PrefRepo(
         get() = persistenceProvider.retrieve(PersistenceProvider.KEY.WatchableRatingsEnabled, true)
         set(value) {
             persistenceProvider.store(PersistenceProvider.KEY.WatchableRatingsEnabled, value)
+        }
+
+    var lastNewUpdateDialogVersionCode: Int
+        get() = persistenceProvider.retrieve(PersistenceProvider.KEY.LastNewUpdateDialogVersionCode, 0)
+        set(value) {
+            persistenceProvider.store(PersistenceProvider.KEY.LastNewUpdateDialogVersionCode, value)
         }
 }

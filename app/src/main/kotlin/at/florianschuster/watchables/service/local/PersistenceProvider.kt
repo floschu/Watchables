@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package at.florianschuster.watchables.all
+package at.florianschuster.watchables.service.local
 
 import android.content.Context
 import com.orhanobut.hawk.Hawk
@@ -27,7 +27,8 @@ interface PersistenceProvider {
         RatedInPlayStore,
         PreferredWatchablesContainerSortingType,
         PreferredWatchablesContainerFilterType,
-        WatchableRatingsEnabled
+        WatchableRatingsEnabled,
+        LastNewUpdateDialogVersionCode
     }
 
     fun <T> store(key: KEY, value: T): Boolean

@@ -102,6 +102,11 @@
     <string name="login_email_btn_send"><![CDATA[Senden]]></string>
     <string name="login_email_hint_email"><![CDATA[Email]]></string>
     <string name="login_email_hint_name"><![CDATA[Name]]></string>
+    <string name="login_email_btn_cancel"><![CDATA[Abbrechen]]></string>
+    <string name="dialog_new_version_title"><![CDATA[Neue Version]]></string>
+    <string name="dialog_new_version_message"><![CDATA[Es ist eine neue Version der App zum Download verfügbar! Wenn du am neusten Stand bleiben willst, dann klicke "Jetzt updaten"!]]></string>
+    <string name="dialog_new_version_update"><![CDATA[Jetzt updaten]]></string>
+    <string name="dialog_new_version_cancel"><![CDATA[Abbrechen]]></string>
     <string name="notification_add_channel_name"><![CDATA[Watchable Hinzufügen Notifikation]]></string>
     <string name="notification_add_channel_description"><![CDATA[Diese Notifikation wird angezeigt, wenn ein Watchable zu deiner Liste hnizugefügt wird!]]></string>
     <string name="notification_add_error_notification_title"><![CDATA[Entschuldigung!]]></string>

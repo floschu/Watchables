@@ -20,7 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import androidx.core.os.bundleOf
 import at.florianschuster.watchables.R
-import at.florianschuster.watchables.all.PersistenceProvider
+import at.florianschuster.watchables.service.local.PersistenceProvider
 import at.florianschuster.watchables.model.Watchable
 import com.google.firebase.analytics.FirebaseAnalytics
 

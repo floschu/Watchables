@@ -22,18 +22,23 @@ import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
-import com.tailoredapps.androidutil.ui.extensions.toast
 import io.reactivex.Flowable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 
 interface AppUpdateService {
-    enum class Status {
-        AppUpToDate, ShouldUpdate, MustUpdate
+    sealed class Status {
+        abstract val availableVersionCode: Int
+
+        data class UpToDate(override val availableVersionCode: Int) : Status()
+        data class ShouldUpdate(override val availableVersionCode: Int) : Status()
+        data class MustUpdate(override val availableVersionCode: Int) : Status()
+
+        val updateAvailable: Boolean get() = this is ShouldUpdate || this is MustUpdate
     }
 
-    val currentStatus: Single<Status>
-    val status: Flowable<Status>
+    val status: Single<Status>
+    val liveStatus: Flowable<Status>
 }
 
 class PlayAppUpdateService(
@@ -41,25 +46,23 @@ class PlayAppUpdateService(
 ) : AppUpdateService {
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(context) }
 
-    override val currentStatus: Single<AppUpdateService.Status>
+    override val status: Single<AppUpdateService.Status>
         get() = appUpdateManager.appUpdateInfoSingle.map { info ->
-            context.toast("Info: (availability: ${info.updateAvailability()}, code: ${info.availableVersionCode()})")
+            val availableVersionCode = info.availableVersionCode()
             when {
                 info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && info.availableVersionCode() > BuildConfig.VERSION_CODE + 2 -> {
-                    AppUpdateService.Status.MustUpdate
+                    && availableVersionCode > BuildConfig.VERSION_CODE + 2 -> {
+                    AppUpdateService.Status.MustUpdate(availableVersionCode)
                 }
                 info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE -> {
-                    AppUpdateService.Status.ShouldUpdate
+                    AppUpdateService.Status.ShouldUpdate(availableVersionCode)
                 }
-                else -> AppUpdateService.Status.AppUpToDate
+                else -> AppUpdateService.Status.UpToDate(availableVersionCode)
             }
         }
 
-    override val status: Flowable<AppUpdateService.Status>
-        get() = Flowable.interval(5, 10, TimeUnit.SECONDS)
-            // Flowable.interval(5, 600, TimeUnit.SECONDS)
-            .flatMapSingle { currentStatus }
+    override val liveStatus: Flowable<AppUpdateService.Status>
+        get() = Flowable.interval(10, 600, TimeUnit.SECONDS).flatMapSingle { status }
 
     private val AppUpdateManager.appUpdateInfoSingle: Single<AppUpdateInfo>
         get() = Single.create { emitter ->

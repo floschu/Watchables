@@ -20,9 +20,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import at.florianschuster.watchables.all.AndroidAppLocaleProvider
 import at.florianschuster.watchables.all.AppLocaleProvider
-import at.florianschuster.watchables.all.HawkPersistenceProvider
+import at.florianschuster.watchables.service.local.HawkPersistenceProvider
 import at.florianschuster.watchables.all.OptionsAdapter
-import at.florianschuster.watchables.all.PersistenceProvider
+import at.florianschuster.watchables.service.local.PersistenceProvider
 import at.florianschuster.watchables.all.util.QrCodeService
 import at.florianschuster.watchables.all.util.ZXingQrCodeService
 import at.florianschuster.watchables.service.ActivityShareService

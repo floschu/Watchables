@@ -32,7 +32,7 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.Option
 import at.florianschuster.watchables.all.OptionsAdapter
 import at.florianschuster.watchables.all.util.extensions.openChromeTab
-import at.florianschuster.watchables.all.util.extensions.openPlayStoreToRateApp
+import at.florianschuster.watchables.all.util.extensions.openAppInPlayStore
 import at.florianschuster.watchables.all.util.extensions.showLibraries
 import at.florianschuster.watchables.all.worker.DeleteWatchablesWorker
 import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
@@ -136,7 +136,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
 
     private val rateOption: Option
         get() = Option.SquareAction(R.string.settings_rate_app, R.drawable.ic_rate_review) {
-            openPlayStoreToRateApp()
+            openAppInPlayStore()
         }
 
     private val shareOption: Option

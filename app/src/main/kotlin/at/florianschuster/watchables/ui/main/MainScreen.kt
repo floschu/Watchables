@@ -32,7 +32,7 @@ import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.MainDirections
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.extensions.main
-import at.florianschuster.watchables.all.util.extensions.openPlayStoreToRateApp
+import at.florianschuster.watchables.all.util.extensions.openAppInPlayStore
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.AppUpdateService
 import at.florianschuster.watchables.service.DeepLinkService
@@ -118,15 +118,30 @@ class MainActivity : BaseActivity(R.layout.activity_main), ReactorView<MainReact
                     negativeButtonResource = R.string.enjoying_dialog_negative
                 }
             }
-            .bind {
-                when (it) {
-                    is RxDialogAction.Positive -> {
-                        reactor.action.accept(MainReactor.Action.UpdateDialogShownDate(true))
-                        openPlayStoreToRateApp()
-                    }
-                    else -> {
-                        reactor.action.accept(MainReactor.Action.UpdateDialogShownDate(false))
-                    }
+            .map { it is RxDialogAction.Positive }
+            .bind { accepted ->
+                reactor.action.accept(MainReactor.Action.UpdateRateDialogShownDate(accepted))
+                if (accepted) {
+                    openAppInPlayStore()
+                }
+            }
+            .addTo(disposables)
+
+        reactor.state.changesFrom { it.shouldShowNewUpdateDialog }
+            .filter { it && reactor.currentState.loggedIn }
+            .flatMapSingle {
+                rxDialog(R.style.DialogTheme) {
+                    titleResource = R.string.dialog_new_version_title
+                    messageResource = R.string.dialog_new_version_message
+                    positiveButtonResource = R.string.dialog_new_version_update
+                    negativeButtonResource = R.string.dialog_new_version_cancel
+                }
+            }
+            .map { it is RxDialogAction.Positive }
+            .bind { accepted ->
+                reactor.action.accept(MainReactor.Action.UpdateVersionDialogShownDate(accepted))
+                if (accepted) {
+                    openAppInPlayStore()
                 }
             }
             .addTo(disposables)
@@ -151,20 +166,21 @@ class MainReactor(
 ) {
     sealed class Action {
         object LoadDialogShownDate : Action()
-        data class UpdateDialogShownDate(val rated: Boolean) : Action()
+        data class UpdateRateDialogShownDate(val rated: Boolean) : Action()
         data class ParseIntentForDeepLinks(val intent: Intent) : Action()
+        data class UpdateVersionDialogShownDate(val updated: Boolean) : Action()
     }
 
     sealed class Mutation {
         data class SetLoggedIn(val loggedIn: Boolean) : Mutation()
         data class SetShouldShowRateDialog(val shouldShow: Boolean) : Mutation()
-        data class SetAppUpdateStatus(val status: AppUpdateService.Status) : Mutation()
+        data class SetShouldShowNewVersionDialog(val shouldShow: Boolean) : Mutation()
     }
 
     data class State(
         val loggedIn: Boolean = true,
         val shouldShowRateDialog: Boolean = false,
-        val appUpdateStatus: AppUpdateService.Status = AppUpdateService.Status.AppUpToDate
+        val shouldShowNewUpdateDialog: Boolean = false
     )
 
     override fun transformMutation(mutation: Observable<Mutation>): Observable<out Mutation> {
@@ -172,9 +188,12 @@ class MainReactor(
             .map { Mutation.SetLoggedIn(it.loggedIn) }
             .toObservable()
 
-        val appUpdateMutation = appUpdateService.status
-            .map { Mutation.SetAppUpdateStatus(it) }
+        val appUpdateMutation = appUpdateService.liveStatus
+            .filter { it.updateAvailable }
+            .map { it.availableVersionCode > prefRepo.lastNewUpdateDialogVersionCode }
+            .map { Mutation.SetShouldShowNewVersionDialog(it) }
             .toObservable()
+
         return Observable.merge(mutation, sessionMutation, appUpdateMutation)
     }
 
@@ -184,7 +203,7 @@ class MainReactor(
                 prefRepo.enjoyingAppDialogShownDate.isBefore(LocalDate.now().minusMonths(1))
             Observable.just(Mutation.SetShouldShowRateDialog(shouldShowRate))
         }
-        is Action.UpdateDialogShownDate -> {
+        is Action.UpdateRateDialogShownDate -> {
             Completable
                 .fromAction {
                     prefRepo.rated = action.rated
@@ -203,11 +222,17 @@ class MainReactor(
                 .ignoreElements()
                 .toObservable()
         }
+        is Action.UpdateVersionDialogShownDate -> {
+            appUpdateService.status
+                .doOnSuccess { prefRepo.lastNewUpdateDialogVersionCode = it.availableVersionCode }
+                .map { Mutation.SetShouldShowNewVersionDialog(false) }
+                .toObservable()
+        }
     }
 
     override fun reduce(previousState: State, mutation: Mutation): State = when (mutation) {
         is Mutation.SetLoggedIn -> previousState.copy(loggedIn = mutation.loggedIn)
         is Mutation.SetShouldShowRateDialog -> previousState.copy(shouldShowRateDialog = mutation.shouldShow)
-        is Mutation.SetAppUpdateStatus -> previousState.copy(appUpdateStatus = mutation.status)
+        is Mutation.SetShouldShowNewVersionDialog -> previousState.copy(shouldShowNewUpdateDialog = mutation.shouldShow)
     }
 }

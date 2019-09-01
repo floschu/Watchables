@@ -82,7 +82,7 @@ fun Fragment.showLibraries() {
     }.start(requireContext())
 }
 
-fun FragmentActivity.openPlayStoreToRateApp() {
+fun FragmentActivity.openAppInPlayStore() {
     try {
         Intent(
             Intent.ACTION_VIEW,
@@ -99,8 +99,8 @@ fun FragmentActivity.openPlayStoreToRateApp() {
     }.let(::startActivity)
 }
 
-fun Fragment.openPlayStoreToRateApp() {
-    requireActivity().openPlayStoreToRateApp()
+fun Fragment.openAppInPlayStore() {
+    requireActivity().openAppInPlayStore()
 }
 
 fun Fragment.openCalendarWithEvent(title: String, description: String, date: LocalDate) {
