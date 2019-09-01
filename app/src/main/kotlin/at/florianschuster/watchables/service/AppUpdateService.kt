@@ -22,6 +22,7 @@ import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.UpdateAvailability
+import com.tailoredapps.androidutil.ui.extensions.toast
 import io.reactivex.Flowable
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
@@ -37,13 +38,13 @@ interface AppUpdateService {
 }
 
 class PlayAppUpdateService(
-    context: Context
+    private val context: Context
 ) : AppUpdateService {
     private val appUpdateManager: AppUpdateManager by lazy { AppUpdateManagerFactory.create(context) }
 
     override val currentStatus: Single<AppUpdateService.Status>
         get() = appUpdateManager.appUpdateInfoSingle.map { info ->
-            Timber.d("Info: (availability: ${info.updateAvailability()}, code: ${info.availableVersionCode()})")
+            context.toast("Info: (availability: ${info.updateAvailability()}, code: ${info.availableVersionCode()})")
             when {
                 info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
                     && info.availableVersionCode() > BuildConfig.VERSION_CODE + 2 -> {
@@ -57,7 +58,7 @@ class PlayAppUpdateService(
         }
 
     override val status: Flowable<AppUpdateService.Status>
-        get() = Flowable.interval(5, 5, TimeUnit.SECONDS)
+        get() = Flowable.interval(5, 10, TimeUnit.SECONDS)
             // Flowable.interval(5, 600, TimeUnit.SECONDS)
             .flatMapSingle { currentStatus }
 
