@@ -10,17 +10,17 @@ import kotlin.String
  * YOU are responsible for updating manually the dependency version.
  */
 object Versions {
-    const val appcompat: String = "1.1.0-rc01"
+    const val appcompat: String = "1.1.0"
 
     const val constraintlayout: String = "1.1.3"
 
-    const val core_ktx: String = "1.0.2"
+    const val core_ktx: String = "1.1.0"
 
-    const val fragment: String = "1.0.0"
+    const val fragment: String = "1.1.0"
 
-    const val androidx_lifecycle: String = "2.0.0"
+    const val androidx_lifecycle: String = "2.1.0"
 
-    const val androidx_navigation: String = "2.0.0"
+    const val androidx_navigation: String = "2.1.0"
 
     const val androidx_test_espresso: String = "3.2.0"
 
@@ -34,7 +34,7 @@ object Versions {
 
     const val koordinator_android_koin: String = "0.0.15"
 
-    const val reaktor_android_koin: String = "1.0.18"
+    const val reaktor_android_koin: String = "1.1.0"
 
     const val easylauncher: String = "1.3.1"
 
@@ -44,7 +44,7 @@ object Versions {
 
     const val aapt2: String = "3.5.0-5435860"
 
-    const val bundletool: String = "0.10.2"
+    const val bundletool: String = "0.10.2" // available: "0.10.3"
 
     const val com_android_tools_build_gradle: String = "3.5.0"
 
@@ -54,15 +54,15 @@ object Versions {
 
     const val shimmer: String = "0.5.0"
 
-    const val com_github_bumptech_glide: String = "4.9.0"
+    const val com_github_bumptech_glide: String = "4.9.0" // available: "4.10.0"
 
-    const val rxpermissions: String = "0.10.2" // available: "2.x.v0.9.3"
+    const val rxpermissions: String = "0.10.2"
 
     const val play_services_auth: String = "17.0.0"
 
     const val material: String = "1.0.0"
 
-    const val com_google_android_play_core: String = "1.6.1"
+    const val com_google_android_play_core: String = "1.6.1" // available: "1.6.3"
 
     const val jsr305: String = "3.0.2"
 
@@ -72,7 +72,7 @@ object Versions {
 
     const val firebase_core: String = "17.2.0"
 
-    const val firebase_firestore: String = "21.0.0"
+    const val firebase_firestore: String = "21.0.0" // available: "21.1.1"
 
     const val firebase_invites: String = "17.0.0"
 
@@ -80,7 +80,7 @@ object Versions {
 
     const val firebase_perf: String = "19.0.0"
 
-    const val google_services: String = "4.3.1"
+    const val google_services: String = "4.3.1" // available: "4.3.2"
 
     const val com_google_truth_truth: String = "1.0"
 
@@ -94,9 +94,9 @@ object Versions {
 
     const val timber: String = "4.7.1"
 
-    const val zxing_android_embedded: String = "3.6.0"
+    const val zxing_android_embedded: String = "3.6.0" // available: "4.0.2"
 
-    const val aboutlibraries: String = "6.2.1" // available: "7.0.2"
+    const val aboutlibraries: String = "6.2.1" // available: "7.0.3"
 
     const val mockito_kotlin_kt1_1: String = "1.5.0"
 
@@ -106,7 +106,7 @@ object Versions {
 
     const val com_squareup_leakcanary: String = "1.6.3"
 
-    const val com_squareup_okhttp3: String = "4.1.0"
+    const val com_squareup_okhttp3: String = "4.2.0"
 
     const val com_squareup_retrofit2: String = "2.6.1"
 
@@ -114,7 +114,7 @@ object Versions {
 
     const val buildsrcversions: String = "0.4.2"
 
-    const val io_fabric_tools_gradle: String = "1.31.0"
+    const val io_fabric_tools_gradle: String = "1.31.0" // available: "1.31.1"
 
     const val mockk: String = "1.9.3"
 
@@ -130,7 +130,7 @@ object Versions {
 
     const val flick: String = "1.4.0"
 
-    const val kluent: String = "1.51" // available: "1.53"
+    const val kluent: String = "1.51" // available: "1.55"
 
     const val org_jetbrains_kotlin: String = "1.3.50"
 
@@ -145,7 +145,7 @@ object Versions {
      * See issue 19: How to update Gradle itself?
      * https://github.com/jmfayard/buildSrcVersions/issues/19
      */
-    const val gradleLatestVersion: String = "5.6.1"
+    const val gradleLatestVersion: String = "5.6.2"
 
-    const val gradleCurrentVersion: String = "5.6.1"
+    const val gradleCurrentVersion: String = "5.6.2"
 }

@@ -8,7 +8,7 @@ import kotlin.String
  */
 object Libs {
     /**
-     * http://developer.android.com/tools/extras/support-library.html
+     * https://developer.android.com/jetpack/androidx
      */
     const val appcompat: String = "androidx.appcompat:appcompat:" + Versions.appcompat
 
@@ -24,7 +24,7 @@ object Libs {
     const val core_ktx: String = "androidx.core:core-ktx:" + Versions.core_ktx
 
     /**
-     * http://developer.android.com/tools/extras/support-library.html
+     * https://developer.android.com/jetpack/androidx
      */
     const val fragment: String = "androidx.fragment:fragment:" + Versions.fragment
 
@@ -185,9 +185,6 @@ object Libs {
     const val glide: String = "com.github.bumptech.glide:glide:" +
             Versions.com_github_bumptech_glide
 
-    /**
-     * https://github.com/tbruyelle/RxPermissions
-     */
     const val rxpermissions: String = "com.github.tbruyelle:rxpermissions:" + Versions.rxpermissions
 
     const val play_services_auth: String = "com.google.android.gms:play-services-auth:" +
@@ -459,12 +456,6 @@ object Libs {
     const val kotlin_annotation_processing_gradle: String =
             "org.jetbrains.kotlin:kotlin-annotation-processing-gradle:" +
             Versions.org_jetbrains_kotlin
-
-    /**
-     * https://kotlinlang.org/
-     */
-    const val kotlin_compiler_embeddable: String =
-            "org.jetbrains.kotlin:kotlin-compiler-embeddable:" + Versions.org_jetbrains_kotlin
 
     /**
      * https://kotlinlang.org/
