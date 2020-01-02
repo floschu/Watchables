@@ -23,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
@@ -39,9 +40,8 @@ import at.florianschuster.watchables.service.AnalyticsService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.service.local.PrefRepo
-import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerFilterType
 import at.florianschuster.watchables.ui.watchables.filter.WatchableContainerSortingType
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterBottomSheetDialogFragment
@@ -79,7 +79,7 @@ sealed class WatchablesRoute : CoordinatorRoute {
     data class OnWatchableSelected(val id: String, val type: Watchable.Type) : WatchablesRoute()
 }
 
-class WatchablesCoordinator : BaseCoordinator<WatchablesRoute, NavController>() {
+class WatchablesCoordinator : LifecycleCoordinator<WatchablesRoute, NavController>() {
     override fun navigate(route: WatchablesRoute, handler: NavController) {
         when (route) {
             is WatchablesRoute.OnWatchableSelected -> {
@@ -221,7 +221,7 @@ class WatchablesReactor(
     private val analyticsService: AnalyticsService,
     private val prefRepo: PrefRepo,
     private val watchablesFilterService: WatchablesFilterService
-) : BaseReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
+) : ViewModelReactor<WatchablesReactor.Action, WatchablesReactor.Mutation, WatchablesReactor.State>(
     State(
         sorting = watchablesFilterService.currentSorting,
         filtering = watchablesFilterService.currentFilter,

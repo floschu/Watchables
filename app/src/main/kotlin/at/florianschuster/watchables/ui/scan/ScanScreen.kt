@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
@@ -33,9 +34,8 @@ import at.florianschuster.watchables.R
 import at.florianschuster.watchables.all.util.extensions.request
 import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.service.DeepLinkService
-import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.watchables.ui.scan.qr.decode
 import com.jakewharton.rxbinding3.view.clicks
 import com.tailoredapps.androidutil.async.Async
@@ -59,7 +59,7 @@ sealed class ScanRoute : CoordinatorRoute {
     data class OnItemScanned(val id: String, val type: Watchable.Type) : ScanRoute()
 }
 
-class ScanCoordinator : BaseCoordinator<ScanRoute, NavController>() {
+class ScanCoordinator : LifecycleCoordinator<ScanRoute, NavController>() {
     override fun navigate(route: ScanRoute, handler: NavController) {
         when (route) {
             is ScanRoute.Pop -> {
@@ -149,7 +149,7 @@ class ScanScreen : BaseFragment(R.layout.fragment_scan), ReactorView<ScanReactor
 
 class ScanReactor(
     private val deepLinkService: DeepLinkService
-) : BaseReactor<ScanReactor.Action, ScanReactor.Mutation, ScanReactor.State>(
+) : ViewModelReactor<ScanReactor.Action, ScanReactor.Mutation, ScanReactor.State>(
     initialState = State()
 ) {
     sealed class Action {

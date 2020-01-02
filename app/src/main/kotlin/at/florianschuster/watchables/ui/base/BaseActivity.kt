@@ -21,7 +21,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
 import io.reactivex.disposables.CompositeDisposable
-import leakcanary.AppWatcher
 
 abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatActivity() {
 
@@ -37,6 +36,5 @@ abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatAct
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
-        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

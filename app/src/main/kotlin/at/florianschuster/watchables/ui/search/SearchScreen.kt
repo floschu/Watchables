@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
@@ -39,9 +40,8 @@ import at.florianschuster.watchables.model.Watchable
 import at.florianschuster.watchables.model.convertToWatchableType
 import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.reaktor.android.ViewModelReactor
 import com.jakewharton.rxbinding3.recyclerview.scrollEvents
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.visibility
@@ -72,7 +72,7 @@ sealed class SearchRoute : CoordinatorRoute {
     object OnScan : SearchRoute()
 }
 
-class SearchCoordinator : BaseCoordinator<SearchRoute, NavController>() {
+class SearchCoordinator : LifecycleCoordinator<SearchRoute, NavController>() {
     override fun navigate(route: SearchRoute, handler: NavController) {
         when (route) {
             is SearchRoute.OnAddedItemSelected -> {
@@ -195,7 +195,7 @@ class SearchFragment : BaseFragment(R.layout.fragment_search), ReactorView<Searc
 class SearchReactor(
     private val movieDatabaseApi: MovieDatabaseApi,
     private val watchablesDataSource: WatchablesDataSource
-) : BaseReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
+) : ViewModelReactor<SearchReactor.Action, SearchReactor.Mutation, SearchReactor.State>(State()) {
 
     sealed class Action {
         data class UpdateQuery(val query: String) : Action()

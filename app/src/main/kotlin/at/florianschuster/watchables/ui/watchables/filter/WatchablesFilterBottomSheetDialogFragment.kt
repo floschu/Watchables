@@ -24,7 +24,7 @@ import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.ui.base.BaseBottomSheetDialogFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.reaktor.android.ViewModelReactor
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.ui.rxviews.checked
@@ -94,7 +94,7 @@ class WatchablesFilterBottomSheetDialogFragment : BaseBottomSheetDialogFragment(
 
 class WatchablesFilterReactor(
     private val watchablesFilterService: WatchablesFilterService
-) : BaseReactor<WatchablesFilterReactor.Action, WatchablesFilterReactor.Mutation, WatchablesFilterReactor.State>(
+) : ViewModelReactor<WatchablesFilterReactor.Action, WatchablesFilterReactor.Mutation, WatchablesFilterReactor.State>(
     initialState = State(watchablesFilterService.currentFilter, watchablesFilterService.currentSorting)
 ) {
     sealed class Action {

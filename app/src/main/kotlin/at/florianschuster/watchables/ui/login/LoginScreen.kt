@@ -23,8 +23,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
@@ -36,9 +38,7 @@ import at.florianschuster.watchables.all.worker.UpdateWatchablesWorker
 import at.florianschuster.watchables.model.WatchableUser
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.WatchablesDataSource
-import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.AuthCredential
@@ -58,7 +58,7 @@ enum class LoginRoute : CoordinatorRoute {
     OnLoggedIn
 }
 
-class LoginCoordinator : BaseCoordinator<LoginRoute, NavController>() {
+class LoginCoordinator : LifecycleCoordinator<LoginRoute, NavController>() {
     override fun navigate(route: LoginRoute, handler: NavController) {
         when (route) {
             LoginRoute.OnLoggedIn -> {
@@ -127,7 +127,7 @@ class LoginFragment : BaseFragment(R.layout.fragment_login), ReactorView<LoginRe
 class LoginReactor(
     private val watchablesDataSource: WatchablesDataSource,
     private val sessionService: SessionService<FirebaseUser, AuthCredential>
-) : BaseReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
+) : ViewModelReactor<LoginReactor.Action, LoginReactor.Mutation, LoginReactor.State>(State()) {
 
     sealed class Action {
         data class Login(val credential: AuthCredential) : Action()

@@ -33,8 +33,10 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
@@ -65,9 +67,7 @@ import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.WatchablesDataSource
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.service.remote.MovieDatabaseApi
-import at.florianschuster.watchables.ui.base.BaseCoordinator
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
 import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.view.globalLayouts
 import com.jakewharton.rxrelay2.BehaviorRelay
@@ -106,7 +106,7 @@ sealed class DetailRoute : CoordinatorRoute {
     data class OnReleaseDateSelected(val title: String, val description: String, val date: LocalDate) : DetailRoute()
 }
 
-class DetailCoordinator : BaseCoordinator<DetailRoute, Fragment>() {
+class DetailCoordinator : LifecycleCoordinator<DetailRoute, Fragment>() {
     override fun navigate(route: DetailRoute, handler: Fragment) {
         when (route) {
             is DetailRoute.Pop -> handler.findNavController().navigateUp()
@@ -438,7 +438,7 @@ class DetailReactor(
     private val deepLinkService: DeepLinkService,
     private val qrCodeService: QrCodeService,
     prefRepo: PrefRepo
-) : BaseReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
+) : ViewModelReactor<DetailReactor.Action, DetailReactor.Mutation, DetailReactor.State>(
     initialState = State(prefRepo.watchableRatingsEnabled),
     initialAction = Action.InitialLoad
 ) {

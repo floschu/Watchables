@@ -26,7 +26,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.reactivex.disposables.CompositeDisposable
-import leakcanary.AppWatcher
 
 abstract class BaseBottomSheetDialogFragment(
     @LayoutRes protected val layout: Int? = null,
@@ -60,11 +59,5 @@ abstract class BaseBottomSheetDialogFragment(
     override fun onDestroyView() {
         super.onDestroyView()
         disposables.clear()
-    }
-
-    @CallSuper
-    override fun onDestroy() {
-        super.onDestroy()
-        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

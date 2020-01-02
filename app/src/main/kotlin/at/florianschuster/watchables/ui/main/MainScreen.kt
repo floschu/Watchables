@@ -24,6 +24,7 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.setupWithNavController
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.Router
+import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
 import at.florianschuster.reaktor.android.bind
@@ -39,8 +40,7 @@ import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseActivity
-import at.florianschuster.watchables.ui.base.BaseCoordinator
-import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.reaktor.android.ViewModelReactor
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction
@@ -58,7 +58,7 @@ sealed class MainRoute : CoordinatorRoute {
     object ToLogin : MainRoute()
 }
 
-class MainCoordinator : BaseCoordinator<MainRoute, NavController>() {
+class MainCoordinator : LifecycleCoordinator<MainRoute, NavController>() {
     override fun navigate(route: MainRoute, handler: NavController) {
         when (route) {
             is MainRoute.ShowWatchableDetail -> {
@@ -160,7 +160,7 @@ class MainReactor(
     private val sessionService: SessionService<FirebaseUser, AuthCredential>,
     private val deepLinkService: DeepLinkService,
     private val appUpdateService: AppUpdateService
-) : BaseReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
+) : ViewModelReactor<MainReactor.Action, MainReactor.Mutation, MainReactor.State>(
     initialState = State(),
     initialAction = Action.LoadDialogShownDate
 ) {

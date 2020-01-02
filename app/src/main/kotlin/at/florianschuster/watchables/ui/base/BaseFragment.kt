@@ -24,7 +24,6 @@ import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
-import leakcanary.AppWatcher
 
 abstract class BaseFragment(
     @LayoutRes protected val layoutResource: Int? = null
@@ -40,11 +39,5 @@ abstract class BaseFragment(
     override fun onDestroyView() {
         super.onDestroyView()
         disposables.clear()
-    }
-
-    @CallSuper
-    override fun onDestroy() {
-        super.onDestroy()
-        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

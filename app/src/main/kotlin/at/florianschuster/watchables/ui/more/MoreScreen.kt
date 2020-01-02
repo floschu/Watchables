@@ -42,7 +42,7 @@ import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.watchables.ui.base.BaseReactor
+import at.florianschuster.reaktor.android.ViewModelReactor
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.jakewharton.rxbinding3.view.clicks
@@ -197,7 +197,7 @@ class MoreReactor(
     private val sessionService: SessionService<FirebaseUser, AuthCredential>,
     private val analyticsService: AnalyticsService,
     private val prefRepo: PrefRepo
-) : BaseReactor<MoreReactor.Action, MoreReactor.Mutation, MoreReactor.State>(
+) : ViewModelReactor<MoreReactor.Action, MoreReactor.Mutation, MoreReactor.State>(
     initialState = State(
         analyticsEnabled = analyticsService.analyticsEnabled,
         watchableRatingsEnabled = prefRepo.watchableRatingsEnabled
