@@ -25,15 +25,14 @@ import androidx.annotation.LayoutRes
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.squareup.leakcanary.RefWatcher
 import io.reactivex.disposables.CompositeDisposable
-import org.koin.android.ext.android.inject
+import leakcanary.AppWatcher
 
 abstract class BaseBottomSheetDialogFragment(
     @LayoutRes protected val layout: Int? = null,
     private val fragmentTag: String
 ) : BottomSheetDialogFragment() {
-    private val refWatcher: RefWatcher by inject()
+
     open val disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -66,6 +65,6 @@ abstract class BaseBottomSheetDialogFragment(
     @CallSuper
     override fun onDestroy() {
         super.onDestroy()
-        refWatcher.watch(this)
+        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

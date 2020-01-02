@@ -31,7 +31,6 @@ import at.florianschuster.watchables.ui.watchables.watchablesModule
 import com.google.android.play.core.missingsplits.MissingSplitsManagerFactory
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.jakewharton.threetenabp.AndroidThreeTen
-import com.squareup.leakcanary.LeakCanary
 import io.reactivex.plugins.RxJavaPlugins
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -44,7 +43,6 @@ class WatchablesApp : Application() {
     override fun onCreate() {
         super.onCreate()
         if (MissingSplitsManagerFactory.create(this).disableAppIfMissingRequiredSplits()) return
-        if (LeakCanary.isInAnalyzerProcess(this)) return
 
         instance = this
 

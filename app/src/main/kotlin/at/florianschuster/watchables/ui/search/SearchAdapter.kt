@@ -47,8 +47,7 @@ sealed class SearchAdapterInteraction {
 
 class SearchAdapter : ListAdapter<Search.SearchItem, SearchViewHolder>(searchDiff) {
     private val interactionRelay: PublishRelay<SearchAdapterInteraction> = PublishRelay.create()
-    val interaction: Observable<SearchAdapterInteraction>
-        get() = interactionRelay.hide().share()
+    val interaction: Observable<SearchAdapterInteraction> = interactionRelay.hide().share()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchViewHolder = SearchViewHolder(parent.inflate(R.layout.item_search))
     override fun onBindViewHolder(holder: SearchViewHolder, position: Int) = holder.bind(getItem(position), interactionRelay::accept)

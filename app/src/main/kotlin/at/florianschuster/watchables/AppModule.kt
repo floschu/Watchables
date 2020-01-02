@@ -45,15 +45,11 @@ import at.florianschuster.watchables.ui.watchables.filter.RxWatchablesFilterServ
 import at.florianschuster.watchables.ui.watchables.filter.WatchablesFilterService
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
-import com.squareup.leakcanary.LeakCanary
 import com.tbruyelle.rxpermissions2.RxPermissions
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val appModule = module {
-    single { LeakCanary.install(androidApplication()) }
-
     single<AppLocaleProvider> { AndroidAppLocaleProvider() }
     single<PersistenceProvider> { HawkPersistenceProvider(androidContext()) }
 

@@ -18,19 +18,16 @@ package at.florianschuster.watchables.ui.base
 
 import androidx.annotation.CallSuper
 import at.florianschuster.reaktor.android.ViewModelReactor
-import com.squareup.leakcanary.RefWatcher
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import leakcanary.AppWatcher
 
 abstract class BaseReactor<Action : Any, Mutation : Any, State : Any>(
     initialState: State,
     initialAction: Action? = null
-) : ViewModelReactor<Action, Mutation, State>(initialState, initialAction), KoinComponent {
-    private val refWatcher: RefWatcher by inject()
+) : ViewModelReactor<Action, Mutation, State>(initialState, initialAction) {
 
     @CallSuper
     override fun onCleared() {
         super.onCleared()
-        refWatcher.watch(this)
+        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

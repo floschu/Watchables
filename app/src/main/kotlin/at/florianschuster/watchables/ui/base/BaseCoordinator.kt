@@ -19,19 +19,14 @@ package at.florianschuster.watchables.ui.base
 import androidx.annotation.CallSuper
 import at.florianschuster.koordinator.CoordinatorRoute
 import at.florianschuster.koordinator.android.LifecycleCoordinator
-import com.squareup.leakcanary.RefWatcher
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import leakcanary.AppWatcher
 
 abstract class BaseCoordinator<Route, NavigationHandler> :
-        LifecycleCoordinator<Route, NavigationHandler>(), KoinComponent
-        where Route : CoordinatorRoute, NavigationHandler : Any {
-
-    private val refWatcher: RefWatcher by inject()
+    LifecycleCoordinator<Route, NavigationHandler>() where Route : CoordinatorRoute, NavigationHandler : Any {
 
     @CallSuper
     override fun onCleared() {
         super.onCleared()
-        refWatcher.watch(this)
+        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

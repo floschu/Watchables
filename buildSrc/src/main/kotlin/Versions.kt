@@ -22,14 +22,6 @@ object Versions {
 
     const val androidx_navigation: String = "2.1.0"
 
-    const val androidx_test_espresso: String = "3.2.0"
-
-    const val androidx_test_ext_junit: String = "1.1.1"
-
-    const val androidx_test_ext_truth: String = "1.2.0"
-
-    const val androidx_test: String = "1.2.0"
-
     const val androidx_work: String = "2.2.0"
 
     const val koordinator_android_koin: String = "0.0.15"
@@ -42,51 +34,47 @@ object Versions {
 
     const val customtabs: String = "28.0.0"
 
-    const val aapt2: String = "3.5.0-5435860"
+    const val aapt2: String = "3.5.3-5435860"
 
-    const val bundletool: String = "0.10.2" // available: "0.10.3"
+    const val bundletool: String = "0.10.2" // available: "0.12.0"
 
-    const val com_android_tools_build_gradle: String = "3.5.0"
+    const val com_android_tools_build_gradle: String = "3.5.3"
 
-    const val lint_gradle: String = "26.5.0"
+    const val lint_gradle: String = "26.5.3"
 
     const val crashlytics: String = "2.10.1"
 
     const val shimmer: String = "0.5.0"
 
-    const val com_github_bumptech_glide: String = "4.9.0" // available: "4.10.0"
+    const val com_github_bumptech_glide: String = "4.10.0"
 
-    const val rxpermissions: String = "0.10.2"
+    const val rxpermissions: String = "0.10.2" // available: "2.x.v0.9.3"
 
     const val play_services_auth: String = "17.0.0"
 
     const val material: String = "1.0.0"
 
-    const val com_google_android_play_core: String = "1.6.1" // available: "1.6.3"
+    const val com_google_android_play_core: String = "1.6.1" // available: "1.6.4"
 
-    const val jsr305: String = "3.0.2"
+    const val gson: String = "2.8.6"
 
-    const val gson: String = "2.8.5"
+    const val firebase_auth: String = "19.2.0"
 
-    const val firebase_auth: String = "19.0.0"
+    const val firebase_core: String = "17.2.1"
 
-    const val firebase_core: String = "17.2.0"
+    const val firebase_dynamic_links: String = "19.0.0"
 
-    const val firebase_firestore: String = "21.0.0" // available: "21.1.1"
+    const val firebase_firestore: String = "21.3.1"
 
-    const val firebase_invites: String = "17.0.0"
+    const val firebase_messaging: String = "20.1.0"
 
-    const val firebase_messaging: String = "20.0.0"
+    const val firebase_perf: String = "19.0.4"
 
-    const val firebase_perf: String = "19.0.0"
-
-    const val google_services: String = "4.3.1" // available: "4.3.2"
-
-    const val com_google_truth_truth: String = "1.0"
+    const val google_services: String = "4.3.3"
 
     const val com_google_zxing_core: String = "3.4.0"
 
-    const val com_jakewharton_rxbinding3: String = "3.0.0"
+    const val com_jakewharton_rxbinding3: String = "3.1.0"
 
     const val rxrelay: String = "2.1.1"
 
@@ -96,56 +84,48 @@ object Versions {
 
     const val zxing_android_embedded: String = "3.6.0" // available: "4.0.2"
 
-    const val aboutlibraries: String = "6.2.1" // available: "7.0.3"
-
-    const val mockito_kotlin_kt1_1: String = "1.5.0"
+    const val aboutlibraries: String = "6.2.1" // available: "8.0.0-a03"
 
     const val hawk: String = "2.0.1"
 
-    const val ktlint: String = "0.34.2"
+    const val ktlint: String = "0.36.0"
 
-    const val com_squareup_leakcanary: String = "1.6.3"
+    const val leakcanary_android: String = "2.1"
 
-    const val com_squareup_okhttp3: String = "4.2.0"
+    const val com_squareup_okhttp3: String = "4.3.0"
 
-    const val com_squareup_retrofit2: String = "2.6.1"
+    const val com_squareup_retrofit2: String = "2.7.0"
 
     const val com_tailoredapps_androidutil: String = "16"
 
     const val buildsrcversions: String = "0.4.2"
 
-    const val io_fabric_tools_gradle: String = "1.31.0" // available: "1.31.1"
+    const val io_fabric_tools_gradle: String = "1.31.2"
 
     const val mockk: String = "1.9.3"
 
     const val rxandroid: String = "2.1.1"
 
-    const val rxjava: String = "2.2.12"
+    const val rxjava: String = "2.2.16"
 
     const val rxkotlin: String = "2.4.0"
 
     const val glide_transformations: String = "4.1.0"
 
-    const val junit_junit: String = "4.12"
+    const val junit: String = "4.13"
 
-    const val flick: String = "1.4.0"
+    const val flick: String = "1.7.0"
 
-    const val kluent: String = "1.51" // available: "1.55"
-
-    const val org_jetbrains_kotlin: String = "1.3.50"
+    const val org_jetbrains_kotlin: String = "1.3.61"
 
     const val org_koin: String = "2.0.1"
-
-    const val org_mockito: String = "3.0.0"
-
-    const val org_powermock: String = "2.0.2"
 
     /**
      *
      * See issue 19: How to update Gradle itself?
      * https://github.com/jmfayard/buildSrcVersions/issues/19
      */
-    const val gradleLatestVersion: String = "5.6.2"
+    const val gradleLatestVersion: String = "6.0.1"
 
-    const val gradleCurrentVersion: String = "5.6.2"
+    const val gradleCurrentVersion: String = "6.0.1"
 }

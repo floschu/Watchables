@@ -13,6 +13,7 @@ import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 
 interface DeepLinkService {
+
     sealed class Link(val link: Uri) {
         object App : Link(Uri.parse("$domain/app"))
 
@@ -39,6 +40,7 @@ interface DeepLinkService {
 }
 
 class FirebaseDeepLinkService : DeepLinkService {
+
     override fun handleIntent(intent: Intent): Maybe<DeepLinkService.Link> {
         return RxTasks.maybe { FirebaseDynamicLinks.getInstance().getDynamicLink(intent) }
             .map { it.mapToDeepLink() }

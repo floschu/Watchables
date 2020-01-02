@@ -59,57 +59,6 @@ object Libs {
             Versions.androidx_navigation
 
     /**
-     * https://developer.android.com/testing
-     */
-    const val espresso_contrib: String = "androidx.test.espresso:espresso-contrib:" +
-            Versions.androidx_test_espresso
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val espresso_core: String = "androidx.test.espresso:espresso-core:" +
-            Versions.androidx_test_espresso
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val espresso_intents: String = "androidx.test.espresso:espresso-intents:" +
-            Versions.androidx_test_espresso
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val espresso_web: String = "androidx.test.espresso:espresso-web:" +
-            Versions.androidx_test_espresso
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val androidx_test_ext_junit: String = "androidx.test.ext:junit:" +
-            Versions.androidx_test_ext_junit
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val androidx_test_ext_truth: String = "androidx.test.ext:truth:" +
-            Versions.androidx_test_ext_truth
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val androidx_test_core: String = "androidx.test:core:" + Versions.androidx_test
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val androidx_test_rules: String = "androidx.test:rules:" + Versions.androidx_test
-
-    /**
-     * https://developer.android.com/testing
-     */
-    const val androidx_test_runner: String = "androidx.test:runner:" + Versions.androidx_test
-
-    /**
      * https://developer.android.com/topic/libraries/architecture/index.html
      */
     const val work_runtime: String = "androidx.work:work-runtime:" + Versions.androidx_work
@@ -185,6 +134,9 @@ object Libs {
     const val glide: String = "com.github.bumptech.glide:glide:" +
             Versions.com_github_bumptech_glide
 
+    /**
+     * https://github.com/tbruyelle/RxPermissions
+     */
     const val rxpermissions: String = "com.github.tbruyelle:rxpermissions:" + Versions.rxpermissions
 
     const val play_services_auth: String = "com.google.android.gms:play-services-auth:" +
@@ -199,11 +151,6 @@ object Libs {
             Versions.com_google_android_play_core
 
     /**
-     * http://findbugs.sourceforge.net/
-     */
-    const val jsr305: String = "com.google.code.findbugs:jsr305:" + Versions.jsr305
-
-    /**
      * https://github.com/google/gson
      */
     const val gson: String = "com.google.code.gson:gson:" + Versions.gson
@@ -212,11 +159,11 @@ object Libs {
 
     const val firebase_core: String = "com.google.firebase:firebase-core:" + Versions.firebase_core
 
+    const val firebase_dynamic_links: String = "com.google.firebase:firebase-dynamic-links:" +
+            Versions.firebase_dynamic_links
+
     const val firebase_firestore: String = "com.google.firebase:firebase-firestore:" +
             Versions.firebase_firestore
-
-    const val firebase_invites: String = "com.google.firebase:firebase-invites:" +
-            Versions.firebase_invites
 
     const val firebase_messaging: String = "com.google.firebase:firebase-messaging:" +
             Versions.firebase_messaging
@@ -224,12 +171,6 @@ object Libs {
     const val firebase_perf: String = "com.google.firebase:firebase-perf:" + Versions.firebase_perf
 
     const val google_services: String = "com.google.gms:google-services:" + Versions.google_services
-
-    /**
-     * http://github.com/google/truth
-     */
-    const val com_google_truth_truth: String = "com.google.truth:truth:" +
-            Versions.com_google_truth_truth
 
     /**
      * https://github.com/zxing/zxing
@@ -290,12 +231,6 @@ object Libs {
     const val aboutlibraries: String = "com.mikepenz:aboutlibraries:" + Versions.aboutlibraries
 
     /**
-     * https://github.com/nhaarman/mockito-kotlin
-     */
-    const val mockito_kotlin_kt1_1: String = "com.nhaarman:mockito-kotlin-kt1.1:" +
-            Versions.mockito_kotlin_kt1_1
-
-    /**
      * https://github.com/orhanobut/hawk
      */
     const val hawk: String = "com.orhanobut:hawk:" + Versions.hawk
@@ -308,14 +243,8 @@ object Libs {
     /**
      * http://github.com/square/leakcanary/
      */
-    const val leakcanary_android_no_op: String =
-            "com.squareup.leakcanary:leakcanary-android-no-op:" + Versions.com_squareup_leakcanary
-
-    /**
-     * http://github.com/square/leakcanary/
-     */
     const val leakcanary_android: String = "com.squareup.leakcanary:leakcanary-android:" +
-            Versions.com_squareup_leakcanary
+            Versions.leakcanary_android
 
     /**
      * https://github.com/square/okhttp
@@ -428,14 +357,12 @@ object Libs {
     /**
      * http://junit.org
      */
-    const val junit_junit: String = "junit:junit:" + Versions.junit_junit
+    const val junit: String = "junit:junit:" + Versions.junit
 
     /**
      * https://github.com/saket/flick
      */
     const val flick: String = "me.saket:flick:" + Versions.flick
-
-    const val kluent: String = "org.amshove.kluent:kluent:" + Versions.kluent
 
     /**
      * https://kotlinlang.org/
@@ -466,12 +393,6 @@ object Libs {
     /**
      * https://kotlinlang.org/
      */
-    const val kotlin_reflect: String = "org.jetbrains.kotlin:kotlin-reflect:" +
-            Versions.org_jetbrains_kotlin
-
-    /**
-     * https://kotlinlang.org/
-     */
     const val kotlin_stdlib_jdk7: String = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:" +
             Versions.org_jetbrains_kotlin
 
@@ -485,32 +406,4 @@ object Libs {
     const val koin_core: String = "org.koin:koin-core:" + Versions.org_koin
 
     const val koin_test: String = "org.koin:koin-test:" + Versions.org_koin
-
-    /**
-     * https://github.com/mockito/mockito
-     */
-    const val mockito_android: String = "org.mockito:mockito-android:" + Versions.org_mockito
-
-    /**
-     * https://github.com/mockito/mockito
-     */
-    const val mockito_core: String = "org.mockito:mockito-core:" + Versions.org_mockito
-
-    /**
-     * http://www.powermock.org
-     */
-    const val powermock_api_mockito2: String = "org.powermock:powermock-api-mockito2:" +
-            Versions.org_powermock
-
-    /**
-     * http://www.powermock.org
-     */
-    const val powermock_module_junit4_rule: String = "org.powermock:powermock-module-junit4-rule:" +
-            Versions.org_powermock
-
-    /**
-     * http://www.powermock.org
-     */
-    const val powermock_module_junit4: String = "org.powermock:powermock-module-junit4:" +
-            Versions.org_powermock
 }

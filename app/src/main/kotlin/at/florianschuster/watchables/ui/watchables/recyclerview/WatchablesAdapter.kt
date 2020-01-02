@@ -39,8 +39,7 @@ sealed class WatchablesAdapterInteraction {
 
 class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
     private val interactionRelay: PublishRelay<WatchablesAdapterInteraction> = PublishRelay.create()
-    val interaction: Observable<WatchablesAdapterInteraction>
-        get() = interactionRelay.hide().share()
+    val interaction: Observable<WatchablesAdapterInteraction> = interactionRelay.hide()
 
     private var data: List<WatchableContainer> = emptyList()
     val dataConsumer: Consumer<Pair<List<WatchableContainer>, DiffUtil.DiffResult?>> =

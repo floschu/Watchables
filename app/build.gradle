@@ -142,7 +142,6 @@ dependencies {
     /**
      * Google
      */
-
     implementation Libs.com_google_android_play_core
     implementation Libs.play_services_auth
 
@@ -155,7 +154,7 @@ dependencies {
     implementation Libs.crashlytics
     implementation Libs.firebase_messaging
     implementation Libs.firebase_perf
-    implementation Libs.firebase_invites
+    implementation Libs.firebase_dynamic_links
 
     /**
      * Rx
@@ -174,49 +173,25 @@ dependencies {
     /**
      * Utils
      */
-    implementation Libs.gson
-    implementation Libs.timber
-    implementation Libs.threetenabp
-    implementation Libs.flick
-    implementation Libs.gesture_views
+    debugImplementation Libs.leakcanary_android
     implementation Libs.aboutlibraries
     implementation Libs.customtabs
+    implementation Libs.flick
+    implementation Libs.gesture_views
+    implementation Libs.glide
+    implementation Libs.glide_transformations
+    implementation Libs.gson
     implementation Libs.rxpermissions
     implementation Libs.shimmer
-
-    debugImplementation Libs.leakcanary_android
-    releaseImplementation Libs.leakcanary_android_no_op
-
-    implementation Libs.glide
-    kapt Libs.com_github_bumptech_glide_compiler
-    implementation Libs.glide_transformations
-
+    implementation Libs.threetenabp
+    implementation Libs.timber
     implementation Libs.work_runtime
     implementation Libs.work_rxjava2
+    kapt Libs.com_github_bumptech_glide_compiler
 
-    testImplementation Libs.junit_junit
-    testImplementation Libs.mockito_core
-    testImplementation Libs.mockito_kotlin_kt1_1
-    testImplementation Libs.powermock_module_junit4
-    testImplementation Libs.powermock_module_junit4_rule
-    testImplementation Libs.powermock_api_mockito2
-    testImplementation Libs.kotlin_reflect
-    testImplementation Libs.jsr305
+    testImplementation Libs.junit
     testImplementation Libs.mockk
-    testImplementation Libs.kluent
     testImplementation Libs.koin_test
-
-    androidTestImplementation Libs.androidx_test_core
-    androidTestImplementation Libs.androidx_test_runner
-    androidTestImplementation Libs.androidx_test_rules
-    androidTestImplementation Libs.androidx_test_ext_truth
-    androidTestImplementation Libs.androidx_test_ext_junit
-    androidTestImplementation Libs.com_google_truth_truth
-    androidTestImplementation Libs.espresso_core
-    androidTestImplementation Libs.espresso_contrib
-    androidTestImplementation Libs.espresso_intents
-    androidTestImplementation Libs.espresso_web
-    androidTestImplementation Libs.mockito_android
 }
 
 

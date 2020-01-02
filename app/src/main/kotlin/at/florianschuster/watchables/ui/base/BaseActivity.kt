@@ -20,12 +20,11 @@ import android.os.Bundle
 import androidx.annotation.CallSuper
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AppCompatActivity
-import com.squareup.leakcanary.RefWatcher
 import io.reactivex.disposables.CompositeDisposable
-import org.koin.android.ext.android.inject
+import leakcanary.AppWatcher
 
 abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatActivity() {
-    private val refWatcher: RefWatcher by inject()
+
     open val disposables = CompositeDisposable()
 
     @CallSuper
@@ -38,6 +37,6 @@ abstract class BaseActivity(@LayoutRes protected val layout: Int) : AppCompatAct
     override fun onDestroy() {
         super.onDestroy()
         disposables.clear()
-        refWatcher.watch(this)
+        AppWatcher.objectWatcher.watch(this, this::class.java.simpleName)
     }
 }

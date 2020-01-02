@@ -84,7 +84,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
     }
 
     override fun bind(reactor: MoreReactor) {
-        adapter.update(reactor.currentState)
+        adapter.update()
 
         reactor.state.changesFrom { it.userName.asOptional }
             .filterSome()
@@ -112,7 +112,7 @@ class MoreFragment : BaseFragment(R.layout.fragment_more), ReactorView<MoreReact
             .addTo(disposables)
     }
 
-    private fun OptionsAdapter.update(state: MoreReactor.State) {
+    private fun OptionsAdapter.update() {
         listOfNotNull(
             rateOption,
             shareOption,
