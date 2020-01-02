@@ -26,7 +26,6 @@ import com.jakewharton.rxrelay2.PublishRelay
 import com.tailoredapps.androidutil.ui.extensions.inflate
 import io.reactivex.Observable
 import io.reactivex.functions.Consumer
-import timber.log.Timber
 
 sealed class WatchablesAdapterInteraction {
     data class Options(val watchable: Watchable) : WatchablesAdapterInteraction()
@@ -51,10 +50,6 @@ class WatchablesAdapter : RecyclerView.Adapter<WatchableViewHolder>() {
                 notifyDataSetChanged()
             }
         }
-
-    init {
-        Timber.d("WatchablesAdapter init()")
-    }
 
     private val viewPool = RecyclerView.RecycledViewPool()
 
