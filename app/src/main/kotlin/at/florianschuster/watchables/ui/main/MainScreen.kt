@@ -27,6 +27,7 @@ import at.florianschuster.koordinator.Router
 import at.florianschuster.koordinator.android.LifecycleCoordinator
 import at.florianschuster.koordinator.android.koin.coordinator
 import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
@@ -40,7 +41,6 @@ import at.florianschuster.watchables.service.DeepLinkService
 import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseActivity
-import at.florianschuster.reaktor.android.ViewModelReactor
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.tailoredapps.androidutil.ui.extensions.RxDialogAction

@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
@@ -42,7 +43,6 @@ import at.florianschuster.watchables.service.SessionService
 import at.florianschuster.watchables.service.ShareService
 import at.florianschuster.watchables.service.local.PrefRepo
 import at.florianschuster.watchables.ui.base.BaseFragment
-import at.florianschuster.reaktor.android.ViewModelReactor
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import com.jakewharton.rxbinding3.view.clicks

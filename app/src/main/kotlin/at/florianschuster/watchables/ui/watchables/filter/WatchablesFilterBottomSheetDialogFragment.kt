@@ -19,12 +19,12 @@ package at.florianschuster.watchables.ui.watchables.filter
 import android.os.Bundle
 import android.view.View
 import at.florianschuster.reaktor.ReactorView
+import at.florianschuster.reaktor.android.ViewModelReactor
 import at.florianschuster.reaktor.android.bind
 import at.florianschuster.reaktor.android.koin.reactor
 import at.florianschuster.reaktor.changesFrom
 import at.florianschuster.watchables.R
 import at.florianschuster.watchables.ui.base.BaseBottomSheetDialogFragment
-import at.florianschuster.reaktor.android.ViewModelReactor
 import com.tailoredapps.androidutil.optional.asOptional
 import com.tailoredapps.androidutil.optional.filterSome
 import com.tailoredapps.androidutil.ui.rxviews.checked
