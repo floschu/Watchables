@@ -4,8 +4,6 @@
 
 [Watchables](https://watchables.page.link/app) is an easy-to-use Watchlist Android Application. It uses the [Reaktor](https://github.com/floschu/Reaktor) and [Koordinator](https://github.com/floschu/Koordinator) frameworks.
 
-It is also my personal playground, so no judgement please. 😅
-
 Click [here](https://play.google.com/store/apps/details?id=at.florianschuster.watchables) to download.
 
 ![Watchables App Logo](app/src/main/ic_launcher-web.png)
